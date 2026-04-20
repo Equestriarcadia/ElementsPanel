@@ -50,7 +50,11 @@ onMounted(async () => {
       <main class="main-content" :class="{ 'app-layout-sidebar-only': useSidebarLayout }">
         <AppHeader v-if="!useSidebarLayout" :style="designModeNavStyle" />
         <Breadcrumbs />
-        <RouterView :key="$route.fullPath" />
+        <RouterView v-slot="{ Component, route }">
+          <transition name="page-fade" mode="out-in">
+            <component :is="Component" :key="route.fullPath" />
+          </transition>
+        </RouterView>
       </main>
     </div>
 
@@ -61,3 +65,15 @@ onMounted(async () => {
     <component :is="component" v-for="(component, index) in GLOBAL_COMPONENTS" :key="index" />
   </AppConfigProvider>
 </template>
+
+<style lang="scss">
+.page-fade-enter-active,
+.page-fade-leave-active {
+  transition: opacity 0.3s ease;
+}
+
+.page-fade-enter-from,
+.page-fade-leave-to {
+  opacity: 0;
+}
+</style>
