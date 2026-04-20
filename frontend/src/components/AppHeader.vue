@@ -231,8 +231,6 @@ const openPhoneMenu = (b = false) => {
 }
 
 .app-header-wrapper {
-  box-shadow: 0 2px 4px 0 var(--card-shadow-color);
-  background-image: url("@/assets/side.png");
   width: 100%;
   display: flex;
   justify-content: center;
