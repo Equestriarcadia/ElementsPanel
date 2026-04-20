@@ -407,11 +407,10 @@ const instanceOperations = computed(() =>
 .instance-card {
   cursor: pointer;
   min-height: 170px;
-  transition: border 0.3s ease;
+  transition: all 0.3s ease;
 }
 .instance-card:hover {
-  border: 1px solid var(--color-gray-8);
-  box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.16);
+  background-color: var(--color-gray-2);
 }
 .instance-tag-container {
   margin-left: -4px;

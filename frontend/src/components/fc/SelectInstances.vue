@@ -1,24 +1,24 @@
 <script setup lang="ts">
-import { ref, onMounted, computed } from "vue";
-import BetweenMenus from "../BetweenMenus.vue";
-import type { MountComponent, NodeStatus } from "@/types";
-import type { UserInstance } from "@/types/user";
-import { INSTANCE_STATUS } from "@/types/const";
+import { useScreen } from "@/hooks/useScreen";
 import { t } from "@/lang/i18n";
-import {
-  SearchOutlined,
-  DownOutlined,
-  FormOutlined,
-  DatabaseOutlined,
-  FrownOutlined
-} from "@ant-design/icons-vue";
-import type { AntColumnsType, AntTableCell } from "@/types/ant";
-import { reportErrorMsg } from "@/tools/validator";
 import { remoteInstances, remoteNodeList } from "@/services/apis";
 import { computeNodeName } from "@/tools/nodes";
+import { reportErrorMsg } from "@/tools/validator";
+import type { MountComponent, NodeStatus } from "@/types";
+import type { AntColumnsType, AntTableCell } from "@/types/ant";
+import { INSTANCE_STATUS } from "@/types/const";
+import type { UserInstance } from "@/types/user";
+import {
+  DatabaseOutlined,
+  DownOutlined,
+  FormOutlined,
+  FrownOutlined,
+  SearchOutlined
+} from "@ant-design/icons-vue";
 import _, { throttle } from "lodash";
-import { useScreen } from "@/hooks/useScreen";
+import { computed, onMounted, ref } from "vue";
 import AppConfigProvider from "../AppConfigProvider.vue";
+import BetweenMenus from "../BetweenMenus.vue";
 
 interface Props extends MountComponent {
   title: string;
@@ -294,9 +294,9 @@ const handleChangeNode = async (item: NodeStatus) => {
 <style lang="scss" scoped>
 .instance-card {
   cursor: pointer;
+  transition: all 0.3s ease;
 }
 .instance-card:hover {
-  border: 1px solid var(--color-gray-8);
-  box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.16);
+  background-color: var(--color-gray-2);
 }
 </style>
