@@ -141,7 +141,7 @@ const showCardOperator = (card: ILayoutCard) => {
 }
 .main-layout-container {
   position: relative;
-  animation: scaleAnimation 0.6s ease-in-out;
+  animation: scaleAnimation 0.3s ease-in-out;
   min-height: 100%;
   margin: auto;
   padding-bottom: 20px;
