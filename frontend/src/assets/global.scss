@@ -147,9 +147,11 @@ html {
   table {
     width: 100%;
     margin-bottom: 10px;
+
     tbody {
       width: 100%;
     }
+
     td,
     th {
       text-align: center;
@@ -177,6 +179,25 @@ html {
 // Override the AntDesign progress bar animation
 .no-animation .ant-progress-bg {
   transition: none !important;
+}
+
+// Custom Top Progress Bar
+#top-progress-bar {
+  pointer-events: none;
+  position: fixed;
+  z-index: 9999;
+  top: 0;
+  left: 0;
+  width: 0%;
+  height: 3px;
+  background: #52c41a;
+  opacity: 0;
+  transition: width 0.3s ease, opacity 0.4s ease;
+  box-shadow: 0 0 10px rgba(82, 196, 26, 0.7);
+}
+
+#top-progress-bar.active {
+  opacity: 1;
 }
 
 // Scrollbar
@@ -289,12 +310,14 @@ html {
 }
 
 @keyframes pulse-glow {
+
   0%,
   100% {
     box-shadow:
       0 8px 20px rgba(24, 144, 255, 0.4),
       0 0 15px rgba(24, 144, 255, 0.2);
   }
+
   50% {
     box-shadow:
       0 8px 25px rgba(24, 144, 255, 0.6),

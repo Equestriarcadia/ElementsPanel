@@ -1,4 +1,5 @@
 import { $t as t } from "@/lang/i18n";
+import { topProgressBar } from "@/services/TopProgressBar";
 import { useAppStateStore } from "@/stores/useAppStateStore";
 import type { LoginUserInfo } from "@/types/user";
 import InstallPage from "@/views/Install.vue";
@@ -17,12 +18,12 @@ export interface RouterMetaInfo {
   mainMenu?: boolean;
   permission?: number;
   redirect?:
-    | string
-    | ((
-        userInfo: LoginUserInfo | undefined,
-        to: RouteLocationNormalized,
-        from: RouteLocationNormalized
-      ) => string);
+  | string
+  | ((
+    userInfo: LoginUserInfo | undefined,
+    to: RouteLocationNormalized,
+    from: RouteLocationNormalized
+  ) => string);
   onlyDisplayEditMode?: boolean;
   customClass?: string[];
   condition?: () => boolean;
@@ -41,12 +42,12 @@ export interface RouterConfig {
   children?: RouterConfig[];
   meta: RouterMetaInfo;
   redirect?:
-    | string
-    | ((
-        userInfo: LoginUserInfo,
-        to: RouteLocationNormalized,
-        from: RouteLocationNormalized
-      ) => string);
+  | string
+  | ((
+    userInfo: LoginUserInfo,
+    to: RouteLocationNormalized,
+    from: RouteLocationNormalized
+  ) => string);
 }
 
 export enum ROLE {
@@ -356,6 +357,7 @@ const router = createRouter({
 });
 
 router.beforeEach(async (to, from, next) => {
+  topProgressBar.start();
   const { state, updateUserInfo, isAdmin } = useAppStateStore();
 
   const userPermission = state.userInfo?.permission ?? 0;
@@ -419,6 +421,10 @@ router.beforeEach(async (to, from, next) => {
   } else {
     next("/404");
   }
+});
+
+router.afterEach(() => {
+  topProgressBar.done();
 });
 
 export { originRouterConfig, router };
