@@ -50,7 +50,7 @@
     }
 
     #before-app-mounted .loading {
-      margin: 20px;
+      margin: 40px 20px -30px 20px;
       width: 120px;
       height: 120px;
       opacity: 0.1;
@@ -58,6 +58,45 @@
       background-size: contain;
       background-repeat: no-repeat;
       background-position: center;
+    }
+
+    #before-app-mounted .loading-dots {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin-top: 4px;
+      margin-bottom: 20px;
+    }
+
+    #before-app-mounted .loading-dots div {
+      width: 8px;
+      height: 8px;
+      margin: 0 4px;
+      background-color: var(--loading-color);
+      border-radius: 50%;
+      animation: loading-dots-bounce 1.4s infinite ease-in-out both;
+      opacity: 0.2;
+    }
+
+    #before-app-mounted .loading-dots div:nth-child(1) {
+      animation-delay: -0.32s;
+    }
+
+    #before-app-mounted .loading-dots div:nth-child(2) {
+      animation-delay: -0.16s;
+    }
+
+    @keyframes loading-dots-bounce {
+
+      0%,
+      80%,
+      100% {
+        transform: scale(0);
+      }
+
+      40% {
+        transform: scale(1);
+      }
     }
 
     #before-app-mounted .loading-title {
@@ -134,8 +173,10 @@
 
         // Hide loading spinner and title
         const loading = loadingBox.querySelector(".loading");
+        const loadingDots = loadingBox.querySelector(".loading-dots");
         const loadingTitle = loadingBox.querySelector(".loading-title");
         if (loading) loading.style.display = "none";
+        if (loadingDots) loadingDots.style.display = "none";
         if (loadingTitle) loadingTitle.style.display = "none";
 
         // Show error box with message
@@ -151,6 +192,11 @@
     <noscript>You need to enable JavaScript to run this Website.</noscript>
     <div class="loading-box">
       <div class="loading"></div>
+      <div class="loading-dots">
+        <div></div>
+        <div></div>
+        <div></div>
+      </div>
       <div class="loading-title">Loading...</div>
       <div class="loading-error">
         <div class="error-title">Error</div>
