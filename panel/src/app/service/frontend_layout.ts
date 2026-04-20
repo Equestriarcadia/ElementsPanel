@@ -45,7 +45,7 @@ export function resetFrontendLayoutConfig() {
   const filesDir = path.join(process.cwd(), SAVE_DIR_PATH);
   if (fs.existsSync(filesDir)) {
     for (const fileName of fs.readdirSync(filesDir)) {
-      fs.remove(path.join(filesDir, fileName), () => {});
+      fs.remove(path.join(filesDir, fileName), () => { });
     }
   }
 }
@@ -65,7 +65,7 @@ function getDefaultFrontendLayoutConfig(): IPageLayoutConfig[] {
       page: "__settings__",
       items: [],
       theme: {
-        pageTitle: "MCSManager Panel",
+        pageTitle: "Elements Panel",
         logoImage: "",
         backgroundImage: "",
         sidebarPosition: "right"

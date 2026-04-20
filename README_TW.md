@@ -29,7 +29,7 @@
 
 ## 這是什麼？
 
-**MCSManager Panel**（簡稱：MCSM Panel）是一個快速部署、支援分散式架構、多使用者、簡單現代的 Minecraft、Steam 和其他遊戲伺服器網頁管理面板。
+**Elements Panel**（簡稱：MCSM Panel）是一個快速部署、支援分散式架構、多使用者、簡單現代的 Minecraft、Steam 和其他遊戲伺服器網頁管理面板。
 
 MCSManager 在 `Minecraft` 和 `Steam` 遊戲社群中廣受歡迎。它幫助您集中管理多台實體伺服器，讓您可以在任何主機上建立遊戲伺服器，並提供安全可靠的多使用者權限系統，可以輕鬆幫助您管理多個伺服器。它一直為 `Minecraft`、`Terraria` 和 `Steam` 遊戲伺服器的管理員、營運人員和個人開發者提供健康的軟體支援。
 

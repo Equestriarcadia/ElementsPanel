@@ -656,7 +656,7 @@
   "TXT_CODE_477ece61": "安装完毕!",
   "TXT_CODE_478717e2": "当用户长时间未操作时广播的消息(必须将player-idle-timeout设置为大于0并将kick-if-idle设置为false)。",
   "TXT_CODE_479389a": "允许玩家在标牌上使用颜色代码",
-  "TXT_CODE_47ae8ee6": "MCSManager Panel",
+  "TXT_CODE_47ae8ee6": "Elements Panel",
   "TXT_CODE_47b5a2f7": "图标图片",
   "TXT_CODE_47c35915": "布局已保存",
   "TXT_CODE_47c62dac": "使用镜像",

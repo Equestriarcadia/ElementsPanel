@@ -29,7 +29,7 @@
 
 ## Was ist das?
 
-**MCSManager Panel** (abgekürzt: MCSM Panel) ist ein schnell bereitstellbares, verteilte Architektur unterstützendes, mehrbenutzerfähiges, einfaches und modernes Web-Verwaltungspanel für Minecraft- und Steam-Spielserver.
+**Elements Panel** (abgekürzt: MCSM Panel) ist ein schnell bereitstellbares, verteilte Architektur unterstützendes, mehrbenutzerfähiges, einfaches und modernes Web-Verwaltungspanel für Minecraft- und Steam-Spielserver.
 
 MCSManager hat in den `Minecraft`- und `Steam`-Gaming-Communities an Popularität gewonnen. Es hilft Ihnen dabei, mehrere physische Server zentral zu verwalten, ermöglicht es Ihnen, Spielserver auf jedem Host zu erstellen, und bietet ein sicheres und zuverlässiges Mehrbenutzer-Berechtigungssystem, das Ihnen einfach bei der Verwaltung mehrerer Server helfen kann. Es bietet bereits gesunde Software-Unterstützung für Administratoren, Betriebspersonal und einzelne Entwickler von `Minecraft`-, `Terraria`- und `Steam`-Spielservern.
 
