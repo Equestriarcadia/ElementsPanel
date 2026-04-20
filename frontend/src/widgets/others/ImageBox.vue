@@ -1,14 +1,14 @@
 <script setup lang="ts">
-import { ref } from "vue";
-import { t } from "@/lang/i18n";
-import { useLayoutContainerStore } from "@/stores/useLayoutContainerStore";
 import CardPanel from "@/components/CardPanel.vue";
-import type { LayoutCard } from "@/types/index";
-import { Empty, message, type UploadProps } from "ant-design-vue";
-import { UploadOutlined } from "@ant-design/icons-vue";
 import { useLayoutCardTools } from "@/hooks/useCardTools";
+import { t } from "@/lang/i18n";
 import { uploadFile } from "@/services/apis/layout";
 import { useAppStateStore } from "@/stores/useAppStateStore";
+import { useLayoutContainerStore } from "@/stores/useLayoutContainerStore";
+import type { LayoutCard } from "@/types/index";
+import { UploadOutlined } from "@ant-design/icons-vue";
+import { Empty, message, type UploadProps } from "ant-design-vue";
+import { ref } from "vue";
 
 const props = defineProps<{
   card: LayoutCard;
@@ -145,7 +145,6 @@ img {
   border: 0;
   border-radius: 6px;
   width: 100%;
-  box-shadow: 0 1px 2px 1px var(--card-shadow-color);
   height: 100%;
   object-fit: cover;
   aspect-ratio: 16/9;

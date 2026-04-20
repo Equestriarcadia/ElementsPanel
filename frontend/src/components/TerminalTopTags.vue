@@ -206,7 +206,6 @@ const cards = computed<PerfCardItem[]>(() => {
     transform 0.2s ease;
 
   &:hover {
-    box-shadow: 0 4px 12px var(--card-shadow-color);
     transform: translateY(-1px);
   }
 }

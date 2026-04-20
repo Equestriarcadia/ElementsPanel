@@ -198,7 +198,6 @@ const openPhoneMenu = (b = false) => {
 .phone-menu {
   .phone-menu-btn {
     padding: 16px 8px;
-    border-bottom: 1px solid var(--color-gray-4);
     color: var(--color-gray-12);
   }
 

@@ -40,14 +40,6 @@ html {
 
 .global-card-container-shadow {
   border-radius: 6px;
-  box-shadow: 0 1px 2px 1px var(--card-shadow-color);
-  transition: box-shadow 0.4s ease-in-out;
-
-  &:hover {
-    box-shadow:
-      0 4px 8px 0 var(--card-shadow-extend-color),
-      0 1px 2px 1px var(--card-shadow-extend-color);
-  }
 }
 
 .global-action-float-enter-active,
@@ -116,7 +108,6 @@ html {
     border: 0;
     border-radius: 6px;
     width: 100%;
-    box-shadow: 0 1px 2px 1px var(--card-shadow-color);
     height: 100%;
     object-fit: cover;
     aspect-ratio: 16/9;

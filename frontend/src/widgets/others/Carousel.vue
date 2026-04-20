@@ -1,23 +1,23 @@
 <script setup lang="ts">
-import { ref } from "vue";
-import { t } from "@/lang/i18n";
-import { useLayoutContainerStore } from "@/stores/useLayoutContainerStore";
 import CardPanel from "@/components/CardPanel.vue";
-import type { LayoutCard } from "@/types/index";
-import { Empty, message, type FormInstance } from "ant-design-vue";
-import {
-  UploadOutlined,
-  LeftCircleOutlined,
-  RightCircleOutlined,
-  MinusCircleOutlined,
-  PlusOutlined,
-  CloseOutlined
-} from "@ant-design/icons-vue";
 import { useLayoutCardTools } from "@/hooks/useCardTools";
+import { t } from "@/lang/i18n";
 import { uploadFile } from "@/services/apis/layout";
 import { useAppStateStore } from "@/stores/useAppStateStore";
+import { useLayoutContainerStore } from "@/stores/useLayoutContainerStore";
+import type { LayoutCard } from "@/types/index";
+import {
+  CloseOutlined,
+  LeftCircleOutlined,
+  MinusCircleOutlined,
+  PlusOutlined,
+  RightCircleOutlined,
+  UploadOutlined
+} from "@ant-design/icons-vue";
+import { Empty, message, type FormInstance } from "ant-design-vue";
 import type { FileType } from "ant-design-vue/es/upload/interface";
 import _ from "lodash";
+import { ref } from "vue";
 import { reportValidatorError } from "../../tools/validator";
 
 const props = defineProps<{
@@ -233,7 +233,6 @@ img {
   border: 0;
   border-radius: 6px;
   width: 100%;
-  box-shadow: 0 1px 2px 1px var(--card-shadow-color);
   height: 100%;
   object-fit: cover;
   aspect-ratio: 16/9;
@@ -266,14 +265,6 @@ img {
   border-radius: 6px;
   background: #364d79;
   overflow: hidden;
-  box-shadow: 0 1px 2px 1px var(--card-shadow-color);
-  transition: box-shadow 0.4s ease-in-out;
-
-  &:hover {
-    box-shadow:
-      0 4px 8px 0 var(--card-shadow-color),
-      0 1px 2px 1px var(--card-shadow-color);
-  }
 }
 
 :deep(.slick-arrow.custom-slick-arrow) {

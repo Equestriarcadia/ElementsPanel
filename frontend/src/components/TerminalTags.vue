@@ -47,7 +47,6 @@ defineProps<{
 }
 
 .tag:hover {
-  box-shadow: 0 2px 4px 0 var(--card-shadow-color);
   border: 1px solid var(--color-blue-5);
 }
 </style>

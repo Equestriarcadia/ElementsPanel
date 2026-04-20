@@ -320,7 +320,7 @@ onMounted(async () => {
   }
 
   .terminal-wrapper {
-    border: 1px solid var(--card-border-color);
+    border: none;
     position: relative;
     overflow: hidden;
     height: 100%;

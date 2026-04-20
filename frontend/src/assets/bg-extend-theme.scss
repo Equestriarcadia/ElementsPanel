@@ -14,6 +14,7 @@
   .file-breadcrumbs {
     background-color: var(--level-2-bg-color) !important;
   }
+
   .card-panel,
   .ant-pagination-item {
     background-color: var(--level-1-bg-color) !important;
@@ -22,22 +23,25 @@
 
   .ant-btn-default {
     background-color: var(--level-1-bg-color);
-    backdrop-filter: blur(3px) !important;
+    border: none;
   }
+
   .ant-btn-primary {
     background-color: var(--primary-btn-color);
-    backdrop-filter: blur(3px) !important;
+    border: none;
+
+    &:hover {
+      background-color: var(--primary-btn-color-hover);
+    }
   }
 
   .ant-btn-dangerous {
     background-color: var(--danger-btn-color);
-    backdrop-filter: blur(3px) !important;
-  }
+    border: none;
 
-  .ant-input-affix-wrapper,
-  .ant-select-selector {
-    background-color: var(--level-1-bg-color) !important;
-    backdrop-filter: blur(3px) !important;
+    &:hover {
+      background-color: var(--danger-btn-color-hover);
+    }
   }
 
   .ant-modal-content {
@@ -47,7 +51,7 @@
 
   .ant-modal-title,
   .ant-modal-header,
-  .ant-input-affix-wrapper > .ant-input {
+  .ant-input-affix-wrapper>.ant-input {
     background-color: rgba(0, 0, 0, 0) !important;
   }
 }
@@ -81,9 +85,11 @@
   .breadcrumbs {
     @extend .text-black-shadow;
   }
+
   .ant-btn-dangerous {
     color: #ffa4a4;
   }
+
   .terminal-wrapper {
     background-color: var(--level-1-bg-color) !important;
     backdrop-filter: blur(3px) !important;
@@ -98,9 +104,11 @@
   --primary-btn-color: #1669dccf;
   --danger-btn-color: #d32f2fac;
   --background-color-white: var(--level-1-bg-color);
+
   .app-header-wrapper {
     background-color: #00000093 !important;
   }
+
   @extend .bg-extend-css;
   @extend .extend-light-css;
 }

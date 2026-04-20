@@ -1,17 +1,17 @@
 <script setup lang="ts">
-import { useCardPool } from "@/stores/useCardPool";
 import LayoutCardComponent from "@/components//LayoutCard.vue";
-import { ref, computed } from "vue";
-import { NEW_CARD_TYPE } from "@/types";
+import { ROLE } from "@/config/router";
+import { t } from "@/lang/i18n";
+import { useCardPool } from "@/stores/useCardPool";
 import { useLayoutConfigStore } from "@/stores/useLayoutConfig";
 import { useLayoutContainerStore } from "@/stores/useLayoutContainerStore";
-import { useRoute } from "vue-router";
-import Params from "./params.vue";
-import { t } from "@/lang/i18n";
-import { ROLE } from "@/config/router";
-import type { NewCardItem } from "../../config/index";
 import { reportErrorMsg } from "@/tools/validator";
+import { NEW_CARD_TYPE } from "@/types";
 import { AppstoreOutlined } from "@ant-design/icons-vue";
+import { computed, ref } from "vue";
+import { useRoute } from "vue-router";
+import type { NewCardItem } from "../../config/index";
+import Params from "./params.vue";
 
 const { getCardPool } = useCardPool();
 const { insertLayoutItem } = useLayoutConfigStore();
@@ -192,8 +192,6 @@ const currentCardCategory = ref<NEW_CARD_TYPE>(NEW_CARD_TYPE.COMMON);
   }
   .card-list-container:hover {
     opacity: 0.8;
-
-    transform: scale(1.02);
   }
 }
 </style>

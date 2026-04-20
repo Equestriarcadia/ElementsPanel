@@ -52,7 +52,7 @@ const { containerState } = useLayoutContainerStore();
 }
 
 .card-panel {
-  border: 1px solid var(--card-border-color);
+  border: none;
   background-color: var(--background-color-white);
   display: flex;
   flex-direction: column;
