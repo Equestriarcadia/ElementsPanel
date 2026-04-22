@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import logo from "@/assets/logo.png";
 import { useHeaderMenus } from "@/hooks/useHeaderMenus";
 import { useScreen } from "@/hooks/useScreen";
 import { useAppConfigStore } from "@/stores/useAppConfigStore";
@@ -130,9 +129,6 @@ const openPhoneMenu = (b = false) => {
                 </template>
               </a-dropdown>
             </div>
-          </div>
-          <div>
-            <img :src="logo" style="height: 18px" />
           </div>
           <div style="width: 100px" class="justify-end">
             <div v-for="(item, index) in appMenus" :key="index">

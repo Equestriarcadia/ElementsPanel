@@ -1,5 +1,6 @@
 /* eslint-disable no-unused-vars */
-import logo from "@/assets/logo.png";
+import logo from "@/assets/logo.svg";
+import logoB from "@/assets/logo_b.svg";
 import { getCurrentLang, setLanguage } from "@/lang/i18n";
 import { AppTheme, THEME_KEY } from "@/types/const";
 import { createGlobalState, useBreakpoints, useLocalStorage, usePreferredDark } from "@vueuse/core";
@@ -21,18 +22,21 @@ export const useAppConfigStore = createGlobalState(() => {
     }
   });
   const appConfig = reactive({
-    logoImage: logo as string
+    logoImage: "" as string
   });
-
-  const logoImage = computed(() => appConfig.logoImage);
-
-  const currentTheme = useLocalStorage<AppTheme>(THEME_KEY, AppTheme.LIGHT);
 
   const isDarkTheme = computed(() => {
     if (currentTheme.value === AppTheme.DARK) return true;
     if (currentTheme.value === AppTheme.AUTO) return isPreferredDark.value;
     return false;
   });
+
+  const logoImage = computed(() => {
+    if (appConfig.logoImage) return appConfig.logoImage;
+    return isDarkTheme.value ? logo : logoB;
+  });
+
+  const currentTheme = useLocalStorage<AppTheme>(THEME_KEY, AppTheme.LIGHT);
 
   const hasBgImage = ref(false);
 

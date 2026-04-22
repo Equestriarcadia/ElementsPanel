@@ -16,13 +16,8 @@ const handleClick = (e: Event, action: (e: Event) => void) => {
 </script>
 
 <template>
-  <div
-    class="install-option-button"
-    role="button"
-    tabindex="0"
-    @click="(e) => handleClick(e, option.action)"
-    @keydown.enter.space.prevent="(e) => handleClick(e, option.action)"
-  >
+  <div class="install-option-button" role="button" tabindex="0" @click="(e) => handleClick(e, option.action)"
+    @keydown.enter.space.prevent="(e) => handleClick(e, option.action)">
     <div class="button-inner">
       <div class="button-icon">
         <component :is="option.icon" />
@@ -44,31 +39,8 @@ const handleClick = (e: Event, action: (e: Event) => void) => {
   border-radius: 12px;
   padding: 1px;
   background: var(--color-gray-3);
-  border: 1px solid var(--color-gray-5);
+  border: none;
   height: 130px;
-  transition:
-    transform 0.25s ease,
-    box-shadow 0.25s ease,
-    background 0.25s ease,
-    border-color 0.25s ease;
-
-  &:hover {
-    transform: scale(1.03);
-    border-color: transparent;
-    background: linear-gradient(
-      135deg,
-      var(--ai-gradient-from),
-      var(--ai-gradient-via),
-      var(--ai-gradient-to)
-    );
-    box-shadow:
-      0 8px 24px -8px rgba(139, 92, 246, 0.4),
-      0 4px 12px -4px rgba(6, 182, 212, 0.3);
-  }
-
-  &:active {
-    transform: scale(1.01);
-  }
 
   .button-inner {
     display: flex;
@@ -79,10 +51,11 @@ const handleClick = (e: Event, action: (e: Event) => void) => {
     background: var(--color-gray-2);
     height: 100%;
     min-height: 72px;
+    transition: background-color 0.25s ease;
   }
 
   &:hover .button-inner {
-    background: var(--color-gray-2);
+    background-color: var(--color-gray-4);
   }
 
   .button-icon {
@@ -96,12 +69,6 @@ const handleClick = (e: Event, action: (e: Event) => void) => {
     font-size: 20px;
     color: var(--color-blue-6);
     background: rgba(22, 119, 255, 0.1);
-    transition: all 0.25s ease;
-  }
-
-  &:hover .button-icon {
-    color: var(--ai-gradient-via);
-    background: rgba(6, 182, 212, 0.15);
   }
 
   .button-content {
@@ -129,11 +96,6 @@ const handleClick = (e: Event, action: (e: Event) => void) => {
     font-size: 13px;
     font-weight: 500;
     color: var(--color-blue-6);
-    transition: color 0.2s ease;
-  }
-
-  &:hover .button-cta {
-    color: var(--ai-gradient-from);
   }
 }
 </style>
