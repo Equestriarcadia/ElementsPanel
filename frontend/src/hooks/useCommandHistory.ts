@@ -1,8 +1,9 @@
+import { createGlobalState } from "@vueuse/core";
 import { ref } from "vue";
 
 const TERMINAL_HISTORY_KEY = "TERMINAL_HISTORY_KEY";
 
-export const useCommandHistory = () => {
+export const useCommandHistory = createGlobalState(() => {
   const commandInputValue = ref<string>("");
 
   const history = ref<string[]>([]);
@@ -85,4 +86,4 @@ export const useCommandHistory = () => {
     clickHistoryItem,
     handleHistorySelect
   };
-};
+});

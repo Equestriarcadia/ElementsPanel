@@ -2199,6 +2199,7 @@
   "TXT_CODE_b1d709bc": "S'il faut afficher les adresses IP sur lesquelles BungeeCord écoute",
   "TXT_CODE_b1dedda3": "Pause",
   "TXT_CODE_b1e2e1b4": "Effacer la sortie de la console",
+  "TXT_CODE_cmd_history": "Historique des commandes",
   "TXT_CODE_b1ef1d4a": "Archive corrompue",
   "TXT_CODE_b1f833f3": "Téléchargez la liste des sources lors de l'installation rapide du serveur. Vous pouvez personnaliser le site de téléchargement par défaut du serveur en modifiant cette adresse.",
   "TXT_CODE_b1fd3eb1": "Paramètres de redirection de port",

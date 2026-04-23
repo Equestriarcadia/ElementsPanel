@@ -6,6 +6,7 @@ import EmptyCard from "@/widgets/EmptyCard.vue";
 import ImageManager from "@/widgets/imageManager/index.vue";
 import NewImage from "@/widgets/imageManager/NewImage.vue";
 import InstanceBaseInfo from "@/widgets/instance/BaseInfo.vue";
+import InstanceCommandHistory from "@/widgets/instance/CommandHistory.vue";
 import InstanceFileManager from "@/widgets/instance/FileManager.vue";
 import InstanceManagerBtns from "@/widgets/instance/ManagerBtns.vue";
 import InstanceModManager from "@/widgets/instance/ModManager.vue";
@@ -72,6 +73,7 @@ export const LAYOUT_CARD_TYPES: { [key: string]: any } = {
   InstanceManagerBtns,
   InstanceBaseInfo,
   InstancePerformance,
+  InstanceCommandHistory,
   InstanceServerConfigOverview,
   InstanceServerConfigFile,
   InstanceFileManager,
@@ -372,6 +374,34 @@ export function getLayoutCardPool() {
       title: t("TXT_CODE_5476e012"),
       width: 4,
       description: t("TXT_CODE_5476e012"),
+      height: LayoutCardHeight.MINI,
+      category: NEW_CARD_TYPE.INSTANCE,
+      params: [
+        {
+          field: "instanceId",
+          label: t("TXT_CODE_e6a5c12b"),
+          type: "string"
+        },
+        {
+          field: "daemonId",
+          label: t("TXT_CODE_72cfab69"),
+          type: "string"
+        },
+        {
+          field: "instance",
+          label: t("TXT_CODE_cb043d10"),
+          type: "instance"
+        }
+      ]
+    },
+    {
+      id: getRandomId(),
+      permission: ROLE.USER,
+      meta: {},
+      type: "InstanceCommandHistory",
+      title: t("TXT_CODE_cmd_history"), // "历史命令"
+      width: 4,
+      description: t("TXT_CODE_cmd_history"),
       height: LayoutCardHeight.MINI,
       category: NEW_CARD_TYPE.INSTANCE,
       params: [

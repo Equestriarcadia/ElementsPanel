@@ -246,20 +246,28 @@ function getDefaultFrontendLayoutConfig(): IPageLayoutConfig[] {
           disableDelete: true
         },
         {
-          id: getRandomId(),
-          meta: {},
+          id: "InstancePerformance",
           type: "InstancePerformance",
           title: t("TXT_CODE_5476e012"),
-          width: 12,
-          height: LayoutCardHeight.MINI
+          width: 8,
+          height: "MINI",
+          meta: {}
         },
         {
-          id: getRandomId(),
-          meta: {},
+          id: "InstanceCommandHistory",
+          type: "InstanceCommandHistory",
+          title: t("TXT_CODE_cmd_history"),
+          width: 4,
+          height: "MINI",
+          meta: {}
+        },
+        {
+          id: "InstanceBaseInfo",
           type: "InstanceBaseInfo",
           title: t("TXT_CODE_eadb4f60"),
           width: 4,
-          height: LayoutCardHeight.SMALL
+          height: "SMALL",
+          meta: {}
         },
         {
           id: getRandomId(),
