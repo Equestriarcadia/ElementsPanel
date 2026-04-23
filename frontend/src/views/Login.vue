@@ -24,40 +24,41 @@ const skeletonConfigs = [
 </script>
 
 <template>
-  <div v-if="!isPhone">
-    <div class="main-layout-container">
-      <a-row :gutter="[24, 24]">
-        <a-col v-for="(config, index) in skeletonConfigs" :key="index" :span="config.span">
-          <CardPanel>
-            <template #body>
-              <a-skeleton :paragraph="{ rows: config.rows }" />
-            </template>
-          </CardPanel>
-        </a-col>
-      </a-row>
-    </div>
+  <div v-if="!isPhone" class="login-wrapper-fixed">
     <div class="login-page-container">
       <div class="login-page-body">
         <LayoutContainer></LayoutContainer>
       </div>
     </div>
   </div>
-  <div v-else>
+  <div v-else class="login-wrapper-fixed">
     <LoginCard></LoginCard>
   </div>
 </template>
 
-<style></style>
+<style>
+.login-wrapper-fixed {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 100;
+  overflow: hidden;
+}
+</style>
 
 <style lang="scss">
 @keyframes scaleAnimation {
   0% {
     transform: scale(1);
   }
+
   20% {
     transform: scale(0.9);
     opacity: 1;
   }
+
   100% {
     transform: scale(1.6);
     opacity: 0;
@@ -84,6 +85,7 @@ const skeletonConfigs = [
     margin: 0 auto;
     height: 100%;
     position: relative;
+
     .main-flex-center {
       margin-top: 0 !important;
       position: absolute;
