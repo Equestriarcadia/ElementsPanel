@@ -245,7 +245,14 @@ function getDefaultFrontendLayoutConfig(): IPageLayoutConfig[] {
           height: LayoutCardHeight.BIG,
           disableDelete: true
         },
-
+        {
+          id: getRandomId(),
+          meta: {},
+          type: "InstancePerformance",
+          title: t("TXT_CODE_5476e012"),
+          width: 12,
+          height: LayoutCardHeight.MINI
+        },
         {
           id: getRandomId(),
           meta: {},

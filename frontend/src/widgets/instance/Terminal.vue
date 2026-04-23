@@ -3,7 +3,6 @@ import CardPanel from "@/components/CardPanel.vue";
 import { openMarketDialog, openRenewalDialog } from "@/components/fc";
 import IconBtn from "@/components/IconBtn.vue";
 import TerminalCore from "@/components/TerminalCore.vue";
-import TerminalTopTags from "@/components/TerminalTopTags.vue";
 import { useLayoutCardTools } from "@/hooks/useCardTools";
 import { INSTANCE_TYPE_TRANSLATION, verifyEULA } from "@/hooks/useInstance";
 import { useScreen } from "@/hooks/useScreen";
@@ -99,7 +98,7 @@ const toOpenInstance = async () => {
             h("p", t("TXT_CODE_3409258a")),
             h("p", `${t("TXT_CODE_973414e1")}：${instanceInfo.value?.config.startCommand || ""}`),
             isDockerMode.value &&
-              h("p", `${t("TXT_CODE_44b585c7")}：${instanceInfo.value?.config.docker.image || ""}`)
+            h("p", `${t("TXT_CODE_44b585c7")}：${instanceInfo.value?.config.docker.image || ""}`)
           ])
         });
       }
@@ -289,10 +288,7 @@ onUnmounted(() => {
 
               <a-tag v-if="instanceTypeText" color="purple"> {{ instanceTypeText }} </a-tag>
 
-              <span
-                v-if="instanceInfo?.watcher && instanceInfo?.watcher > 1 && !isPhone"
-                class="ml-16"
-              >
+              <span v-if="instanceInfo?.watcher && instanceInfo?.watcher > 1 && !isPhone" class="ml-16">
                 <a-tooltip>
                   <template #title>
                     {{ t("TXT_CODE_4a37ec9c") }}
@@ -309,28 +305,13 @@ onUnmounted(() => {
         <template #right>
           <div v-if="!isPhone">
             <template v-for="item in [...quickOperations, ...instanceOperations]" :key="item.title">
-              <a-button
-                v-if="item.noConfirm"
-                class="ml-8"
-                :class="item.class ? item.class : ''"
-                :danger="item.type === 'danger'"
-                :disabled="isOpenInstanceLoading"
-                @click="item.click"
-              >
+              <a-button v-if="item.noConfirm" class="ml-8" :class="item.class ? item.class : ''"
+                :danger="item.type === 'danger'" :disabled="isOpenInstanceLoading" @click="item.click">
                 <component :is="item.icon" />
                 {{ item.title }}
               </a-button>
-              <a-popconfirm
-                v-else
-                :key="item.title"
-                :title="t('TXT_CODE_276756b2')"
-                @confirm="item.click"
-              >
-                <a-button
-                  class="ml-8"
-                  :danger="item.type === 'danger'"
-                  :class="item.class ? item.class : ''"
-                >
+              <a-popconfirm v-else :key="item.title" :title="t('TXT_CODE_276756b2')" @confirm="item.click">
+                <a-button class="ml-8" :danger="item.type === 'danger'" :class="item.class ? item.class : ''">
                   <component :is="item.icon" />
                   {{ item.title }}
                 </a-button>
@@ -341,11 +322,8 @@ onUnmounted(() => {
           <a-dropdown v-else>
             <template #overlay>
               <a-menu>
-                <a-menu-item
-                  v-for="item in [...quickOperations, ...instanceOperations]"
-                  :key="item.title"
-                  @click="item.click"
-                >
+                <a-menu-item v-for="item in [...quickOperations, ...instanceOperations]" :key="item.title"
+                  @click="item.click">
                   <component :is="item.icon" />
                   {{ item.title }}
                 </a-menu-item>
@@ -359,16 +337,8 @@ onUnmounted(() => {
         </template>
       </BetweenMenus>
     </div>
-    <div class="mb-10 justify-end">
-      <TerminalTopTags :info="instanceInfo?.info" :is-stopped="isStopped" />
-    </div>
-    <TerminalCore
-      v-if="instanceId && daemonId"
-      :use-terminal-hook="terminalHook"
-      :instance-id="instanceId"
-      :daemon-id="daemonId"
-      :height="card.height"
-    />
+    <TerminalCore v-if="instanceId && daemonId" :use-terminal-hook="terminalHook" :instance-id="instanceId"
+      :daemon-id="daemonId" :height="card.height" />
   </div>
 
   <!-- Other Page View -->
@@ -393,13 +363,7 @@ onUnmounted(() => {
       </span>
     </template>
     <template #operator>
-      <span
-        v-for="item in quickOperations"
-        :key="item.title"
-        size="default"
-        class="mr-2"
-        v-bind="item.props"
-      >
+      <span v-for="item in quickOperations" :key="item.title" size="default" class="mr-2" v-bind="item.props">
         <IconBtn :icon="item.icon" :title="item.title" @click="item.click"></IconBtn>
       </span>
       <a-dropdown>
@@ -417,16 +381,8 @@ onUnmounted(() => {
       </a-dropdown>
     </template>
     <template #body>
-      <div class="mb-6">
-        <TerminalTopTags :info="instanceInfo?.info" :is-stopped="isStopped" />
-      </div>
-      <TerminalCore
-        v-if="instanceId && daemonId"
-        :use-terminal-hook="terminalHook"
-        :instance-id="instanceId"
-        :daemon-id="daemonId"
-        :height="card.height"
-      />
+      <TerminalCore v-if="instanceId && daemonId" :use-terminal-hook="terminalHook" :instance-id="instanceId"
+        :daemon-id="daemonId" :height="card.height" />
     </template>
   </CardPanel>
 </template>
@@ -461,6 +417,7 @@ onUnmounted(() => {
     }
   }
 }
+
 .console-wrapper {
   position: relative;
 
@@ -483,6 +440,7 @@ onUnmounted(() => {
     overflow: hidden;
     display: flex;
     flex-direction: column;
+
     .terminal-container {
       // min-width: 1200px;
       height: 100%;
@@ -505,6 +463,7 @@ onUnmounted(() => {
 
       li {
         list-style: none;
+
         span {
           padding: 3px 20px;
           max-width: 300px;

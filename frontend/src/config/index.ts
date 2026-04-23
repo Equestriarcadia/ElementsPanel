@@ -9,6 +9,7 @@ import InstanceBaseInfo from "@/widgets/instance/BaseInfo.vue";
 import InstanceFileManager from "@/widgets/instance/FileManager.vue";
 import InstanceManagerBtns from "@/widgets/instance/ManagerBtns.vue";
 import InstanceModManager from "@/widgets/instance/ModManager.vue";
+import InstancePerformance from "@/widgets/instance/Performance.vue";
 import Schedule from "@/widgets/instance/Schedule.vue";
 import InstanceServerConfigFile from "@/widgets/instance/ServerConfigFile.vue";
 import InstanceServerConfigOverview from "@/widgets/instance/ServerConfigOverview.vue";
@@ -70,6 +71,7 @@ export const LAYOUT_CARD_TYPES: { [key: string]: any } = {
   Terminal,
   InstanceManagerBtns,
   InstanceBaseInfo,
+  InstancePerformance,
   InstanceServerConfigOverview,
   InstanceServerConfigFile,
   InstanceFileManager,
@@ -343,6 +345,34 @@ export function getLayoutCardPool() {
       width: 12,
       description: t("TXT_CODE_f49b2787"),
       height: LayoutCardHeight.MEDIUM,
+      category: NEW_CARD_TYPE.INSTANCE,
+      params: [
+        {
+          field: "instanceId",
+          label: t("TXT_CODE_e6a5c12b"),
+          type: "string"
+        },
+        {
+          field: "daemonId",
+          label: t("TXT_CODE_72cfab69"),
+          type: "string"
+        },
+        {
+          field: "instance",
+          label: t("TXT_CODE_cb043d10"),
+          type: "instance"
+        }
+      ]
+    },
+    {
+      id: getRandomId(),
+      permission: ROLE.USER,
+      meta: {},
+      type: "InstancePerformance",
+      title: t("TXT_CODE_5476e012"),
+      width: 4,
+      description: t("TXT_CODE_5476e012"),
+      height: LayoutCardHeight.MINI,
       category: NEW_CARD_TYPE.INSTANCE,
       params: [
         {
