@@ -3,9 +3,10 @@ import CardPanel from "@/components/CardPanel.vue";
 import TerminalTopTags from "@/components/TerminalTopTags.vue";
 import { useLayoutCardTools } from "@/hooks/useCardTools";
 import { useInstanceInfo } from "@/hooks/useInstance";
+import { useOverviewInfo } from "@/hooks/useOverviewInfo";
 import { t } from "@/lang/i18n";
 import type { LayoutCard } from "@/types";
-import { onMounted } from "vue";
+import { computed, onMounted } from "vue";
 
 const props = defineProps<{
     card: LayoutCard;
@@ -20,6 +21,39 @@ const { isStopped, instanceInfo, execute } = useInstanceInfo({
     instanceId,
     daemonId,
     autoRefresh: true
+});
+
+const { state: overviewState } = useOverviewInfo();
+
+const nodeInfo = computed(() => {
+    if (!overviewState.value?.remote) return null;
+    return overviewState.value.remote.find((node) => node.uuid === daemonId);
+});
+
+const displayInfo = computed(() => {
+    if (instanceInfo.value?.config?.processType === "docker") {
+        return instanceInfo.value?.info;
+    } else {
+        if (nodeInfo.value?.system) {
+            const system = nodeInfo.value.system;
+            const memoryUsage = system.totalmem - system.freemem;
+            return {
+                ...instanceInfo.value?.info,
+                cpuUsage: system.cpuUsage * 100,
+                memoryUsage: memoryUsage,
+                memoryLimit: system.totalmem,
+                memoryUsagePercent: (memoryUsage / system.totalmem) * 100
+            };
+        }
+        return instanceInfo.value?.info;
+    }
+});
+
+const isDisplayStopped = computed(() => {
+    if (instanceInfo.value?.config?.processType === "docker") {
+        return isStopped.value;
+    }
+    return false; // For non-docker, we always show node data
 });
 
 onMounted(async () => {
@@ -40,8 +74,8 @@ onMounted(async () => {
             {{ card.title }}
         </template>
         <template #body>
-            <TerminalTopTags v-if="!isStopped && instanceInfo?.info" :info="instanceInfo?.info"
-                :is-stopped="isStopped" />
+            <TerminalTopTags v-if="!isDisplayStopped && displayInfo" :info="displayInfo"
+                :is-stopped="isDisplayStopped" />
             <div v-else style="text-align: center; color: var(--color-gray-6); padding: 10px 0;">
                 {{ t("TXT_CODE_NO_DATA") }}
             </div>
