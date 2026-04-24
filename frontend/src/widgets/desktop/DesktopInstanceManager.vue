@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { t } from "@/lang/i18n";
 import { remoteInstances, remoteNodeList } from "@/services/apis";
 import {
     killInstance,
@@ -79,13 +80,13 @@ const instanceCounts = computed(() => {
 // ─── Helpers ───
 const getStatusText = (status: INSTANCE_STATUS_CODE): string => {
     const map: Record<INSTANCE_STATUS_CODE, string> = {
-        [INSTANCE_STATUS_CODE.BUSY]: "Busy",
-        [INSTANCE_STATUS_CODE.STOPPED]: "Stopped",
-        [INSTANCE_STATUS_CODE.STOPPING]: "Stopping",
-        [INSTANCE_STATUS_CODE.STARTING]: "Starting",
-        [INSTANCE_STATUS_CODE.RUNNING]: "Running"
+        [INSTANCE_STATUS_CODE.BUSY]: t("TXT_CODE_DESKTOP_IM_BUSY"),
+        [INSTANCE_STATUS_CODE.STOPPED]: t("TXT_CODE_DESKTOP_IM_STOPPED"),
+        [INSTANCE_STATUS_CODE.STOPPING]: t("TXT_CODE_DESKTOP_IM_STOPPING"),
+        [INSTANCE_STATUS_CODE.STARTING]: t("TXT_CODE_DESKTOP_IM_STARTING"),
+        [INSTANCE_STATUS_CODE.RUNNING]: t("TXT_CODE_DESKTOP_IM_RUNNING")
     };
-    return map[status] || "Unknown";
+    return map[status] || t("TXT_CODE_DESKTOP_IM_UNKNOWN");
 };
 
 const getStatusClass = (status: INSTANCE_STATUS_CODE): string => {
@@ -241,11 +242,11 @@ onUnmounted(() => {
             <div class="dim-toolbar__left">
                 <!-- Node Selector -->
                 <div class="dim-select">
-                    <label class="dim-select__label">Node:</label>
+                    <label class="dim-select__label">{{ t("TXT_CODE_DESKTOP_IM_NODE") }}:</label>
                     <select v-model="selectedNodeId" class="dim-select__input">
                         <option v-for="node in nodes" :key="node.uuid" :value="node.uuid">
                             {{ node.remarks || node.ip }}:{{ node.port }}
-                            {{ node.available ? "" : " (offline)" }}
+                            {{ node.available ? "" : ` (${t("TXT_CODE_DESKTOP_IM_OFFLINE")})` }}
                         </option>
                     </select>
                 </div>
@@ -253,11 +254,19 @@ onUnmounted(() => {
                 <!-- Status Filter -->
                 <div class="dim-select">
                     <select v-model="statusFilter" class="dim-select__input">
-                        <option value="all">All Status</option>
-                        <option :value="String(INSTANCE_STATUS_CODE.RUNNING)">Running</option>
-                        <option :value="String(INSTANCE_STATUS_CODE.STOPPED)">Stopped</option>
-                        <option :value="String(INSTANCE_STATUS_CODE.STARTING)">Starting</option>
-                        <option :value="String(INSTANCE_STATUS_CODE.STOPPING)">Stopping</option>
+                        <option value="all">{{ t("TXT_CODE_DESKTOP_IM_ALL_STATUS") }}</option>
+                        <option :value="String(INSTANCE_STATUS_CODE.RUNNING)">
+                            {{ t("TXT_CODE_DESKTOP_IM_RUNNING") }}
+                        </option>
+                        <option :value="String(INSTANCE_STATUS_CODE.STOPPED)">
+                            {{ t("TXT_CODE_DESKTOP_IM_STOPPED") }}
+                        </option>
+                        <option :value="String(INSTANCE_STATUS_CODE.STARTING)">
+                            {{ t("TXT_CODE_DESKTOP_IM_STARTING") }}
+                        </option>
+                        <option :value="String(INSTANCE_STATUS_CODE.STOPPING)">
+                            {{ t("TXT_CODE_DESKTOP_IM_STOPPING") }}
+                        </option>
                     </select>
                 </div>
             </div>
@@ -266,7 +275,7 @@ onUnmounted(() => {
                 <!-- Search -->
                 <div class="dim-search">
                     <input v-model="searchText" type="text" class="dim-search__input"
-                        placeholder="Search instances..." />
+                        :placeholder="t('TXT_CODE_DESKTOP_IM_SEARCH')" />
                     <span class="dim-search__icon">
                         <SearchOutlined />
                     </span>
@@ -283,22 +292,22 @@ onUnmounted(() => {
         <div class="dim-stats">
             <div class="dim-stats__item">
                 <span class="dim-stats__dot dim-stats__dot--total"></span>
-                <span>Total: {{ instanceCounts.total }}</span>
+                <span>{{ t("TXT_CODE_DESKTOP_IM_TOTAL") }}: {{ instanceCounts.total }}</span>
             </div>
             <div class="dim-stats__item">
                 <span class="dim-stats__dot dim-stats__dot--running"></span>
-                <span>Running: {{ instanceCounts.running }}</span>
+                <span>{{ t("TXT_CODE_DESKTOP_IM_RUNNING") }}: {{ instanceCounts.running }}</span>
             </div>
             <div class="dim-stats__item">
                 <span class="dim-stats__dot dim-stats__dot--stopped"></span>
-                <span>Stopped: {{ instanceCounts.stopped }}</span>
+                <span>{{ t("TXT_CODE_DESKTOP_IM_STOPPED") }}: {{ instanceCounts.stopped }}</span>
             </div>
             <div v-if="selectedNode" class="dim-stats__node">
                 <span>
                     <ApiOutlined /> {{ selectedNode.remarks || selectedNode.ip }}
                 </span>
                 <span :class="selectedNode.available ? 'dim-stats__online' : 'dim-stats__offline'">
-                    {{ selectedNode.available ? "Online" : "Offline" }}
+                    {{ selectedNode.available ? t("TXT_CODE_DESKTOP_IM_ONLINE") : t("TXT_CODE_DESKTOP_IM_OFFLINE") }}
                 </span>
             </div>
         </div>
@@ -307,14 +316,14 @@ onUnmounted(() => {
         <div class="dim-list" :class="{ 'dim-list--loading': loading }">
             <div v-if="loading && instances.length === 0" class="dim-empty">
                 <div class="dim-spinner"></div>
-                <p>Loading instances...</p>
+                <p>{{ t("TXT_CODE_DESKTOP_IM_LOADING") }}</p>
             </div>
 
             <div v-else-if="filteredInstances.length === 0" class="dim-empty">
                 <span class="dim-empty__icon">
                     <InboxOutlined />
                 </span>
-                <p>No instances found</p>
+                <p>{{ t("TXT_CODE_DESKTOP_IM_NO_INSTANCES") }}</p>
             </div>
 
             <div v-for="instance in filteredInstances" :key="instance.instanceUuid" class="dim-instance"
@@ -324,8 +333,9 @@ onUnmounted(() => {
                         <span class="dim-instance__status" :class="getStatusClass(instance.status)">
                             <component :is="getStatusIconComponent(instance.status)" />
                         </span>
-                        <span class="dim-instance__name">{{ instance.config.nickname || "Unnamed" }}</span>
-                        <span class="dim-instance__badge" :class="getStatusClass(instance.status)">
+                        <span class="dim-instance__name">{{
+                            instance.config.nickname || t("TXT_CODE_DESKTOP_IM_UNNAMED")
+                            }}</span><span class="dim-instance__badge" :class="getStatusClass(instance.status)">
                             {{ getStatusText(instance.status) }}
                         </span>
                     </div>
@@ -335,10 +345,10 @@ onUnmounted(() => {
                         </span>
                         <span v-if="instance.config.type" class="dim-instance__type">
                             {{ instance.config.type }}
-                        </span>
-                        <span
-                            v-if="instance.info?.currentPlayers !== undefined && instance.status === INSTANCE_STATUS_CODE.RUNNING"
-                            class="dim-instance__players">
+                        </span><span v-if="
+                            instance.info?.currentPlayers !== undefined &&
+                            instance.status === INSTANCE_STATUS_CODE.RUNNING
+                        " class="dim-instance__players">
                             <TeamOutlined /> {{ instance.info.currentPlayers }}/{{ instance.info.maxPlayers }}
                         </span>
                     </div>
@@ -346,24 +356,25 @@ onUnmounted(() => {
 
                 <div class="dim-instance__actions">
                     <button v-if="instance.status === INSTANCE_STATUS_CODE.STOPPED" class="dim-action dim-action--start"
-                        :disabled="isOperating(instance.instanceUuid)" @click.stop="handleStart(instance.instanceUuid)"
-                        title="Start">
+                        :disabled="isOperating(instance.instanceUuid)" :title="t('TXT_CODE_DESKTOP_IM_START')"
+                        @click.stop="handleStart(instance.instanceUuid)">
                         <CaretRightOutlined />
                     </button>
                     <button v-if="instance.status === INSTANCE_STATUS_CODE.RUNNING"
                         class="dim-action dim-action--restart" :disabled="isOperating(instance.instanceUuid)"
-                        @click.stop="handleRestart(instance.instanceUuid)" title="Restart">
+                        :title="t('TXT_CODE_DESKTOP_IM_RESTART')" @click.stop="handleRestart(instance.instanceUuid)">
                         <ReloadOutlined />
                     </button>
                     <button v-if="instance.status === INSTANCE_STATUS_CODE.RUNNING" class="dim-action dim-action--stop"
-                        :disabled="isOperating(instance.instanceUuid)" @click.stop="handleStop(instance.instanceUuid)"
-                        title="Stop">
+                        :disabled="isOperating(instance.instanceUuid)" :title="t('TXT_CODE_DESKTOP_IM_STOP')"
+                        @click.stop="handleStop(instance.instanceUuid)">
                         <StopOutlined />
                     </button>
-                    <button
-                        v-if="instance.status === INSTANCE_STATUS_CODE.RUNNING || instance.status === INSTANCE_STATUS_CODE.STOPPING"
-                        class="dim-action dim-action--kill" :disabled="isOperating(instance.instanceUuid)"
-                        @click.stop="handleKill(instance.instanceUuid)" title="Kill">
+                    <button v-if="
+                        instance.status === INSTANCE_STATUS_CODE.RUNNING ||
+                        instance.status === INSTANCE_STATUS_CODE.STOPPING
+                    " class="dim-action dim-action--kill" :disabled="isOperating(instance.instanceUuid)"
+                        :title="t('TXT_CODE_DESKTOP_IM_KILL')" @click.stop="handleKill(instance.instanceUuid)">
                         <CloseCircleOutlined />
                     </button>
                 </div>
@@ -373,12 +384,12 @@ onUnmounted(() => {
         <!-- Pagination -->
         <div v-if="totalPages > 1" class="dim-pagination">
             <button class="dim-btn dim-btn--sm" :disabled="currentPage <= 1" @click="currentPage--; fetchInstances()">
-                <LeftOutlined /> Prev
+                <LeftOutlined /> {{ t("TXT_CODE_DESKTOP_IM_PREV") }}
             </button>
             <span class="dim-pagination__info">{{ currentPage }} / {{ totalPages }}</span>
             <button class="dim-btn dim-btn--sm" :disabled="currentPage >= totalPages"
                 @click="currentPage++; fetchInstances()">
-                Next
+                {{ t("TXT_CODE_DESKTOP_IM_NEXT") }}
                 <RightOutlined />
             </button>
         </div>
