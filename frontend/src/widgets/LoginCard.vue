@@ -204,7 +204,7 @@ onMounted(async () => {
                   <div v-if="pageInfoResult?.loginInfo" class="global-markdown-html"
                     v-html="markdownToHTML(pageInfoResult?.loginInfo || '')"></div>
                   Powered by
-                  <a href="https://mcsmanager.com" target="_blank" rel="noopener noreferrer">
+                  <a href="https://github.com/Equestriarcadia/ElementsPanel" target="_blank" rel="noopener noreferrer">
                     ElementsPanel
                   </a>
                 </div>

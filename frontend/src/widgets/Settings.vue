@@ -458,11 +458,7 @@ onUnmounted(() => {
                       </a-typography-text>
                     </a-typography-paragraph>
                     <a-select v-model:value="formData.language" style="max-width: 320px">
-                      <a-select-option
-                        v-for="item in allLanguages"
-                        :key="item.value"
-                        :value="item.value"
-                      >
+                      <a-select-option v-for="item in allLanguages" :key="item.value" :value="item.value">
                         {{ item.label }}
                       </a-select-option>
                     </a-select>
@@ -473,11 +469,8 @@ onUnmounted(() => {
                     <a-typography-paragraph type="secondary">
                       {{ t("TXT_CODE_233624ad") }}
                     </a-typography-paragraph>
-                    <a-input
-                      v-model:value="formData.httpPort"
-                      style="max-width: 320px"
-                      :placeholder="t('TXT_CODE_4ea93630')"
-                    />
+                    <a-input v-model:value="formData.httpPort" style="max-width: 320px"
+                      :placeholder="t('TXT_CODE_4ea93630')" />
                   </a-form-item>
 
                   <a-form-item>
@@ -485,11 +478,8 @@ onUnmounted(() => {
                     <a-typography-paragraph type="secondary">
                       {{ t("TXT_CODE_24c4768a") }}
                     </a-typography-paragraph>
-                    <a-input
-                      v-model:value="formData.presetPackAddr"
-                      :placeholder="t('TXT_CODE_4ea93630')"
-                      style="max-width: 320px"
-                    />
+                    <a-input v-model:value="formData.presetPackAddr" :placeholder="t('TXT_CODE_4ea93630')"
+                      style="max-width: 320px" />
 
                     <a-button class="mx-8" type="primary" @click="toTemplate.edit">
                       {{ t("TXT_CODE_ad207008") }}
@@ -506,11 +496,8 @@ onUnmounted(() => {
                     <a-typography-paragraph type="secondary">
                       {{ t("TXT_CODE_328191e") }}
                     </a-typography-paragraph>
-                    <a-input
-                      v-model:value="formData.httpIp"
-                      style="max-width: 320px"
-                      :placeholder="t('TXT_CODE_4ea93630')"
-                    />
+                    <a-input v-model:value="formData.httpIp" style="max-width: 320px"
+                      :placeholder="t('TXT_CODE_4ea93630')" />
                   </a-form-item>
 
                   <a-form-item>
@@ -525,10 +512,7 @@ onUnmounted(() => {
                         {{ t("TXT_CODE_699b4b66") }}
                       </span>
                     </a-typography-paragraph>
-                    <a-input
-                      v-model:value="formData.panelId"
-                      :placeholder="t('TXT_CODE_4ea93630')"
-                    />
+                    <a-input v-model:value="formData.panelId" :placeholder="t('TXT_CODE_4ea93630')" />
                   </a-form-item>
 
                   <div class="button">
@@ -556,20 +540,12 @@ onUnmounted(() => {
                       {{ t("TXT_CODE_SETTINGS_LAYOUT_SIDEBAR_POSITION_DESCRIPTION") }}
                     </a-typography-paragraph>
                     <a-select v-model:value="sidebarPosition" style="max-width: 320px">
-                      <a-select-option
-                        v-for="opt in sidebarPositionOptions"
-                        :key="opt.value"
-                        :value="opt.value"
-                      >
+                      <a-select-option v-for="opt in sidebarPositionOptions" :key="opt.value" :value="opt.value">
                         {{ opt.label }}
                       </a-select-option>
                     </a-select>
-                    <a-button
-                      type="primary"
-                      class="ml-6 mt-2"
-                      :loading="submitIsLoading"
-                      @click="handleSaveSidebarPosition"
-                    >
+                    <a-button type="primary" class="ml-6 mt-2" :loading="submitIsLoading"
+                      @click="handleSaveSidebarPosition">
                       {{ t("TXT_CODE_abfe9512") }}
                     </a-button>
                   </a-form-item>
@@ -579,18 +555,11 @@ onUnmounted(() => {
                     <a-typography-paragraph type="secondary">
                       {{ t("TXT_CODE_b305236a") }}
                     </a-typography-paragraph>
-                    <a-input
-                      v-model:value="formData.pageTitle"
-                      :placeholder="t('TXT_CODE_4ea93630')"
-                    />
+                    <a-input v-model:value="formData.pageTitle" :placeholder="t('TXT_CODE_4ea93630')" />
                   </a-form-item>
 
                   <div class="button mb-24">
-                    <a-button
-                      type="primary"
-                      :loading="submitIsLoading"
-                      @click="handleSavePageTitle()"
-                    >
+                    <a-button type="primary" :loading="submitIsLoading" @click="handleSavePageTitle()">
                       {{ t("TXT_CODE_abfe9512") }}
                     </a-button>
                   </div>
@@ -604,12 +573,8 @@ onUnmounted(() => {
                         </div>
                       </a-typography-text>
                     </a-typography-paragraph>
-                    <a-button
-                      v-if="!containerState.isDesignMode"
-                      type="default"
-                      :loading="submitIsLoading"
-                      @click="startDesignUI()"
-                    >
+                    <a-button v-if="!containerState.isDesignMode" type="default" :loading="submitIsLoading"
+                      @click="startDesignUI()">
                       {{ t("TXT_CODE_bc46c15b") }}
                     </a-button>
                     <p v-if="containerState.isDesignMode">
@@ -624,11 +589,7 @@ onUnmounted(() => {
                         {{ t("TXT_CODE_c26e5fb7") }}
                       </a-typography-text>
                     </a-typography-paragraph>
-                    <a-textarea
-                      v-model:value="formData.loginInfo"
-                      :rows="4"
-                      :placeholder="t('TXT_CODE_4ea93630')"
-                    />
+                    <a-textarea v-model:value="formData.loginInfo" :rows="4" :placeholder="t('TXT_CODE_4ea93630')" />
                   </a-form-item>
 
                   <div class="button mb-24">
@@ -648,11 +609,8 @@ onUnmounted(() => {
                     </a-typography-paragraph>
                     <a-typography-paragraph>
                       <div class="flex">
-                        <a-input
-                          v-model:value="formData.logoUrl"
-                          style="max-width: 320px"
-                          :placeholder="t('TXT_CODE_4ea93630')"
-                        />
+                        <a-input v-model:value="formData.logoUrl" style="max-width: 320px"
+                          :placeholder="t('TXT_CODE_4ea93630')" />
                         <a-button class="ml-6" @click="() => uploadLogo()">
                           {{ t("TXT_CODE_ae09d79d") }}
                         </a-button>
@@ -680,11 +638,8 @@ onUnmounted(() => {
                     </a-typography-paragraph>
                     <a-typography-paragraph>
                       <div class="flex">
-                        <a-input
-                          v-model:value="formData.bgUrl"
-                          style="max-width: 320px"
-                          :placeholder="t('TXT_CODE_4ea93630')"
-                        />
+                        <a-input v-model:value="formData.bgUrl" style="max-width: 320px"
+                          :placeholder="t('TXT_CODE_4ea93630')" />
                         <a-button class="ml-6" @click="() => uploadBackground()">
                           {{ t("TXT_CODE_ae09d79d") }}
                         </a-button>
@@ -729,15 +684,8 @@ onUnmounted(() => {
                         {{ t("TXT_CODE_bfbdf579") }}
                       </a-typography-text>
                     </a-typography-paragraph>
-                    <a-select
-                      v-model:value.prop="(formData as any).allowChangeCmd"
-                      style="max-width: 320px"
-                    >
-                      <a-select-option
-                        v-for="item in allYesNo"
-                        :key="item.value"
-                        :value="item.value"
-                      >
+                    <a-select v-model:value.prop="(formData as any).allowChangeCmd" style="max-width: 320px">
+                      <a-select-option v-for="item in allYesNo" :key="item.value" :value="item.value">
                         {{ item.label }}
                       </a-select-option>
                     </a-select>
@@ -754,15 +702,8 @@ onUnmounted(() => {
                         {{ t("TXT_CODE_e5b7522d") }}
                       </a-typography-text>
                     </a-typography-paragraph>
-                    <a-select
-                      v-model:value.prop="(formData as any).canFileManager"
-                      style="max-width: 320px"
-                    >
-                      <a-select-option
-                        v-for="item in allYesNo"
-                        :key="item.value"
-                        :value="item.value"
-                      >
+                    <a-select v-model:value.prop="(formData as any).canFileManager" style="max-width: 320px">
+                      <a-select-option v-for="item in allYesNo" :key="item.value" :value="item.value">
                         {{ item.label }}
                       </a-select-option>
                     </a-select>
@@ -777,15 +718,8 @@ onUnmounted(() => {
                         {{ t("TXT_CODE_bc2e52a0") }}
                       </a-typography-text>
                     </a-typography-paragraph>
-                    <a-select
-                      v-model:value.prop="(formData as any).allowUsePreset"
-                      style="max-width: 320px"
-                    >
-                      <a-select-option
-                        v-for="item in allYesNo"
-                        :key="item.value"
-                        :value="item.value"
-                      >
+                    <a-select v-model:value.prop="(formData as any).allowUsePreset" style="max-width: 320px">
+                      <a-select-option v-for="item in allYesNo" :key="item.value" :value="item.value">
                         {{ item.label }}
                       </a-select-option>
                     </a-select>
@@ -801,15 +735,8 @@ onUnmounted(() => {
                       </a-typography-text>
                     </a-typography-paragraph>
 
-                    <a-select
-                      v-model:value.prop="(formData as any).crossDomain"
-                      style="max-width: 320px"
-                    >
-                      <a-select-option
-                        v-for="item in allYesNo"
-                        :key="item.value"
-                        :value="item.value"
-                      >
+                    <a-select v-model:value.prop="(formData as any).crossDomain" style="max-width: 320px">
+                      <a-select-option v-for="item in allYesNo" :key="item.value" :value="item.value">
                         {{ item.label }}
                       </a-select-option>
                     </a-select>
@@ -825,15 +752,8 @@ onUnmounted(() => {
                       </a-typography-text>
                     </a-typography-paragraph>
 
-                    <a-select
-                      v-model:value.prop="(formData as any).reverseProxyMode"
-                      style="max-width: 320px"
-                    >
-                      <a-select-option
-                        v-for="item in allYesNo"
-                        :key="item.value"
-                        :value="item.value"
-                      >
+                    <a-select v-model:value.prop="(formData as any).reverseProxyMode" style="max-width: 320px">
+                      <a-select-option v-for="item in allYesNo" :key="item.value" :value="item.value">
                         {{ item.label }}
                       </a-select-option>
                     </a-select>
@@ -849,11 +769,8 @@ onUnmounted(() => {
                       </a-typography-text>
                     </a-typography-paragraph>
 
-                    <a-input
-                      v-model:value="(formData as any).reverseProxyHeader"
-                      style="max-width: 320px"
-                      :placeholder="t('TXT_CODE_4ea93630')"
-                    />
+                    <a-input v-model:value="(formData as any).reverseProxyHeader" style="max-width: 320px"
+                      :placeholder="t('TXT_CODE_4ea93630')" />
                   </a-form-item>
 
                   <a-form-item>
@@ -866,15 +783,8 @@ onUnmounted(() => {
                       </a-typography-text>
                     </a-typography-paragraph>
 
-                    <a-select
-                      v-model:value.prop="(formData as any).loginCheckIp"
-                      style="max-width: 320px"
-                    >
-                      <a-select-option
-                        v-for="item in allYesNo"
-                        :key="item.value"
-                        :value="item.value"
-                      >
+                    <a-select v-model:value.prop="(formData as any).loginCheckIp" style="max-width: 320px">
+                      <a-select-option v-for="item in allYesNo" :key="item.value" :value="item.value">
                         {{ item.label }}
                       </a-select-option>
                     </a-select>
@@ -890,15 +800,8 @@ onUnmounted(() => {
                       </a-typography-text>
                     </a-typography-paragraph>
 
-                    <a-select
-                      v-model:value="formData.totpDriftToleranceSteps"
-                      style="max-width: 320px"
-                    >
-                      <a-select-option
-                        v-for="item in totpDriftOptions"
-                        :key="item.value"
-                        :value="item.value"
-                      >
+                    <a-select v-model:value="formData.totpDriftToleranceSteps" style="max-width: 320px">
+                      <a-select-option v-for="item in totpDriftOptions" :key="item.value" :value="item.value">
                         {{ item.label }}
                       </a-select-option>
                     </a-select>
@@ -945,11 +848,8 @@ onUnmounted(() => {
                       <a-typography-paragraph type="secondary">
                         {{ t("TXT_CODE_SSO_PROVIDER_NAME_DESC") }}
                       </a-typography-paragraph>
-                      <a-input
-                        v-model:value="(formData as any).ssoProviderName"
-                        style="max-width: 320px"
-                        :placeholder="t('TXT_CODE_4ea93630')"
-                      />
+                      <a-input v-model:value="(formData as any).ssoProviderName" style="max-width: 320px"
+                        :placeholder="t('TXT_CODE_4ea93630')" />
                     </a-form-item>
 
                     <a-form-item>
@@ -959,11 +859,8 @@ onUnmounted(() => {
                       <a-typography-paragraph type="secondary">
                         {{ t("TXT_CODE_SSO_ICON_URL_DESC") }}
                       </a-typography-paragraph>
-                      <a-input
-                        v-model:value="(formData as any).ssoIconUrl"
-                        style="max-width: 320px"
-                        :placeholder="t('TXT_CODE_4ea93630')"
-                      />
+                      <a-input v-model:value="(formData as any).ssoIconUrl" style="max-width: 320px"
+                        :placeholder="t('TXT_CODE_4ea93630')" />
                     </a-form-item>
 
                     <!-- OIDC-specific: Issuer URL -->
@@ -974,11 +871,8 @@ onUnmounted(() => {
                       <a-typography-paragraph type="secondary">
                         {{ t("TXT_CODE_SSO_ISSUER_DESC") }}
                       </a-typography-paragraph>
-                      <a-input
-                        v-model:value="(formData as any).ssoIssuer"
-                        style="max-width: 480px"
-                        placeholder="https://accounts.example.com"
-                      />
+                      <a-input v-model:value="(formData as any).ssoIssuer" style="max-width: 480px"
+                        placeholder="https://accounts.example.com" />
                     </a-form-item>
 
                     <!-- OAuth 2.0-specific fields -->
@@ -990,11 +884,8 @@ onUnmounted(() => {
                         <a-typography-paragraph type="secondary">
                           {{ t("TXT_CODE_SSO_AUTHORIZE_URL_DESC") }}
                         </a-typography-paragraph>
-                        <a-input
-                          v-model:value="(formData as any).ssoAuthorizeUrl"
-                          style="max-width: 480px"
-                          placeholder="https://github.com/login/oauth/authorize"
-                        />
+                        <a-input v-model:value="(formData as any).ssoAuthorizeUrl" style="max-width: 480px"
+                          placeholder="https://github.com/login/oauth/authorize" />
                       </a-form-item>
 
                       <a-form-item>
@@ -1004,11 +895,8 @@ onUnmounted(() => {
                         <a-typography-paragraph type="secondary">
                           {{ t("TXT_CODE_SSO_TOKEN_URL_DESC") }}
                         </a-typography-paragraph>
-                        <a-input
-                          v-model:value="(formData as any).ssoTokenUrl"
-                          style="max-width: 480px"
-                          placeholder="https://github.com/login/oauth/access_token"
-                        />
+                        <a-input v-model:value="(formData as any).ssoTokenUrl" style="max-width: 480px"
+                          placeholder="https://github.com/login/oauth/access_token" />
                       </a-form-item>
 
                       <a-form-item>
@@ -1018,11 +906,8 @@ onUnmounted(() => {
                         <a-typography-paragraph type="secondary">
                           {{ t("TXT_CODE_SSO_USERINFO_URL_DESC") }}
                         </a-typography-paragraph>
-                        <a-input
-                          v-model:value="(formData as any).ssoUserinfoUrl"
-                          style="max-width: 480px"
-                          placeholder="https://api.github.com/user"
-                        />
+                        <a-input v-model:value="(formData as any).ssoUserinfoUrl" style="max-width: 480px"
+                          placeholder="https://api.github.com/user" />
                       </a-form-item>
 
                       <a-form-item>
@@ -1032,11 +917,8 @@ onUnmounted(() => {
                         <a-typography-paragraph type="secondary">
                           {{ t("TXT_CODE_SSO_USER_ID_FIELD_DESC") }}
                         </a-typography-paragraph>
-                        <a-input
-                          v-model:value="(formData as any).ssoUserIdField"
-                          style="max-width: 320px"
-                          placeholder="id"
-                        />
+                        <a-input v-model:value="(formData as any).ssoUserIdField" style="max-width: 320px"
+                          placeholder="id" />
                       </a-form-item>
 
                       <a-form-item>
@@ -1046,11 +928,8 @@ onUnmounted(() => {
                         <a-typography-paragraph type="secondary">
                           {{ t("TXT_CODE_SSO_SCOPES_DESC") }}
                         </a-typography-paragraph>
-                        <a-input
-                          v-model:value="(formData as any).ssoScopes"
-                          style="max-width: 320px"
-                          placeholder="read:user"
-                        />
+                        <a-input v-model:value="(formData as any).ssoScopes" style="max-width: 320px"
+                          placeholder="read:user" />
                       </a-form-item>
                     </template>
 
@@ -1059,11 +938,8 @@ onUnmounted(() => {
                       <a-typography-paragraph type="secondary">
                         {{ t("TXT_CODE_SSO_CLIENT_ID_DESC") }}
                       </a-typography-paragraph>
-                      <a-input
-                        v-model:value="(formData as any).ssoClientId"
-                        style="max-width: 480px"
-                        :placeholder="t('TXT_CODE_4ea93630')"
-                      />
+                      <a-input v-model:value="(formData as any).ssoClientId" style="max-width: 480px"
+                        :placeholder="t('TXT_CODE_4ea93630')" />
                     </a-form-item>
 
                     <a-form-item>
@@ -1071,11 +947,8 @@ onUnmounted(() => {
                       <a-typography-paragraph type="secondary">
                         {{ t("TXT_CODE_SSO_CLIENT_SECRET_DESC") }}
                       </a-typography-paragraph>
-                      <a-input-password
-                        v-model:value="(formData as any).ssoClientSecret"
-                        style="max-width: 480px"
-                        :placeholder="t('TXT_CODE_4ea93630')"
-                      />
+                      <a-input-password v-model:value="(formData as any).ssoClientSecret" style="max-width: 480px"
+                        :placeholder="t('TXT_CODE_4ea93630')" />
                     </a-form-item>
 
                     <a-form-item>
@@ -1085,11 +958,8 @@ onUnmounted(() => {
                       <a-typography-paragraph type="secondary">
                         {{ t("TXT_CODE_SSO_CALLBACK_URL_DESC") }}
                       </a-typography-paragraph>
-                      <a-input
-                        v-model:value="(formData as any).ssoCallbackUrl"
-                        style="max-width: 480px"
-                        placeholder="https://your-panel.com/api/auth/sso/callback"
-                      />
+                      <a-input v-model:value="(formData as any).ssoCallbackUrl" style="max-width: 480px"
+                        placeholder="https://your-panel.com/api/auth/sso/callback" />
                     </a-form-item>
 
                     <a-form-item>
@@ -1099,15 +969,8 @@ onUnmounted(() => {
                       <a-typography-paragraph type="secondary">
                         {{ t("TXT_CODE_SSO_ONLY_MODE_DESC") }}
                       </a-typography-paragraph>
-                      <a-select
-                        v-model:value.prop="(formData as any).ssoOnlyMode"
-                        style="max-width: 320px"
-                      >
-                        <a-select-option
-                          v-for="item in allYesNo"
-                          :key="item.value"
-                          :value="item.value"
-                        >
+                      <a-select v-model:value.prop="(formData as any).ssoOnlyMode" style="max-width: 320px">
+                        <a-select-option v-for="item in allYesNo" :key="item.value" :value="item.value">
                           {{ item.label }}
                         </a-select-option>
                       </a-select>
@@ -1120,15 +983,8 @@ onUnmounted(() => {
                       <a-typography-paragraph type="secondary">
                         {{ t("TXT_CODE_SSO_AUTO_REDIRECT_DESC") }}
                       </a-typography-paragraph>
-                      <a-select
-                        v-model:value.prop="(formData as any).ssoAutoRedirect"
-                        style="max-width: 320px"
-                      >
-                        <a-select-option
-                          v-for="item in allYesNo"
-                          :key="item.value"
-                          :value="item.value"
-                        >
+                      <a-select v-model:value.prop="(formData as any).ssoAutoRedirect" style="max-width: 320px">
+                        <a-select-option v-for="item in allYesNo" :key="item.value" :value="item.value">
                           {{ item.label }}
                         </a-select-option>
                       </a-select>
@@ -1163,31 +1019,6 @@ onUnmounted(() => {
                   {{ $t("TXT_CODE_d0c670df") }}
                 </p>
               </a-typography-paragraph>
-              <div class="pb-4 flex">
-                <div v-for="item in aboutLinks" :key="item.url" class="mr-12 mb-12">
-                  <a :href="item.url" target="_blank">
-                    <a-button>
-                      <component :is="item.icon" />
-                      {{ item.title }}
-                    </a-button>
-                  </a>
-                </div>
-              </div>
-              <a-typography-paragraph>
-                <p>
-                  {{ $t("TXT_CODE_97433ac4") }}
-                </p>
-              </a-typography-paragraph>
-              <div class="pb-4 flex">
-                <div v-for="item in contacts" :key="item.url" class="mr-12 mb-12">
-                  <a :href="item.url" target="_blank">
-                    <a-button>
-                      <component :is="item.icon" />
-                      {{ item.title }}
-                    </a-button>
-                  </a>
-                </div>
-              </div>
               <a-typography-paragraph>
                 <p>
                   {{ $t("TXT_CODE_e57bd50f") }}
@@ -1221,6 +1052,7 @@ onUnmounted(() => {
 <style lang="scss" scoped>
 div {
   position: relative;
+
   .loading {
     position: absolute;
     top: 0;

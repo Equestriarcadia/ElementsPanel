@@ -174,7 +174,8 @@ const handleNext = async () => {
                 </form>
                 <div class="desktop-login-footer">
                     Powered by
-                    <a href="https://mcsmanager.com" target="_blank" rel="noopener noreferrer">ElementsPanel</a>
+                    <a href="https://github.com/Equestriarcadia/ElementsPanel" target="_blank"
+                        rel="noopener noreferrer">ElementsPanel</a>
                 </div>
             </div>
 
