@@ -57,7 +57,6 @@ const isComponentIcon = (icon: Component | string): boolean => typeof icon !== "
             <span class="taskbar__start-icon">
                 <img src="/desktop-icon.svg" alt="Start" />
             </span>
-            <span class="taskbar__start-label">{{ t("TXT_CODE_DESKTOP_START") }}</span>
         </div>
 
         <!-- Start Menu Popup -->
@@ -125,8 +124,9 @@ const isComponentIcon = (icon: Component | string): boolean => typeof icon !== "
 .taskbar__start {
     display: flex;
     align-items: center;
-    gap: 6px;
-    padding: 6px 14px;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
     border-radius: 6px;
     cursor: pointer;
     transition: background-color 0.15s;
@@ -146,14 +146,9 @@ const isComponentIcon = (icon: Component | string): boolean => typeof icon !== "
         align-items: center;
 
         img {
-            width: 18px;
-            height: 18px;
+            width: 20px;
+            height: 20px;
         }
-    }
-
-    &-label {
-        font-size: 13px;
-        font-weight: 500;
     }
 }
 

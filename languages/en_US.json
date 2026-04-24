@@ -3431,7 +3431,6 @@
   "TXT_CODE_66aeac82": "Reverse Proxy Request Header",
   "TXT_CODE_fd8bc51f": "When reverse proxy mode is enabled, the panel will retrieve the user's real IP address from this request header.",
   "TXT_CODE_DESKTOP_MODE": "Desktop Mode",
-  "TXT_CODE_DESKTOP_START": "Start",
   "TXT_CODE_DESKTOP_EXIT": "Exit Desktop",
   "TXT_CODE_DESKTOP_REFRESH": "Refresh",
   "TXT_CODE_DESKTOP_INSTANCES": "Instances",

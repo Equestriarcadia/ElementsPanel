@@ -335,7 +335,7 @@ onUnmounted(() => {
                         </span>
                         <span class="dim-instance__name">{{
                             instance.config.nickname || t("TXT_CODE_DESKTOP_IM_UNNAMED")
-                            }}</span><span class="dim-instance__badge" :class="getStatusClass(instance.status)">
+                        }}</span><span class="dim-instance__badge" :class="getStatusClass(instance.status)">
                             {{ getStatusText(instance.status) }}
                         </span>
                     </div>
@@ -347,6 +347,8 @@ onUnmounted(() => {
                             {{ instance.config.type }}
                         </span><span v-if="
                             instance.info?.currentPlayers !== undefined &&
+                            instance.info?.maxPlayers !== undefined &&
+                            instance.info.maxPlayers > 0 &&
                             instance.status === INSTANCE_STATUS_CODE.RUNNING
                         " class="dim-instance__players">
                             <TeamOutlined /> {{ instance.info.currentPlayers }}/{{ instance.info.maxPlayers }}

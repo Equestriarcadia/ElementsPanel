@@ -3431,7 +3431,6 @@
   "TXT_CODE_66aeac82": "反向代理请求头",
   "TXT_CODE_fd8bc51f": "当反向代理模式开启时，面板将会从这个请求头中获取用户真实IP。",
   "TXT_CODE_DESKTOP_MODE": "桌面模式",
-  "TXT_CODE_DESKTOP_START": "开始",
   "TXT_CODE_DESKTOP_EXIT": "退出桌面",
   "TXT_CODE_DESKTOP_REFRESH": "刷新",
   "TXT_CODE_DESKTOP_INSTANCES": "实例管理",

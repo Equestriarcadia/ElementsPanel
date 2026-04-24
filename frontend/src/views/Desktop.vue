@@ -14,6 +14,7 @@ import {
     CodeOutlined,
     DashboardOutlined,
     DesktopOutlined,
+    InfoCircleOutlined,
     LogoutOutlined,
     SettingOutlined,
     ShoppingOutlined,
@@ -102,7 +103,7 @@ const desktopApps = computed<DesktopApp[]>(() => {
         {
             id: "about",
             label: t("TXT_CODE_DESKTOP_ABOUT"),
-            icon: "/desktop-icon.svg",
+            icon: markRaw(InfoCircleOutlined),
             color: "#597ef7",
             windowContent: "about"
         }
@@ -407,16 +408,16 @@ const username = computed(() => appState.userInfo?.userName || "User");
                                 <div class="about-row">
                                     <span class="about-label">{{
                                         t("TXT_CODE_DESKTOP_ABOUT_USER")
-                                        }}</span>
+                                    }}</span>
                                     <span class="about-value">{{ username }}</span>
                                 </div>
                                 <div class="about-row">
                                     <span class="about-label">{{
                                         t("TXT_CODE_DESKTOP_ABOUT_ROLE")
-                                        }}</span>
+                                    }}</span>
                                     <span class="about-value">{{
                                         isAdmin ? "Admin" : "User"
-                                        }}</span>
+                                    }}</span>
                                 </div>
                             </div>
                         </div>
