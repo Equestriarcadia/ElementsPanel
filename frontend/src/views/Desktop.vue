@@ -14,13 +14,11 @@ import {
     CodeOutlined,
     DashboardOutlined,
     DesktopOutlined,
-    InfoCircleOutlined,
     LogoutOutlined,
     SettingOutlined,
     ShoppingOutlined,
     SyncOutlined,
-    TeamOutlined,
-    ThunderboltOutlined
+    TeamOutlined
 } from "@ant-design/icons-vue";
 import { computed, markRaw, reactive, ref, type Component } from "vue";
 import { useRouter } from "vue-router";
@@ -39,7 +37,7 @@ const handleLoginSuccess = () => {
 interface DesktopApp {
     id: string;
     label: string;
-    icon: Component;
+    icon: Component | string;
     color: string;
     route?: string;
     windowContent?: string;
@@ -104,7 +102,7 @@ const desktopApps = computed<DesktopApp[]>(() => {
         {
             id: "about",
             label: t("TXT_CODE_DESKTOP_ABOUT"),
-            icon: markRaw(InfoCircleOutlined),
+            icon: "/desktop-icon.svg",
             color: "#597ef7",
             windowContent: "about"
         }
@@ -126,7 +124,7 @@ const selectIcon = (id: string) => {
 interface WindowState {
     id: string;
     title: string;
-    icon: Component;
+    icon: Component | string;
     visible: boolean;
     minimized: boolean;
     maximized: boolean;
@@ -401,7 +399,7 @@ const username = computed(() => appState.userInfo?.userName || "User");
                     <div v-else-if="win.content === 'about'" class="window-page window-page--about">
                         <div class="about-content">
                             <div class="about-logo">
-                                <ThunderboltOutlined />
+                                <img src="/desktop-icon.svg" alt="ElementsPanel" />
                             </div>
                             <h2>ElementsPanel</h2>
                             <p class="about-desc">{{ t("TXT_CODE_DESKTOP_ABOUT_DESC") }}</p>
@@ -452,23 +450,12 @@ const username = computed(() => appState.userInfo?.userName || "User");
 .desktop-wallpaper {
     position: absolute;
     inset: 0;
-    background: linear-gradient(135deg,
-            #0a1628 0%,
-            #1a2a4a 30%,
-            #1e3a5f 50%,
-            #0d2137 70%,
-            #0a1628 100%);
+    background-color: var(--color-gray-1);
+    background-image: var(--app-background-image);
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
     z-index: 0;
-
-    &::before {
-        content: "";
-        position: absolute;
-        inset: 0;
-        background:
-            radial-gradient(ellipse at 20% 50%, rgba(30, 80, 160, 0.3) 0%, transparent 50%),
-            radial-gradient(ellipse at 80% 20%, rgba(60, 120, 200, 0.15) 0%, transparent 40%),
-            radial-gradient(ellipse at 50% 80%, rgba(20, 60, 140, 0.2) 0%, transparent 50%);
-    }
 }
 
 .desktop-icons {
@@ -595,9 +582,12 @@ const username = computed(() => appState.userInfo?.userName || "User");
     padding: 32px;
 
     .about-logo {
-        font-size: 64px;
         margin-bottom: 16px;
-        color: #faad14;
+
+        img {
+            width: 64px;
+            height: 64px;
+        }
     }
 
     h2 {

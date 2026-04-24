@@ -20,7 +20,6 @@ const emit = defineEmits<{
 }>();
 
 const iconStyle = computed(() => ({
-    backgroundColor: props.color,
     color: "#fff"
 }));
 
@@ -40,6 +39,8 @@ const handleClick = () => {
         @dblclick.stop="handleDblClick">
         <div class="desktop-icon__graphic" :style="iconStyle">
             <component :is="icon" v-if="isComponent" class="desktop-icon__anticon" />
+            <img v-else-if="typeof icon === 'string' && icon.endsWith('.svg')" :src="icon" alt="icon"
+                class="desktop-icon__img" />
             <span v-else class="desktop-icon__emoji">{{ icon }}</span>
         </div>
         <span class="desktop-icon__label">{{ label }}</span>
@@ -71,14 +72,13 @@ const handleClick = () => {
     &__graphic {
         width: 52px;
         height: 52px;
-        border-radius: 12px;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 26px;
+        font-size: 42px;
         margin-bottom: 6px;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
         transition: transform 0.2s ease;
+        filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
 
         .desktop-icon:active & {
             transform: scale(0.92);
@@ -86,11 +86,17 @@ const handleClick = () => {
     }
 
     &__anticon {
-        font-size: 26px;
+        font-size: 42px;
+    }
+
+    &__img {
+        width: 42px;
+        height: 42px;
+        object-fit: contain;
     }
 
     &__emoji {
-        font-size: 26px;
+        font-size: 42px;
         line-height: 1;
     }
 

@@ -151,7 +151,7 @@ onUnmounted(() => {
                 <div class="window__titlebar-left">
                     <span class="window__icon">
                         <component :is="icon" v-if="isComponentIcon" />
-                        <template v-else>{{ icon }}</template>
+                        <img v-else :src="icon as string" alt="icon" />
                     </span>
                     <span class="window__title">{{ title }}</span>
                 </div>
@@ -232,6 +232,11 @@ onUnmounted(() => {
     display: flex;
     align-items: center;
     color: rgba(255, 255, 255, 0.85);
+
+    img {
+        width: 14px;
+        height: 14px;
+    }
 }
 
 .window__title {

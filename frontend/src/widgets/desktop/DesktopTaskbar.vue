@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { t } from "@/lang/i18n";
-import { LogoutOutlined, ThunderboltOutlined, UserOutlined } from "@ant-design/icons-vue";
+import { LogoutOutlined, UserOutlined } from "@ant-design/icons-vue";
 import { ref, type Component } from "vue";
 
 export interface TaskbarWindow {
@@ -55,7 +55,7 @@ const isComponentIcon = (icon: Component | string): boolean => typeof icon !== "
         <!-- Start Button -->
         <div class="taskbar__start" :class="{ 'taskbar__start--active': startMenuOpen }" @click="toggleStartMenu">
             <span class="taskbar__start-icon">
-                <ThunderboltOutlined />
+                <img src="/desktop-icon.svg" alt="Start" />
             </span>
             <span class="taskbar__start-label">{{ t("TXT_CODE_DESKTOP_START") }}</span>
         </div>
@@ -85,6 +85,8 @@ const isComponentIcon = (icon: Component | string): boolean => typeof icon !== "
                 :class="{ 'taskbar__window-btn--active': win.active }" @click="emit('toggle-window', win.id)">
                 <span class="taskbar__window-icon">
                     <component :is="win.icon" v-if="isComponentIcon(win.icon)" />
+                    <img v-else-if="typeof win.icon === 'string' && win.icon.endsWith('.svg')" :src="win.icon"
+                        alt="icon" />
                     <template v-else>{{ win.icon }}</template>
                 </span>
                 <span class="taskbar__window-title">{{ win.title }}</span>
@@ -140,10 +142,13 @@ const isComponentIcon = (icon: Component | string): boolean => typeof icon !== "
     }
 
     &-icon {
-        font-size: 18px;
         display: flex;
         align-items: center;
-        color: #faad14;
+
+        img {
+            width: 18px;
+            height: 18px;
+        }
     }
 
     &-label {
@@ -278,6 +283,11 @@ const isComponentIcon = (icon: Component | string): boolean => typeof icon !== "
     font-size: 14px;
     display: flex;
     align-items: center;
+
+    img {
+        width: 14px;
+        height: 14px;
+    }
 }
 
 .taskbar__window-title {
