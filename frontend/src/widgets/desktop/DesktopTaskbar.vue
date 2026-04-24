@@ -201,6 +201,7 @@ const isComponentIcon = (icon: Component | string): boolean => typeof icon !== "
     cursor: pointer;
     transition: background-color 0.15s;
     color: #fff;
+    margin-left: 2px;
     margin-right: 4px;
 
     &:hover {
