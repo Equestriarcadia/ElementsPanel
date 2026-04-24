@@ -142,21 +142,23 @@ const isComponentIcon = (icon: Component | string): boolean => typeof icon !== "
 
         <!-- Window Buttons -->
         <div class="taskbar__windows">
-            <div v-for="(win, index) in windows" :key="win.id" class="taskbar__window-btn" :class="{
-                'taskbar__window-btn--active': win.active,
-                'taskbar__window-btn--dragging': draggedIndex === index,
-                'taskbar__window-btn--drag-over-left': dragOverIndex === index && draggedIndex !== null && draggedIndex > index,
-                'taskbar__window-btn--drag-over-right': dragOverIndex === index && draggedIndex !== null && draggedIndex < index
-            }" draggable="true" @dragstart="onDragStart(index, $event)" @dragover="onDragOver(index, $event)"
-                @drop="onDrop(index, $event)" @dragend="onDragEnd" @click="emit('toggle-window', win.id)">
-                <span class="taskbar__window-icon">
-                    <component :is="win.icon" v-if="isComponentIcon(win.icon)" />
-                    <img v-else-if="typeof win.icon === 'string' && win.icon.endsWith('.svg')" :src="win.icon"
-                        alt="icon" />
-                    <template v-else>{{ win.icon }}</template>
-                </span>
-                <span class="taskbar__window-title">{{ win.title }}</span>
-            </div>
+            <TransitionGroup name="taskbar-window-list">
+                <div v-for="(win, index) in windows" :key="win.id" class="taskbar__window-btn" :class="{
+                    'taskbar__window-btn--active': win.active,
+                    'taskbar__window-btn--dragging': draggedIndex === index,
+                    'taskbar__window-btn--drag-over-left': dragOverIndex === index && draggedIndex !== null && draggedIndex > index,
+                    'taskbar__window-btn--drag-over-right': dragOverIndex === index && draggedIndex !== null && draggedIndex < index
+                }" draggable="true" @dragstart="onDragStart(index, $event)" @dragover="onDragOver(index, $event)"
+                    @drop="onDrop(index, $event)" @dragend="onDragEnd" @click="emit('toggle-window', win.id)">
+                    <span class="taskbar__window-icon">
+                        <component :is="win.icon" v-if="isComponentIcon(win.icon)" />
+                        <img v-else-if="typeof win.icon === 'string' && win.icon.endsWith('.svg')" :src="win.icon"
+                            alt="icon" />
+                        <template v-else>{{ win.icon }}</template>
+                    </span>
+                    <span class="taskbar__window-title">{{ win.title }}</span>
+                </div>
+            </TransitionGroup>
         </div>
 
         <!-- System Tray -->
@@ -399,5 +401,24 @@ const isComponentIcon = (icon: Component | string): boolean => typeof icon !== "
     font-size: 10px;
     opacity: 0.7;
     line-height: 1.3;
+}
+
+.taskbar-window-list-enter-active,
+.taskbar-window-list-leave-active {
+    transition: all 0.3s ease;
+}
+
+.taskbar-window-list-enter-from,
+.taskbar-window-list-leave-to {
+    opacity: 0;
+    max-width: 0;
+    padding-left: 0;
+    padding-right: 0;
+    margin-left: 0;
+    margin-right: 0;
+}
+
+.taskbar-window-list-move {
+    transition: transform 0.3s ease;
 }
 </style>
