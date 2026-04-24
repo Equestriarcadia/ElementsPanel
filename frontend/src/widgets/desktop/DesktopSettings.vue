@@ -522,7 +522,7 @@ limitations under the License.`;
                                 <select v-model="(formData as any).ssoOnlyMode" class="ds-select">
                                     <option v-for="item in allYesNo" :key="String(item.value)" :value="item.value">{{
                                         item.label
-                                    }}</option>
+                                        }}</option>
                                 </select>
                             </div>
 
@@ -532,7 +532,7 @@ limitations under the License.`;
                                 <select v-model="(formData as any).ssoAutoRedirect" class="ds-select">
                                     <option v-for="item in allYesNo" :key="String(item.value)" :value="item.value">{{
                                         item.label
-                                    }}</option>
+                                        }}</option>
                                 </select>
                             </div>
                         </template>
@@ -566,7 +566,7 @@ limitations under the License.`;
 .desktop-settings {
     display: flex;
     height: 100%;
-    background: rgba(20, 20, 30, 0.6);
+    background: transparent;
     border-radius: 0 0 8px 8px;
     overflow: hidden;
 }

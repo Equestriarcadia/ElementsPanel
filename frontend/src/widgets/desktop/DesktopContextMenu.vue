@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, onUnmounted, type Component } from "vue";
+import { nextTick, onMounted, onUnmounted, ref, watch, type Component } from "vue";
 
 export interface ContextMenuItem {
     label: string;
@@ -18,6 +18,46 @@ const props = defineProps<{
 const emit = defineEmits<{
     (e: "close"): void;
 }>();
+
+const menuRef = ref<HTMLElement | null>(null);
+const adjustedX = ref(0);
+const adjustedY = ref(0);
+
+watch(
+    () => [props.visible, props.x, props.y],
+    async ([visible, x, y]) => {
+        if (visible) {
+            adjustedX.value = x as number;
+            adjustedY.value = y as number;
+
+            await nextTick();
+
+            if (menuRef.value) {
+                const width = menuRef.value.offsetWidth;
+                const height = menuRef.value.offsetHeight;
+                const windowWidth = window.innerWidth;
+                const windowHeight = window.innerHeight;
+
+                let newX = x as number;
+                let newY = y as number;
+
+                if (newX + width > windowWidth) {
+                    newX = windowWidth - width - 8;
+                }
+
+                if (newY + height > windowHeight) {
+                    newY = (y as number) - height;
+                    if (newY < 8) {
+                        newY = 8;
+                    }
+                }
+
+                adjustedX.value = newX;
+                adjustedY.value = newY;
+            }
+        }
+    }
+);
 
 const handleClick = (item: ContextMenuItem) => {
     item.action();
@@ -45,7 +85,8 @@ onUnmounted(() => {
 
 <template>
     <Transition name="ctx-menu">
-        <div v-if="visible" class="desktop-context-menu" :style="{ left: `${x}px`, top: `${y}px` }" @click.stop>
+        <div v-if="visible" ref="menuRef" class="desktop-context-menu"
+            :style="{ left: `${adjustedX}px`, top: `${adjustedY}px` }" @click.stop>
             <div v-for="(item, index) in items" :key="index">
                 <div v-if="item.divider" class="ctx-menu__divider"></div>
                 <div v-else class="ctx-menu__item" @click="handleClick(item)">
@@ -105,11 +146,11 @@ onUnmounted(() => {
 }
 
 .ctx-menu-enter-active {
-    transition: all 0.15s cubic-bezier(0.34, 1.56, 0.64, 1);
+    transition: opacity 0.15s cubic-bezier(0.34, 1.56, 0.64, 1), transform 0.15s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 .ctx-menu-leave-active {
-    transition: all 0.1s ease-in;
+    transition: opacity 0.1s ease-in, transform 0.1s ease-in;
 }
 
 .ctx-menu-enter-from {
