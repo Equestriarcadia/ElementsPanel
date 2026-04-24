@@ -73,7 +73,7 @@ const isComponentIcon = (icon: Component | string): boolean => typeof icon !== "
                     <span class="start-menu__item-icon">
                         <LogoutOutlined />
                     </span>
-                    <span>{{ t("TXT_CODE_DESKTOP_EXIT") }}</span>
+                    <span>{{ t("TXT_CODE_2c69ab15") }}</span>
                 </div>
             </div>
         </Transition>
@@ -119,6 +119,7 @@ const isComponentIcon = (icon: Component | string): boolean => typeof icon !== "
     z-index: 1000;
     border-top: 1px solid rgba(255, 255, 255, 0.08);
     padding: 0 4px;
+    user-select: none;
 }
 
 .taskbar__start {

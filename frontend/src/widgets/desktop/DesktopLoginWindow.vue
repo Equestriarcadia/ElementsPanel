@@ -126,7 +126,7 @@ const handleNext = async () => {
             <div class="window__titlebar" @mousedown="onMouseDown">
                 <div class="window__titlebar-left">
                     <span class="window__icon">
-                        <img src="@/assets/logo.svg" alt="logo" style="width: 14px; height: 14px;" />
+                        <img src="/desktop-icon.svg" alt="logo" style="width: 14px; height: 14px;" />
                     </span>
                     <span class="window__title">ElementsPanel</span>
                 </div>
@@ -147,7 +147,7 @@ const handleNext = async () => {
             <div v-show="loginStep <= 1" class="desktop-login-body">
                 <p class="desktop-login-subtitle">{{ t("TXT_CODE_5b60ad00") }}</p>
                 <form class="desktop-login-form" @submit.prevent="handleLogin">
-                    <div v-if="!is2Fa">
+                    <div v-if="!is2Fa" class="desktop-login-fields-group">
                         <div class="desktop-login-field">
                             <UserOutlined class="field-icon" />
                             <input v-model="formData.username" type="text" :placeholder="t('TXT_CODE_80a560a1')"
@@ -212,7 +212,7 @@ const handleNext = async () => {
     transition: border-radius 0.2s ease, box-shadow 0.2s ease;
 
     &.is-dragging {
-        opacity: 0.92;
+        opacity: 1;
         transition: none;
     }
 
@@ -323,6 +323,12 @@ const handleNext = async () => {
 }
 
 .desktop-login-form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.desktop-login-fields-group {
     display: flex;
     flex-direction: column;
     gap: 12px;

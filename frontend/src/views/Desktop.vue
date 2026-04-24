@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { t } from "@/lang/i18n";
+import { logoutUser } from "@/services/apis/index";
 import { useAppStateStore } from "@/stores/useAppStateStore";
 import type { ContextMenuItem } from "@/widgets/desktop/DesktopContextMenu.vue";
 import DesktopContextMenu from "@/widgets/desktop/DesktopContextMenu.vue";
@@ -18,7 +19,6 @@ import {
     DashboardOutlined,
     DesktopOutlined,
     InfoCircleOutlined,
-    LogoutOutlined,
     SettingOutlined,
     ShoppingOutlined,
     SyncOutlined,
@@ -29,6 +29,7 @@ import { useRouter } from "vue-router";
 
 const router = useRouter();
 const { state: appState, isAdmin, isLogged } = useAppStateStore();
+const { execute: executeLogout } = logoutUser();
 
 //─── Login Overlay ───
 const showLoginOverlay = computed(() => !isLogged.value);
@@ -291,17 +292,6 @@ const ctxMenuItems = computed<ContextMenuItem[]>(() => [
         label: t("TXT_CODE_DESKTOP_REFRESH"),
         icon: markRaw(SyncOutlined),
         action: () => window.location.reload()
-    },
-    {
-        label: "",
-        icon: null,
-        action: () => { },
-        divider: true
-    },
-    {
-        label: t("TXT_CODE_DESKTOP_EXIT"),
-        icon: markRaw(LogoutOutlined),
-        action: () => router.push("/")
     }
 ]);
 
@@ -323,8 +313,9 @@ const onDesktopClick = () => {
 };
 
 // ─── Exit Desktop ───
-const exitDesktop = () => {
-    router.push("/");
+const exitDesktop = async () => {
+    await executeLogout();
+    window.location.reload();
 };
 
 const username = computed(() => appState.userInfo?.userName || "User");
@@ -334,128 +325,138 @@ const username = computed(() => appState.userInfo?.userName || "User");
     <div class="desktop-container" @click="onDesktopClick" @contextmenu="onDesktopContextMenu">
         <div class="desktop-wallpaper"></div>
 
-        <template v-if="!showLoginOverlay">
-            <div class="desktop-icons">
-                <DesktopIcon v-for="app in desktopApps" :key="app.id" :id="app.id" :label="app.label" :icon="app.icon"
-                    :color="app.color" :selected="selectedIconId === app.id" @select="selectIcon" @open="openWindow" />
-            </div>
-
-            <TransitionGroup name="desktop-window-group">
-                <DesktopWindow v-for="[id, win] in windows" :key="id" :id="win.id" :title="win.title" :icon="win.icon"
-                    :visible="win.visible" :minimized="win.minimized" :maximized="win.maximized"
-                    :active="win.id === activeWindowId" :initial-x="win.initialX" :initial-y="win.initialY"
-                    :initial-width="win.initialWidth" :initial-height="win.initialHeight" :z-index="win.zIndex"
-                    @close="closeWindow" @minimize="minimizeWindow" @maximize="maximizeWindow" @focus="focusWindow">
-                    <div class="window-inner-content">
-                        <DesktopInstanceManager v-if="win.content === 'instances'"
-                            @open-console="openInstanceConsole" />
-
-                        <DesktopInstanceConsole
-                            v-else-if="win.content === 'instance-console' && win.instanceId && win.daemonId"
-                            :instance-id="win.instanceId" :daemon-id="win.daemonId" />
-
-                        <DesktopOverview v-else-if="win.content === 'overview'" />
-
-                        <DesktopUsers v-else-if="win.content === 'users'" />
-
-                        <div v-else-if="win.content === 'nodes'" class="window-page">
-                            <div class="window-page__header">
-                                <h3>
-                                    <ClusterOutlined /> {{ t("TXT_CODE_DESKTOP_NODES") }}
-                                </h3>
-                                <p>{{ t("TXT_CODE_DESKTOP_NODES_DESC") }}</p>
-                            </div>
-                            <div class="window-page__actions">
-                                <button class="window-btn window-btn--primary" @click="navigateToRoute('nodes')">
-                                    {{ t("TXT_CODE_DESKTOP_OPEN_FULL") }}
-                                </button>
-                            </div>
-                        </div>
-
-                        <div v-else-if="win.content === 'market'" class="window-page">
-                            <div class="window-page__header">
-                                <h3>
-                                    <ShoppingOutlined /> {{ t("TXT_CODE_DESKTOP_MARKET") }}
-                                </h3>
-                                <p>{{ t("TXT_CODE_DESKTOP_MARKET_DESC") }}</p>
-                            </div>
-                            <div class="window-page__actions">
-                                <button class="window-btn window-btn--primary" @click="navigateToRoute('market')">
-                                    {{ t("TXT_CODE_DESKTOP_OPEN_FULL") }}
-                                </button>
-                            </div>
-                        </div>
-
-                        <div v-else-if="win.content === 'settings'" class="window-page">
-                            <div class="window-page__header">
-                                <h3>
-                                    <SettingOutlined /> {{ t("TXT_CODE_DESKTOP_SETTINGS") }}
-                                </h3>
-                                <p>{{ t("TXT_CODE_DESKTOP_SETTINGS_DESC") }}</p>
-                            </div>
-                            <div class="window-page__actions">
-                                <button class="window-btn window-btn--primary" @click="navigateToRoute('settings')">
-                                    {{ t("TXT_CODE_DESKTOP_OPEN_FULL") }}
-                                </button>
-                            </div>
-                        </div>
-
-                        <div v-else-if="win.content === 'terminal'" class="window-page">
-                            <div class="window-page__header">
-                                <h3>
-                                    <CodeOutlined /> {{ t("TXT_CODE_DESKTOP_TERMINAL") }}
-                                </h3>
-                                <p>{{ t("TXT_CODE_DESKTOP_TERMINAL_DESC") }}</p>
-                            </div>
-                            <div class="window-terminal-placeholder">
-                                <div class="terminal-mock">
-                                    <div class="terminal-line">
-                                        <span class="terminal-prompt">$</span>
-                                        <span class="terminal-cursor">_</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div v-else-if="win.content === 'about'" class="window-page window-page--about">
-                            <div class="about-content">
-                                <div class="about-logo">
-                                    <img src="/desktop-icon.svg" alt="ElementsPanel" />
-                                </div>
-                                <h2>ElementsPanel</h2>
-                                <p class="about-desc">{{ t("TXT_CODE_DESKTOP_ABOUT_DESC") }}</p>
-                                <div class="about-info">
-                                    <div class="about-row">
-                                        <span class="about-label">{{
-                                            t("TXT_CODE_DESKTOP_ABOUT_USER")
-                                            }}</span>
-                                        <span class="about-value">{{ username }}</span>
-                                    </div>
-                                    <div class="about-row">
-                                        <span class="about-label">{{
-                                            t("TXT_CODE_DESKTOP_ABOUT_ROLE")
-                                            }}</span>
-                                        <span class="about-value">{{
-                                            isAdmin ? "Admin" : "User"
-                                            }}</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div v-else class="window-page">
-                            <p>{{ win.title }}</p>
-                        </div>
+        <Transition name="desktop-fade">
+            <template v-if="!showLoginOverlay">
+                <div class="desktop-content-wrapper">
+                    <div class="desktop-icons">
+                        <DesktopIcon v-for="app in desktopApps" :key="app.id" :id="app.id" :label="app.label"
+                            :icon="app.icon" :color="app.color" :selected="selectedIconId === app.id"
+                            @select="selectIcon" @open="openWindow" />
                     </div>
-                </DesktopWindow>
-            </TransitionGroup>
 
-            <DesktopTaskbar :windows="taskbarWindows" :username="username" @toggle-window="toggleWindow"
-                @exit-desktop="exitDesktop" />
+                    <TransitionGroup name="desktop-window-group">
+                        <DesktopWindow v-for="[id, win] in windows" :key="id" :id="win.id" :title="win.title"
+                            :icon="win.icon" :visible="win.visible" :minimized="win.minimized"
+                            :maximized="win.maximized" :active="win.id === activeWindowId" :initial-x="win.initialX"
+                            :initial-y="win.initialY" :initial-width="win.initialWidth"
+                            :initial-height="win.initialHeight" :z-index="win.zIndex" @close="closeWindow"
+                            @minimize="minimizeWindow" @maximize="maximizeWindow" @focus="focusWindow">
+                            <div class="window-inner-content">
+                                <DesktopInstanceManager v-if="win.content === 'instances'"
+                                    @open-console="openInstanceConsole" />
 
-            <DesktopContextMenu :visible="ctxMenu.visible" :x="ctxMenu.x" :y="ctxMenu.y" :items="ctxMenuItems"
-                @close="closeContextMenu" />
-        </template>
+                                <DesktopInstanceConsole
+                                    v-else-if="win.content === 'instance-console' && win.instanceId && win.daemonId"
+                                    :instance-id="win.instanceId" :daemon-id="win.daemonId" />
+
+                                <DesktopOverview v-else-if="win.content === 'overview'" />
+
+                                <DesktopUsers v-else-if="win.content === 'users'" />
+
+                                <div v-else-if="win.content === 'nodes'" class="window-page">
+                                    <div class="window-page__header">
+                                        <h3>
+                                            <ClusterOutlined /> {{ t("TXT_CODE_DESKTOP_NODES") }}
+                                        </h3>
+                                        <p>{{ t("TXT_CODE_DESKTOP_NODES_DESC") }}</p>
+                                    </div>
+                                    <div class="window-page__actions">
+                                        <button class="window-btn window-btn--primary"
+                                            @click="navigateToRoute('nodes')">
+                                            {{ t("TXT_CODE_DESKTOP_OPEN_FULL") }}
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div v-else-if="win.content === 'market'" class="window-page">
+                                    <div class="window-page__header">
+                                        <h3>
+                                            <ShoppingOutlined /> {{ t("TXT_CODE_DESKTOP_MARKET") }}
+                                        </h3>
+                                        <p>{{ t("TXT_CODE_DESKTOP_MARKET_DESC") }}</p>
+                                    </div>
+                                    <div class="window-page__actions">
+                                        <button class="window-btn window-btn--primary"
+                                            @click="navigateToRoute('market')">
+                                            {{ t("TXT_CODE_DESKTOP_OPEN_FULL") }}
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div v-else-if="win.content === 'settings'" class="window-page">
+                                    <div class="window-page__header">
+                                        <h3>
+                                            <SettingOutlined /> {{ t("TXT_CODE_DESKTOP_SETTINGS") }}
+                                        </h3>
+                                        <p>{{ t("TXT_CODE_DESKTOP_SETTINGS_DESC") }}</p>
+                                    </div>
+                                    <div class="window-page__actions">
+                                        <button class="window-btn window-btn--primary"
+                                            @click="navigateToRoute('settings')">
+                                            {{ t("TXT_CODE_DESKTOP_OPEN_FULL") }}
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div v-else-if="win.content === 'terminal'" class="window-page">
+                                    <div class="window-page__header">
+                                        <h3>
+                                            <CodeOutlined /> {{ t("TXT_CODE_DESKTOP_TERMINAL") }}
+                                        </h3>
+                                        <p>{{ t("TXT_CODE_DESKTOP_TERMINAL_DESC") }}</p>
+                                    </div>
+                                    <div class="window-terminal-placeholder">
+                                        <div class="terminal-mock">
+                                            <div class="terminal-line">
+                                                <span class="terminal-prompt">$</span>
+                                                <span class="terminal-cursor">_</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div v-else-if="win.content === 'about'" class="window-page window-page--about">
+                                    <div class="about-content">
+                                        <div class="about-logo">
+                                            <img src="/desktop-icon.svg" alt="ElementsPanel" />
+                                        </div>
+                                        <h2>ElementsPanel</h2>
+                                        <p class="about-desc">{{ t("TXT_CODE_DESKTOP_ABOUT_DESC") }}</p>
+                                        <div class="about-info">
+                                            <div class="about-row">
+                                                <span class="about-label">{{
+                                                    t("TXT_CODE_DESKTOP_ABOUT_USER")
+                                                }}</span>
+                                                <span class="about-value">{{ username }}</span>
+                                            </div>
+                                            <div class="about-row">
+                                                <span class="about-label">{{
+                                                    t("TXT_CODE_DESKTOP_ABOUT_ROLE")
+                                                }}</span>
+                                                <span class="about-value">{{
+                                                    isAdmin ? "Admin" : "User"
+                                                }}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div v-else class="window-page">
+                                    <p>{{ win.title }}</p>
+                                </div>
+                            </div>
+                        </DesktopWindow>
+                    </TransitionGroup>
+
+                    <DesktopTaskbar :windows="taskbarWindows" :username="username" @toggle-window="toggleWindow"
+                        @exit-desktop="exitDesktop" />
+
+                    <DesktopContextMenu :visible="ctxMenu.visible" :x="ctxMenu.x" :y="ctxMenu.y" :items="ctxMenuItems"
+                        @close="closeContextMenu" />
+                </div>
+            </template>
+        </Transition>
+
 
         <DesktopLoginWindow v-if="showLoginOverlay" @login-success="handleLoginSuccess" />
     </div>
@@ -667,5 +668,22 @@ const username = computed(() => appState.userInfo?.userName || "User");
 .desktop-window-group-leave-to {
     opacity: 0;
     transform: scale(0.9);
+}
+
+.desktop-fade-enter-active,
+.desktop-fade-leave-active {
+    transition: opacity 0.5s ease, transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.desktop-fade-enter-from,
+.desktop-fade-leave-to {
+    opacity: 0;
+    transform: scale(1.02);
+}
+
+.desktop-content-wrapper {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
 }
 </style>
