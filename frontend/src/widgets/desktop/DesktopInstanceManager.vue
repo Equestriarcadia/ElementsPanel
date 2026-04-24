@@ -2,11 +2,17 @@
 import { t } from "@/lang/i18n";
 import { remoteInstances, remoteNodeList } from "@/services/apis";
 import {
+    batchDelete,
+    batchKill,
+    batchRestart,
+    batchStart,
+    batchStop,
     killInstance,
     openInstance,
     restartInstance,
     stopInstance
 } from "@/services/apis/instance";
+import { reportErrorMsg } from "@/tools/validator";
 import type { InstanceDetail, NodeStatus } from "@/types";
 import { INSTANCE_STATUS_CODE } from "@/types/const";
 import {
@@ -14,20 +20,26 @@ import {
     CaretRightOutlined,
     ClockCircleOutlined,
     CloseCircleOutlined,
+    CloseOutlined,
+    DeleteOutlined,
     InboxOutlined,
+    InfoCircleOutlined,
     LeftOutlined,
     LoadingOutlined,
     MinusCircleOutlined,
     PauseCircleOutlined,
     PlayCircleOutlined,
     QuestionCircleOutlined,
+    RedoOutlined,
     ReloadOutlined,
     RightOutlined,
     SearchOutlined,
     StopOutlined,
-    TeamOutlined
+    TeamOutlined,
+    WarningOutlined
 } from "@ant-design/icons-vue";
-import { computed, onMounted, onUnmounted, ref, watch, type Component } from "vue";
+import { Modal, notification } from "ant-design-vue";
+import { computed, h, onMounted, onUnmounted, ref, watch, type Component } from "vue";
 
 //─── State ───
 const nodes = ref<NodeStatus[]>([]);
@@ -40,6 +52,9 @@ const currentPage = ref(1);
 const totalPages = ref(1);
 const pageSize = 20;
 const operatingIds = ref<Set<string>>(new Set());
+
+const multipleMode = ref(false);
+const selectedInstance = ref<InstanceDetail[]>([]);
 
 let refreshTimer: ReturnType<typeof setInterval> | null = null;
 
@@ -215,8 +230,166 @@ const emit = defineEmits<{
     (e: "open-console", instance: InstanceDetail, daemonId: string): void;
 }>();
 
+const findInstance = (item: InstanceDetail) => {
+    return selectedInstance.value.find((i) => i.instanceUuid === item.instanceUuid);
+};
+
+const selectInstance = (item: InstanceDetail) => {
+    if (findInstance(item)) {
+        selectedInstance.value.splice(selectedInstance.value.indexOf(item), 1);
+    } else {
+        selectedInstance.value.push(item);
+    }
+};
+
+const handleInstanceClick = (instance: InstanceDetail) => {
+    if (multipleMode.value) {
+        selectInstance(instance);
+    }
+};
+
+const selectAllInstances = () => {
+    if (filteredInstances.value.length === selectedInstance.value.length) {
+        selectedInstance.value = [];
+    } else {
+        for (const item of filteredInstances.value) {
+            if (findInstance(item)) continue;
+            selectedInstance.value.push(item);
+        }
+    }
+};
+
+const exitMultipleMode = () => {
+    multipleMode.value = false;
+    selectedInstance.value = [];
+};
+
+const instanceOperations = [
+    {
+        title: t("TXT_CODE_57245e94"),
+        icon: PlayCircleOutlined,
+        click: () => batchOperation("start")
+    },
+    {
+        title: t("TXT_CODE_b1dedda3"),
+        icon: PauseCircleOutlined,
+        click: () => batchOperation("stop")
+    },
+    {
+        title: t("TXT_CODE_47dcfa5"),
+        icon: RedoOutlined,
+        click: () => batchOperation("restart")
+    },
+    {
+        title: t("TXT_CODE_7b67813a"),
+        icon: CloseOutlined,
+        click: () => {
+            batchOperation("kill");
+        }
+    },
+    {
+        title: t("TXT_CODE_ecbd7449"),
+        icon: DeleteOutlined,
+        click: () => batchDeleteInstance(false)
+    },
+    {
+        title: t("TXT_CODE_9ef27367"),
+        icon: WarningOutlined,
+        click: () => batchDeleteInstance(true)
+    }
+];
+
+const batchOperation = async (actName: "start" | "stop" | "kill" | "restart") => {
+    if (selectedInstance.value.length === 0) return reportErrorMsg(t("TXT_CODE_a0a77be5"));
+    const operationMap = {
+        start: async () => exec(batchStart().execute, t("TXT_CODE_2b5fd76e")),
+        stop: async () => exec(batchStop().execute, t("TXT_CODE_4822a21")),
+        kill: async () => exec(batchKill().execute, t("TXT_CODE_effefaab")),
+        restart: async () => exec(batchRestart().execute, t("TXT_CODE_effefaab"))
+    };
+
+    const exec = async (fn: Function, msg: string) => {
+        try {
+            const state = await fn({
+                data: selectedInstance.value.map((item) => ({
+                    instanceUuid: item.instanceUuid,
+                    daemonId: selectedNodeId.value
+                }))
+            });
+            if (state.value) {
+                notification.success({
+                    message: msg,
+                    description: t("TXT_CODE_1514d08f")
+                });
+                exitMultipleMode();
+                await fetchInstances(true);
+            }
+        } catch (err: any) {
+            console.error(err);
+            reportErrorMsg(err.message);
+        }
+    };
+
+    operationMap[actName]();
+};
+
+const batchDeleteInstance = async (deleteFile: boolean) => {
+    if (selectedInstance.value.length === 0) return reportErrorMsg(t("TXT_CODE_a0a77be5"));
+    const { execute, state } = batchDelete();
+    const uuids: string[] = [];
+    const paths: string[] = [];
+    for (const i of selectedInstance.value) {
+        uuids.push(i.instanceUuid);
+        if (i.config?.cwd) {
+            paths.push(i.config.cwd);
+        }
+    }
+    const confirmDeleteInstanceModal = Modal.confirm({
+        title: t("TXT_CODE_2a3b0c17"),
+        icon: h(InfoCircleOutlined),
+        content: () =>
+            h("div", {}, [
+                h("p", {}, deleteFile ? t("TXT_CODE_18d2f8ae") : t("TXT_CODE_ac01315a")),
+                paths.length > 1
+                    ? null
+                    : h("p", { style: "margin-top: 8px; color: #666;" }, [
+                        t("TXT_CODE_91d70059"),
+                        h("br"),
+                        paths.join()
+                    ])
+            ]),
+        okText: t("TXT_CODE_d507abff"),
+        async onOk() {
+            try {
+                await execute({
+                    params: {
+                        daemonId: selectedNodeId.value
+                    },
+                    data: {
+                        uuids: uuids,
+                        deleteFile: deleteFile
+                    }
+                });
+                if (state.value) {
+                    confirmDeleteInstanceModal.destroy();
+                    exitMultipleMode();
+                    notification.success({
+                        message: t("TXT_CODE_c3c06801"),
+                        description: t("TXT_CODE_50075e02")
+                    });
+                    await fetchInstances(true);
+                }
+            } catch (err: any) {
+                console.error(err);
+                reportErrorMsg(err.message);
+            }
+        },
+        onCancel() { }
+    });
+};
+
 const handleInstanceDblClick = (instance: InstanceDetail) => {
-    if (selectedNodeId.value) {
+    if (selectedNodeId.value && !multipleMode.value) {
         emit("open-console", instance, selectedNodeId.value);
     }
 };
@@ -283,6 +456,36 @@ onUnmounted(() => {
             </div>
 
             <div class="dim-toolbar__right">
+                <!-- Batch Operations -->
+                <div v-if="multipleMode" class="dim-batch-actions">
+                    <button class="dim-btn" @click="exitMultipleMode">
+                        {{ t("TXT_CODE_5366af54") }}
+                    </button>
+                    <button class="dim-btn" @click="selectAllInstances">
+                        {{ filteredInstances.length === selectedInstance.length ? t("TXT_CODE_df87c46d") :
+                            t("TXT_CODE_f466d7a") }}
+                    </button>
+                    <a-dropdown>
+                        <template #overlay>
+                            <a-menu>
+                                <a-menu-item v-for="item in instanceOperations" :key="item.title" @click="item.click">
+                                    <component :is="item.icon" />
+                                    {{ item.title }}
+                                </a-menu-item>
+                            </a-menu>
+                        </template>
+                        <button class="dim-btn dim-btn--primary">
+                            {{ t("TXT_CODE_8fd8bfd3") }}
+                            <DownOutlined />
+                        </button>
+                    </a-dropdown>
+                </div>
+                <div v-else class="dim-batch-actions">
+                    <button class="dim-btn" @click="multipleMode = true">
+                        {{ t("TXT_CODE_5cb656b9") }}
+                    </button>
+                </div>
+
                 <!-- Search -->
                 <div class="dim-search">
                     <input v-model="searchText" type="text" class="dim-search__input"
@@ -339,8 +542,8 @@ onUnmounted(() => {
             </div>
 
             <div v-for="instance in filteredInstances" :key="instance.instanceUuid" class="dim-instance"
-                :class="{ 'dim-instance--operating': isOperating(instance.instanceUuid) }"
-                @dblclick="handleInstanceDblClick(instance)">
+                :class="{ 'dim-instance--operating': isOperating(instance.instanceUuid), 'dim-instance--selected': findInstance(instance) }"
+                @click="handleInstanceClick(instance)" @dblclick="handleInstanceDblClick(instance)">
                 <div class="dim-instance__info">
                     <div class="dim-instance__header">
                         <span class="dim-instance__status" :class="getStatusClass(instance.status)">
@@ -542,6 +745,24 @@ onUnmounted(() => {
         padding: 4px 10px;
         font-size: 11px;
     }
+
+    &--primary {
+        background: #1677ff;
+        border-color: #1677ff;
+        color: #fff;
+
+        &:hover:not(:disabled) {
+            background: #4096ff;
+            border-color: #4096ff;
+        }
+    }
+}
+
+.dim-batch-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-right: 8px;
 }
 
 @keyframes spin {
@@ -680,6 +901,11 @@ onUnmounted(() => {
     &--operating {
         opacity: 0.6;
         pointer-events: none;
+    }
+
+    &--selected {
+        background: rgba(22, 119, 255, 0.15);
+        border-color: rgba(22, 119, 255, 0.3);
     }
 
     &__info {
