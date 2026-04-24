@@ -8,7 +8,6 @@ import {
     CheckCircleOutlined,
     CloseCircleOutlined,
     CloudServerOutlined,
-    DashboardOutlined,
     HddOutlined
 } from "@ant-design/icons-vue";
 import { computed } from "vue";
@@ -72,14 +71,6 @@ const memColor = computed(() => {
 
 <template>
     <div class="desktop-overview">
-        <div class="ov-header">
-            <div class="ov-header__title">
-                <DashboardOutlined />
-                <span>{{ t("TXT_CODE_DESKTOP_OVERVIEW") }}</span>
-            </div>
-            <div class="ov-header__subtitle">{{ t("TXT_CODE_DESKTOP_OVERVIEW_DESC") }}</div>
-        </div>
-
         <div class="ov-stats-row">
             <div class="ov-stat-card ov-stat-card--instances">
                 <div class="ov-stat-card__icon">
@@ -201,7 +192,7 @@ const memColor = computed(() => {
                     <div class="ov-info-row">
                         <span class="ov-info-row__label">{{ t("TXT_CODE_uptime") }}</span>
                         <span class="ov-info-row__value">{{ systemInfo?.uptime ? formatUptime(systemInfo.uptime) : "--"
-                        }}</span>
+                            }}</span>
                     </div>
                 </div>
             </div>
@@ -218,7 +209,7 @@ const memColor = computed(() => {
                     <div class="ov-info-row">
                         <span class="ov-info-row__label">{{ t("TXT_CODE_871fb0d6") }}</span>
                         <span class="ov-info-row__value">{{ record?.loginFailed ?? 0 }} / {{ record?.illegalAccess ?? 0
-                        }}</span>
+                            }}</span>
                     </div>
                     <div class="ov-info-row">
                         <span class="ov-info-row__label">{{ t("TXT_CODE_856bd2f3") }}</span>
@@ -273,25 +264,6 @@ const memColor = computed(() => {
     display: flex;
     flex-direction: column;
     gap: 16px;
-}
-
-.ov-header {
-    flex-shrink: 0;
-
-    &__title {
-        font-size: 20px;
-        font-weight: 600;
-        color: #fff;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        margin-bottom: 4px;
-    }
-
-    &__subtitle {
-        font-size: 13px;
-        color: rgba(255, 255, 255, 0.5);
-    }
 }
 
 .ov-stats-row {

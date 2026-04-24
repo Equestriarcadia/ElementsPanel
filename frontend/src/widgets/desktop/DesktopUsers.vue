@@ -11,7 +11,6 @@ import {
     PlusOutlined,
     SafetyOutlined,
     SearchOutlined,
-    TeamOutlined,
     UserOutlined
 } from "@ant-design/icons-vue";
 import { computed, onMounted, reactive, ref } from "vue";
@@ -224,14 +223,6 @@ const formatTime = (time: string): string => {
 
 <template>
     <div class="desktop-users">
-        <div class="du-header">
-            <div class="du-header__title">
-                <TeamOutlined />
-                <span>{{ t("TXT_CODE_DESKTOP_USERS") }}</span>
-            </div>
-            <div class="du-header__subtitle">{{ t("TXT_CODE_DESKTOP_USERS_DESC") }}</div>
-        </div>
-
         <div class="du-toolbar">
             <div class="du-search">
                 <SearchOutlined class="du-search__icon" />
@@ -417,25 +408,6 @@ const formatTime = (time: string): string => {
     flex-direction: column;
     gap: 12px;
     overflow: hidden;
-}
-
-.du-header {
-    flex-shrink: 0;
-
-    &__title {
-        font-size: 20px;
-        font-weight: 600;
-        color: #fff;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        margin-bottom: 4px;
-    }
-
-    &__subtitle {
-        font-size: 13px;
-        color: rgba(255, 255, 255, 0.5);
-    }
 }
 
 .du-toolbar {
