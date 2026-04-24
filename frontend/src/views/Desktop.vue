@@ -408,16 +408,16 @@ const username = computed(() => appState.userInfo?.userName || "User");
                                 <div class="about-row">
                                     <span class="about-label">{{
                                         t("TXT_CODE_DESKTOP_ABOUT_USER")
-                                    }}</span>
+                                        }}</span>
                                     <span class="about-value">{{ username }}</span>
                                 </div>
                                 <div class="about-row">
                                     <span class="about-label">{{
                                         t("TXT_CODE_DESKTOP_ABOUT_ROLE")
-                                    }}</span>
+                                        }}</span>
                                     <span class="about-value">{{
                                         isAdmin ? "Admin" : "User"
-                                    }}</span>
+                                        }}</span>
                                 </div>
                             </div>
                         </div>
@@ -451,12 +451,13 @@ const username = computed(() => appState.userInfo?.userName || "User");
 .desktop-wallpaper {
     position: absolute;
     inset: 0;
-    background-color: var(--color-gray-1);
-    background-image: var(--app-background-image);
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
     z-index: 0;
+}
+
+/* When body has background image, make wallpaper transparent to show it */
+:global(body.app-light-extend-theme) .desktop-wallpaper,
+:global(body.app-dark-extend-theme) .desktop-wallpaper {
+    background-color: transparent;
 }
 
 .desktop-icons {
