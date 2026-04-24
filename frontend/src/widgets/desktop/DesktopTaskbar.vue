@@ -22,7 +22,51 @@ const emit = defineEmits<{
     (e: "open-start-menu"): void;
     (e: "exit-desktop"): void;
     (e: "open-user-info"): void;
+    (e: "reorder-windows", newOrder: string[]): void;
 }>();
+
+const draggedIndex = ref<number | null>(null);
+const dragOverIndex = ref<number | null>(null);
+
+const onDragStart = (index: number, event: DragEvent) => {
+    draggedIndex.value = index;
+    if (event.dataTransfer) {
+        event.dataTransfer.effectAllowed = "move";
+        event.dataTransfer.setData("text/plain", index.toString());
+    }
+};
+
+const onDragOver = (index: number, event: DragEvent) => {
+    event.preventDefault();
+    if (event.dataTransfer) {
+        event.dataTransfer.dropEffect = "move";
+    }
+    if (draggedIndex.value === null || draggedIndex.value === index) return;
+    dragOverIndex.value = index;
+};
+
+const onDrop = (index: number, event: DragEvent) => {
+    event.preventDefault();
+    if (draggedIndex.value === null || draggedIndex.value === index) {
+        draggedIndex.value = null;
+        dragOverIndex.value = null;
+        return;
+    }
+
+    const newWindows = [...props.windows];
+    const [draggedItem] = newWindows.splice(draggedIndex.value, 1);
+    newWindows.splice(index, 0, draggedItem);
+
+    emit("reorder-windows", newWindows.map(w => w.id));
+
+    draggedIndex.value = null;
+    dragOverIndex.value = null;
+};
+
+const onDragEnd = () => {
+    draggedIndex.value = null;
+    dragOverIndex.value = null;
+};
 
 const currentTime = ref("");
 const currentDate = ref("");
@@ -98,8 +142,13 @@ const isComponentIcon = (icon: Component | string): boolean => typeof icon !== "
 
         <!-- Window Buttons -->
         <div class="taskbar__windows">
-            <div v-for="win in windows" :key="win.id" class="taskbar__window-btn"
-                :class="{ 'taskbar__window-btn--active': win.active }" @click="emit('toggle-window', win.id)">
+            <div v-for="(win, index) in windows" :key="win.id" class="taskbar__window-btn" :class="{
+                'taskbar__window-btn--active': win.active,
+                'taskbar__window-btn--dragging': draggedIndex === index,
+                'taskbar__window-btn--drag-over-left': dragOverIndex === index && draggedIndex !== null && draggedIndex > index,
+                'taskbar__window-btn--drag-over-right': dragOverIndex === index && draggedIndex !== null && draggedIndex < index
+            }" draggable="true" @dragstart="onDragStart(index, $event)" @dragover="onDragOver(index, $event)"
+                @drop="onDrop(index, $event)" @dragend="onDragEnd" @click="emit('toggle-window', win.id)">
                 <span class="taskbar__window-icon">
                     <component :is="win.icon" v-if="isComponentIcon(win.icon)" />
                     <img v-else-if="typeof win.icon === 'string' && win.icon.endsWith('.svg')" :src="win.icon"
@@ -295,12 +344,25 @@ const isComponentIcon = (icon: Component | string): boolean => typeof icon !== "
         background-color: rgba(255, 255, 255, 0.12);
         color: #fff;
     }
+
+    &--dragging {
+        opacity: 0.4;
+    }
+
+    &--drag-over-left {
+        box-shadow: -2px 0 0 0 rgba(255, 255, 255, 0.8);
+    }
+
+    &--drag-over-right {
+        box-shadow: 2px 0 0 0 rgba(255, 255, 255, 0.8);
+    }
 }
 
 .taskbar__window-icon {
     font-size: 14px;
     display: flex;
     align-items: center;
+    pointer-events: none;
 
     img {
         width: 14px;
@@ -312,6 +374,7 @@ const isComponentIcon = (icon: Component | string): boolean => typeof icon !== "
     overflow: hidden;
     text-overflow: ellipsis;
     max-width: 140px;
+    pointer-events: none;
 }
 
 .taskbar__tray {

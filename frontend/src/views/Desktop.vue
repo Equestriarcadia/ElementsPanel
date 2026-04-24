@@ -333,6 +333,28 @@ const taskbarWindows = computed<TaskbarWindow[]>(() => {
     return list;
 });
 
+const handleReorderWindows = (newOrder: string[]) => {
+    const newWindowsMap = new Map<string, WindowState>();
+
+    newOrder.forEach(id => {
+        const win = windows.get(id);
+        if (win) {
+            newWindowsMap.set(id, win);
+        }
+    });
+
+    windows.forEach((win, id) => {
+        if (!newWindowsMap.has(id)) {
+            newWindowsMap.set(id, win);
+        }
+    });
+
+    windows.clear();
+    newWindowsMap.forEach((win, id) => {
+        windows.set(id, win);
+    });
+};
+
 // ─── Navigate to Route ───
 const navigateToRoute = (appId: string) => {
     const app = desktopApps.value.find((a) => a.id === appId);
@@ -437,7 +459,8 @@ const username = computed(() => appState.userInfo?.userName || "User");
                     </TransitionGroup>
 
                     <DesktopTaskbar :windows="taskbarWindows" :username="username" @toggle-window="toggleWindow"
-                        @exit-desktop="exitDesktop" @open-user-info="openUserInfoWindow" />
+                        @exit-desktop="exitDesktop" @open-user-info="openUserInfoWindow"
+                        @reorder-windows="handleReorderWindows" />
 
                     <DesktopContextMenu :visible="ctxMenu.visible" :x="ctxMenu.x" :y="ctxMenu.y" :items="ctxMenuItems"
                         @close="closeContextMenu" />
