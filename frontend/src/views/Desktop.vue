@@ -7,8 +7,10 @@ import DesktopIcon from "@/widgets/desktop/DesktopIcon.vue";
 import DesktopInstanceConsole from "@/widgets/desktop/DesktopInstanceConsole.vue";
 import DesktopInstanceManager from "@/widgets/desktop/DesktopInstanceManager.vue";
 import DesktopLoginWindow from "@/widgets/desktop/DesktopLoginWindow.vue";
+import DesktopOverview from "@/widgets/desktop/DesktopOverview.vue";
 import type { TaskbarWindow } from "@/widgets/desktop/DesktopTaskbar.vue";
 import DesktopTaskbar from "@/widgets/desktop/DesktopTaskbar.vue";
+import DesktopUsers from "@/widgets/desktop/DesktopUsers.vue";
 import DesktopWindow from "@/widgets/desktop/DesktopWindow.vue";
 import {
     ClusterOutlined,
@@ -352,33 +354,9 @@ const username = computed(() => appState.userInfo?.userName || "User");
                             v-else-if="win.content === 'instance-console' && win.instanceId && win.daemonId"
                             :instance-id="win.instanceId" :daemon-id="win.daemonId" />
 
-                        <div v-else-if="win.content === 'overview'" class="window-page">
-                            <div class="window-page__header">
-                                <h3>
-                                    <DashboardOutlined /> {{ t("TXT_CODE_DESKTOP_OVERVIEW") }}
-                                </h3>
-                                <p>{{ t("TXT_CODE_DESKTOP_OVERVIEW_DESC") }}</p>
-                            </div>
-                            <div class="window-page__actions">
-                                <button class="window-btn window-btn--primary" @click="navigateToRoute('overview')">
-                                    {{ t("TXT_CODE_DESKTOP_OPEN_FULL") }}
-                                </button>
-                            </div>
-                        </div>
+                        <DesktopOverview v-else-if="win.content === 'overview'" />
 
-                        <div v-else-if="win.content === 'users'" class="window-page">
-                            <div class="window-page__header">
-                                <h3>
-                                    <TeamOutlined /> {{ t("TXT_CODE_DESKTOP_USERS") }}
-                                </h3>
-                                <p>{{ t("TXT_CODE_DESKTOP_USERS_DESC") }}</p>
-                            </div>
-                            <div class="window-page__actions">
-                                <button class="window-btn window-btn--primary" @click="navigateToRoute('users')">
-                                    {{ t("TXT_CODE_DESKTOP_OPEN_FULL") }}
-                                </button>
-                            </div>
-                        </div>
+                        <DesktopUsers v-else-if="win.content === 'users'" />
 
                         <div v-else-if="win.content === 'nodes'" class="window-page">
                             <div class="window-page__header">
