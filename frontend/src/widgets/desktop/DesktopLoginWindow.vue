@@ -121,7 +121,6 @@ const handleNext = async () => {
         <div ref="windowRef" class="desktop-login-window"
             :class="{ 'is-logging': loginStep === 1, 'is-dragging': isDragging }"
             :style="{ left: pos.x + 'px', top: pos.y + 'px' }">
-            <!-- Title Bar -->
             <div class="window__titlebar" @mousedown="onMouseDown">
                 <div class="window__titlebar-left">
                     <span class="window__icon">
@@ -136,7 +135,6 @@ const handleNext = async () => {
                 </div>
             </div>
 
-            <!-- Login form -->
             <div v-show="loginStep <= 1" class="desktop-login-body">
                 <p class="desktop-login-subtitle">{{ t("TXT_CODE_5b60ad00") }}</p>
                 <form class="desktop-login-form" @submit.prevent="handleLogin">
@@ -172,7 +170,6 @@ const handleNext = async () => {
                 </div>
             </div>
 
-            <!-- Success -->
             <div v-show="loginStep >= 2" class="desktop-login-body desktop-login-center">
                 <CheckCircleOutlined class="login-state-icon success" />
                 <p>{{ t("TXT_CODE_DESKTOP_LOGIN_SUCCESS") }}</p>
@@ -213,12 +210,10 @@ const handleNext = async () => {
 @keyframes loginWindowAppear {
     from {
         opacity: 0;
-        transform: scale(0.9) translateY(20px);
     }
 
     to {
         opacity: 1;
-        transform: scale(1) translateY(0);
     }
 }
 
