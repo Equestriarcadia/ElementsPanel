@@ -207,7 +207,6 @@ onUnmounted(() => {
     }
 
     &--dragging {
-        opacity: 0.92;
         transition: none;
     }
 
