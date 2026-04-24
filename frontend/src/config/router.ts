@@ -2,6 +2,7 @@ import { $t as t } from "@/lang/i18n";
 import { topProgressBar } from "@/services/TopProgressBar";
 import { useAppStateStore } from "@/stores/useAppStateStore";
 import type { LoginUserInfo } from "@/types/user";
+import DesktopPage from "@/views/Desktop.vue";
 import InstallPage from "@/views/Install.vue";
 import LayoutContainer from "@/views/LayoutContainer.vue";
 import LoginPage from "@/views/Login.vue";
@@ -328,6 +329,15 @@ const originRouterConfig: RouterConfig[] = [
         return appConfig.settings.businessMode;
       }
     }
+  },
+  {
+    path: "/desktop",
+    name: t("TXT_CODE_DESKTOP_MODE"),
+    component: DesktopPage,
+    meta: {
+      permission: ROLE.ADMIN,
+      mainMenu: false
+    }
   }
 ];
 
@@ -428,3 +438,4 @@ router.afterEach(() => {
 });
 
 export { originRouterConfig, router };
+

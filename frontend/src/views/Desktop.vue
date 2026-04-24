@@ -1,0 +1,616 @@
+<script setup lang="ts">
+import { t } from "@/lang/i18n";
+import { useAppStateStore } from "@/stores/useAppStateStore";
+import type { ContextMenuItem } from "@/widgets/desktop/DesktopContextMenu.vue";
+import DesktopContextMenu from "@/widgets/desktop/DesktopContextMenu.vue";
+import DesktopIcon from "@/widgets/desktop/DesktopIcon.vue";
+import DesktopInstanceManager from "@/widgets/desktop/DesktopInstanceManager.vue";
+import type { TaskbarWindow } from "@/widgets/desktop/DesktopTaskbar.vue";
+import DesktopTaskbar from "@/widgets/desktop/DesktopTaskbar.vue";
+import DesktopWindow from "@/widgets/desktop/DesktopWindow.vue";
+import {
+    ClusterOutlined,
+    CodeOutlined,
+    DashboardOutlined,
+    DesktopOutlined,
+    InfoCircleOutlined,
+    LogoutOutlined,
+    SettingOutlined,
+    ShoppingOutlined,
+    SyncOutlined,
+    TeamOutlined,
+    ThunderboltOutlined
+} from "@ant-design/icons-vue";
+import { computed, markRaw, reactive, ref, type Component } from "vue";
+import { useRouter } from "vue-router";
+
+const router = useRouter();
+const { state: appState, isAdmin } = useAppStateStore();
+
+//─── Desktop Icons ───
+interface DesktopApp {
+    id: string;
+    label: string;
+    icon: Component;
+    color: string;
+    route?: string;
+    windowContent?: string;
+}
+
+const desktopApps = computed<DesktopApp[]>(() => {
+    const apps: DesktopApp[] = [
+        {
+            id: "instances",
+            label: t("TXT_CODE_DESKTOP_INSTANCES"),
+            icon: markRaw(DesktopOutlined),
+            color: "#1677ff",
+            route: "/instances", windowContent: "instances"
+        },
+        {
+            id: "overview",
+            label: t("TXT_CODE_DESKTOP_OVERVIEW"),
+            icon: markRaw(DashboardOutlined),
+            color: "#52c41a",
+            route: "/overview",
+            windowContent: "overview"
+        },
+        {
+            id: "users",
+            label: t("TXT_CODE_DESKTOP_USERS"),
+            icon: markRaw(TeamOutlined),
+            color: "#722ed1",
+            route: "/users",
+            windowContent: "users"
+        },
+        {
+            id: "nodes",
+            label: t("TXT_CODE_DESKTOP_NODES"),
+            icon: markRaw(ClusterOutlined),
+            color: "#fa8c16",
+            route: "/node",
+            windowContent: "nodes"
+        },
+        {
+            id: "market",
+            label: t("TXT_CODE_DESKTOP_MARKET"),
+            icon: markRaw(ShoppingOutlined),
+            color: "#eb2f96",
+            route: "/market",
+            windowContent: "market"
+        },
+        {
+            id: "settings",
+            label: t("TXT_CODE_DESKTOP_SETTINGS"),
+            icon: markRaw(SettingOutlined),
+            color: "#13c2c2",
+            route: "/settings",
+            windowContent: "settings"
+        },
+        {
+            id: "terminal",
+            label: t("TXT_CODE_DESKTOP_TERMINAL"),
+            icon: markRaw(CodeOutlined),
+            color: "#434343",
+            windowContent: "terminal"
+        },
+        {
+            id: "about",
+            label: t("TXT_CODE_DESKTOP_ABOUT"),
+            icon: markRaw(InfoCircleOutlined),
+            color: "#597ef7",
+            windowContent: "about"
+        }
+    ];
+
+    if (!isAdmin.value) {
+        return apps.filter((a) => ["instances", "settings", "about"].includes(a.id));
+    }
+    return apps;
+});
+
+const selectedIconId = ref<string | null>(null);
+
+const selectIcon = (id: string) => {
+    selectedIconId.value = id;
+};
+
+// ─── Window Management ───
+interface WindowState {
+    id: string;
+    title: string;
+    icon: Component;
+    visible: boolean;
+    minimized: boolean;
+    maximized: boolean;
+    zIndex: number;
+    content: string;
+    initialX: number;
+    initialY: number;
+    initialWidth: number;
+    initialHeight: number;
+}
+
+const windows = reactive<Map<string, WindowState>>(new Map());
+let nextZIndex = 100;
+let windowOffset = 0;
+
+const openWindow = (appId: string) => {
+    const app = desktopApps.value.find((a) => a.id === appId);
+    if (!app) return;
+
+    const existing = windows.get(appId);
+    if (existing) {
+        existing.minimized = false;
+        existing.visible = true;
+        focusWindow(appId);
+        return;
+    }
+
+    windowOffset = (windowOffset + 1) % 8;
+    const offsetX = 80 + windowOffset * 30;
+    const offsetY = 40 + windowOffset * 30;
+
+    windows.set(appId, {
+        id: appId,
+        title: app.label,
+        icon: app.icon,
+        visible: true,
+        minimized: false,
+        maximized: false,
+        zIndex: ++nextZIndex,
+        content: app.windowContent || "default",
+        initialX: offsetX,
+        initialY: offsetY,
+        initialWidth: 850,
+        initialHeight: 520
+    });
+};
+
+const closeWindow = (id: string) => {
+    windows.delete(id);
+};
+
+const minimizeWindow = (id: string) => {
+    const win = windows.get(id);
+    if (win) win.minimized = true;
+};
+
+const maximizeWindow = (id: string) => {
+    const win = windows.get(id);
+    if (win) win.maximized = !win.maximized;
+};
+
+const focusWindow = (id: string) => {
+    const win = windows.get(id);
+    if (win) {
+        win.zIndex = ++nextZIndex;
+    }
+};
+
+const toggleWindow = (id: string) => {
+    const win = windows.get(id);
+    if (!win) return;
+    if (win.minimized) {
+        win.minimized = false;
+        focusWindow(id);
+    } else if (win.zIndex === nextZIndex) {
+        win.minimized = true;
+    } else {
+        focusWindow(id);
+    }
+};
+
+const activeWindowId = computed(() => {
+    let maxZ = -1;
+    let activeId = "";
+    windows.forEach((win) => {
+        if (!win.minimized && win.visible && win.zIndex > maxZ) {
+            maxZ = win.zIndex;
+            activeId = win.id;
+        }
+    });
+    return activeId;
+});
+
+const taskbarWindows = computed<TaskbarWindow[]>(() => {
+    const list: TaskbarWindow[] = [];
+    windows.forEach((win) => {
+        list.push({
+            id: win.id,
+            title: win.title,
+            icon: win.icon,
+            minimized: win.minimized,
+            active: win.id === activeWindowId.value
+        });
+    });
+    return list;
+});
+
+// ─── Navigate to Route ───
+const navigateToRoute = (appId: string) => {
+    const app = desktopApps.value.find((a) => a.id === appId);
+    if (app?.route) {
+        router.push(app.route);
+    }
+};
+
+// ─── Context Menu ───
+const ctxMenu = reactive({
+    visible: false,
+    x: 0,
+    y: 0
+});
+
+const ctxMenuItems = computed<ContextMenuItem[]>(() => [
+    {
+        label: t("TXT_CODE_DESKTOP_REFRESH"),
+        icon: markRaw(SyncOutlined),
+        action: () => window.location.reload()
+    },
+    {
+        label: "",
+        icon: null,
+        action: () => { },
+        divider: true
+    },
+    {
+        label: t("TXT_CODE_DESKTOP_EXIT"),
+        icon: markRaw(LogoutOutlined),
+        action: () => router.push("/")
+    }
+]);
+
+const onDesktopContextMenu = (e: MouseEvent) => {
+    e.preventDefault();
+    ctxMenu.x = e.clientX;
+    ctxMenu.y = e.clientY;
+    ctxMenu.visible = true;
+};
+
+const closeContextMenu = () => {
+    ctxMenu.visible = false;
+};
+
+const onDesktopClick = () => {
+    selectedIconId.value = null;
+    ctxMenu.visible = false;
+};
+
+// ─── Exit Desktop ───
+const exitDesktop = () => {
+    router.push("/");
+};
+
+const username = computed(() => appState.userInfo?.userName || "User");
+</script>
+
+<template>
+    <div class="desktop-container" @click="onDesktopClick" @contextmenu="onDesktopContextMenu">
+        <div class="desktop-wallpaper"></div>
+
+        <div class="desktop-icons">
+            <DesktopIcon v-for="app in desktopApps" :key="app.id" :id="app.id" :label="app.label" :icon="app.icon"
+                :color="app.color" :selected="selectedIconId === app.id" @select="selectIcon" @open="openWindow" />
+        </div>
+
+        <DesktopWindow v-for="[id, win] in windows" :key="id" :id="win.id" :title="win.title" :icon="win.icon"
+            :visible="win.visible" :minimized="win.minimized" :maximized="win.maximized"
+            :active="win.id === activeWindowId" :initial-x="win.initialX" :initial-y="win.initialY"
+            :initial-width="win.initialWidth" :initial-height="win.initialHeight" :z-index="win.zIndex"
+            @close="closeWindow" @minimize="minimizeWindow" @maximize="maximizeWindow" @focus="focusWindow">
+            <div class="window-inner-content">
+                <DesktopInstanceManager v-if="win.content === 'instances'" />
+
+                <div v-else-if="win.content === 'overview'" class="window-page">
+                    <div class="window-page__header">
+                        <h3>
+                            <DashboardOutlined /> {{ t("TXT_CODE_DESKTOP_OVERVIEW") }}
+                        </h3>
+                        <p>{{ t("TXT_CODE_DESKTOP_OVERVIEW_DESC") }}</p>
+                    </div>
+                    <div class="window-page__actions">
+                        <button class="window-btn window-btn--primary" @click="navigateToRoute('overview')">
+                            {{ t("TXT_CODE_DESKTOP_OPEN_FULL") }}
+                        </button>
+                    </div>
+                </div>
+
+                <div v-else-if="win.content === 'users'" class="window-page">
+                    <div class="window-page__header">
+                        <h3>
+                            <TeamOutlined /> {{ t("TXT_CODE_DESKTOP_USERS") }}
+                        </h3>
+                        <p>{{ t("TXT_CODE_DESKTOP_USERS_DESC") }}</p>
+                    </div>
+                    <div class="window-page__actions">
+                        <button class="window-btn window-btn--primary" @click="navigateToRoute('users')">
+                            {{ t("TXT_CODE_DESKTOP_OPEN_FULL") }}
+                        </button>
+                    </div>
+                </div>
+
+                <div v-else-if="win.content === 'nodes'" class="window-page">
+                    <div class="window-page__header">
+                        <h3>
+                            <ClusterOutlined /> {{ t("TXT_CODE_DESKTOP_NODES") }}
+                        </h3>
+                        <p>{{ t("TXT_CODE_DESKTOP_NODES_DESC") }}</p>
+                    </div>
+                    <div class="window-page__actions">
+                        <button class="window-btn window-btn--primary" @click="navigateToRoute('nodes')">
+                            {{ t("TXT_CODE_DESKTOP_OPEN_FULL") }}
+                        </button>
+                    </div>
+                </div>
+
+                <div v-else-if="win.content === 'market'" class="window-page">
+                    <div class="window-page__header">
+                        <h3>
+                            <ShoppingOutlined /> {{ t("TXT_CODE_DESKTOP_MARKET") }}
+                        </h3>
+                        <p>{{ t("TXT_CODE_DESKTOP_MARKET_DESC") }}</p>
+                    </div>
+                    <div class="window-page__actions">
+                        <button class="window-btn window-btn--primary" @click="navigateToRoute('market')">
+                            {{ t("TXT_CODE_DESKTOP_OPEN_FULL") }}
+                        </button>
+                    </div>
+                </div>
+
+                <div v-else-if="win.content === 'settings'" class="window-page">
+                    <div class="window-page__header">
+                        <h3>
+                            <SettingOutlined /> {{ t("TXT_CODE_DESKTOP_SETTINGS") }}
+                        </h3>
+                        <p>{{ t("TXT_CODE_DESKTOP_SETTINGS_DESC") }}</p>
+                    </div>
+                    <div class="window-page__actions">
+                        <button class="window-btn window-btn--primary" @click="navigateToRoute('settings')">
+                            {{ t("TXT_CODE_DESKTOP_OPEN_FULL") }}
+                        </button>
+                    </div>
+                </div>
+
+                <div v-else-if="win.content === 'terminal'" class="window-page">
+                    <div class="window-page__header">
+                        <h3>
+                            <CodeOutlined /> {{ t("TXT_CODE_DESKTOP_TERMINAL") }}
+                        </h3>
+                        <p>{{ t("TXT_CODE_DESKTOP_TERMINAL_DESC") }}</p>
+                    </div>
+                    <div class="window-terminal-placeholder">
+                        <div class="terminal-mock">
+                            <div class="terminal-line">
+                                <span class="terminal-prompt">$</span>
+                                <span class="terminal-cursor">_</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div v-else-if="win.content === 'about'" class="window-page window-page--about">
+                    <div class="about-content">
+                        <div class="about-logo">
+                            <ThunderboltOutlined />
+                        </div>
+                        <h2>ElementsPanel</h2>
+                        <p class="about-desc">{{ t("TXT_CODE_DESKTOP_ABOUT_DESC") }}</p>
+                        <div class="about-info">
+                            <div class="about-row">
+                                <span class="about-label">{{ t("TXT_CODE_DESKTOP_ABOUT_USER") }}</span>
+                                <span class="about-value">{{ username }}</span>
+                            </div>
+                            <div class="about-row">
+                                <span class="about-label">{{ t("TXT_CODE_DESKTOP_ABOUT_ROLE") }}</span>
+                                <span class="about-value">{{ isAdmin ? "Admin" : "User" }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div v-else class="window-page">
+                    <p>{{ win.title }}</p>
+                </div>
+            </div>
+        </DesktopWindow>
+
+        <DesktopTaskbar :windows="taskbarWindows" :username="username" @toggle-window="toggleWindow"
+            @exit-desktop="exitDesktop" />
+
+        <DesktopContextMenu :visible="ctxMenu.visible" :x="ctxMenu.x" :y="ctxMenu.y" :items="ctxMenuItems"
+            @close="closeContextMenu" />
+    </div>
+</template>
+
+<style lang="scss" scoped>
+.desktop-container {
+    position: fixed;
+    inset: 0;
+    overflow: hidden;
+    z-index: 100;
+}
+
+.desktop-wallpaper {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, #0a1628 0%, #1a2a4a 30%, #1e3a5f 50%, #0d2137 70%, #0a1628 100%);
+    z-index: 0;
+
+    &::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background:
+            radial-gradient(ellipse at 20% 50%, rgba(30, 80, 160, 0.3) 0%, transparent 50%),
+            radial-gradient(ellipse at 80% 20%, rgba(60, 120, 200, 0.15) 0%, transparent 40%),
+            radial-gradient(ellipse at 50% 80%, rgba(20, 60, 140, 0.2) 0%, transparent 50%);
+    }
+}
+
+.desktop-icons {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, 90px);
+    grid-auto-rows: 100px;
+    gap: 4px;
+    padding: 16px;
+    align-content: start;
+    height: calc(100vh - 48px);
+    overflow-y: auto;
+}
+
+.window-inner-content {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.window-page {
+    padding: 24px;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+
+    &__header {
+        margin-bottom: 20px;
+
+        h3 {
+            font-size: 20px;
+            font-weight: 600;
+            color: #fff;
+            margin: 0 0 8px 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        p {
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.6);
+            margin: 0;
+        }
+    }
+
+    &__actions {
+        margin-top: auto;
+        padding-top: 16px;
+    }
+
+    &--about {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+}
+
+.window-btn {
+    padding: 8px 20px;
+    border: none;
+    border-radius: 6px;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.2s;
+    color: #fff;
+
+    &--primary {
+        background: var(--color-blue-5);
+
+        &:hover {
+            background: var(--color-blue-6);
+            transform: translateY(-1px);
+        }
+    }
+}
+
+.window-terminal-placeholder {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.terminal-mock {
+    flex: 1;
+    background: #0d1117;
+    border-radius: 8px;
+    padding: 16px;
+    font-family: "Cascadia Code", "Fira Code", "Consolas", monospace;
+    font-size: 13px;
+}
+
+.terminal-line {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.terminal-prompt {
+    color: #58a6ff;
+}
+
+.terminal-cursor {
+    color: #c9d1d9;
+    animation: blink 1s infinite;
+}
+
+@keyframes blink {
+
+    0%,
+    50% {
+        opacity: 1;
+    }
+
+    51%,
+    100% {
+        opacity: 0;
+    }
+}
+
+.about-content {
+    text-align: center;
+    padding: 32px;
+
+    .about-logo {
+        font-size: 64px;
+        margin-bottom: 16px;
+        color: #faad14;
+    }
+
+    h2 {
+        font-size: 24px;
+        font-weight: 700;
+        color: #fff;
+        margin: 0 0 8px 0;
+    }
+
+    .about-desc {
+        font-size: 13px;
+        color: rgba(255, 255, 255, 0.6);
+        margin-bottom: 24px;
+    }
+
+    .about-info {
+        text-align: left;
+        max-width: 280px;
+        margin: 0 auto;
+    }
+
+    .about-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 8px 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .about-label {
+        color: rgba(255, 255, 255, 0.5);
+        font-size: 13px;
+    }
+
+    .about-value {
+        color: rgba(255, 255, 255, 0.9);
+        font-size: 13px;
+        font-weight: 500;
+    }
+}
+</style>

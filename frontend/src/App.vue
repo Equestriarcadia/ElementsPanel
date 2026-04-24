@@ -37,6 +37,7 @@ const designModeNavStyle = computed(() => {
 });
 
 const isLoginPage = computed(() => route.path === '/login');
+const isDesktopPage = computed(() => route.path === '/desktop');
 const justLoggedIn = ref(false);
 const transitionName = ref('page-fade');
 
@@ -45,8 +46,7 @@ watch(() => route.path, (newPath, oldPath) => {
     transitionName.value = 'login-fade';
     justLoggedIn.value = true;
     setTimeout(() => {
-      justLoggedIn.value = false;
-      transitionName.value = 'page-fade';
+      justLoggedIn.value = false; transitionName.value = 'page-fade';
     }, 1000);
   } else {
     transitionName.value = 'page-fade';
@@ -64,12 +64,12 @@ onMounted(async () => {
   <AppConfigProvider :has-bg-image="hasBgImage">
     <!-- App Container -->
     <div class="global-app-container">
-      <AppSidebarMenu v-if="useSidebarLayout && !isLoginPage" :style="designModeNavStyle"
+      <AppSidebarMenu v-if="useSidebarLayout && !isLoginPage && !isDesktopPage" :style="designModeNavStyle"
         :class="{ 'app-header-login-anim': justLoggedIn }" />
-      <main class="main-content" :class="{ 'app-layout-sidebar-only': useSidebarLayout }">
-        <AppHeader v-if="!useSidebarLayout && !isLoginPage" :style="designModeNavStyle"
+      <main class="main-content" :class="{ 'app-layout-sidebar-only': useSidebarLayout && !isDesktopPage }">
+        <AppHeader v-if="!useSidebarLayout && !isLoginPage && !isDesktopPage" :style="designModeNavStyle"
           :class="{ 'app-header-login-anim': justLoggedIn }" />
-        <Breadcrumbs v-if="!isLoginPage" />
+        <Breadcrumbs v-if="!isLoginPage && !isDesktopPage" />
         <RouterView v-slot="{ Component, route }">
           <transition :name="transitionName" mode="out-in">
             <component :is="Component" :key="route.fullPath" />
@@ -79,7 +79,7 @@ onMounted(async () => {
     </div>
 
     <!-- Mobile Bottom Navigation -->
-    <AppBottomNav v-if="isPhone && !useSidebarLayout && !isLoginPage" />
+    <AppBottomNav v-if="isPhone && !useSidebarLayout && !isLoginPage && !isDesktopPage" />
 
     <!-- Global Components -->
     <component :is="component" v-for="(component, index) in GLOBAL_COMPONENTS" :key="index" />

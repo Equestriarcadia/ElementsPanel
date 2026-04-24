@@ -1,0 +1,829 @@
+<script setup lang="ts">
+import { remoteInstances, remoteNodeList } from "@/services/apis";
+import {
+    killInstance,
+    openInstance,
+    restartInstance,
+    stopInstance
+} from "@/services/apis/instance";
+import type { InstanceDetail, NodeStatus } from "@/types";
+import { INSTANCE_STATUS_CODE } from "@/types/const";
+import {
+    ApiOutlined,
+    CaretRightOutlined,
+    ClockCircleOutlined,
+    CloseCircleOutlined,
+    InboxOutlined,
+    LeftOutlined,
+    MinusCircleOutlined,
+    PauseCircleOutlined,
+    PlayCircleOutlined,
+    QuestionCircleOutlined,
+    ReloadOutlined,
+    RightOutlined,
+    SearchOutlined,
+    StopOutlined,
+    TeamOutlined
+} from "@ant-design/icons-vue";
+import { computed, onMounted, onUnmounted, ref, watch, type Component } from "vue";
+
+//─── State ───
+const nodes = ref<NodeStatus[]>([]);
+const selectedNodeId = ref<string>("");
+const instances = ref<InstanceDetail[]>([]);
+const loading = ref(false);
+const searchText = ref("");
+const statusFilter = ref<string>("all");
+const currentPage = ref(1);
+const totalPages = ref(1);
+const pageSize = 20;
+const operatingIds = ref<Set<string>>(new Set());
+
+let refreshTimer: ReturnType<typeof setInterval> | null = null;
+
+// ─── API Instances ───
+const { execute: executeNodeList } = remoteNodeList();
+const { execute: executeRemoteInstances } = remoteInstances();
+const { execute: executeOpen } = openInstance();
+const { execute: executeStop } = stopInstance();
+const { execute: executeKill } = killInstance();
+const { execute: executeRestart } = restartInstance();
+
+// ─── Computed ───
+const filteredInstances = computed(() => {
+    let list = instances.value;
+    if (searchText.value.trim()) {
+        const keyword = searchText.value.trim().toLowerCase();
+        list = list.filter(
+            (i) =>
+                i.config.nickname.toLowerCase().includes(keyword) ||
+                i.instanceUuid.toLowerCase().includes(keyword)
+        );
+    }
+    if (statusFilter.value !== "all") {
+        const code = Number(statusFilter.value) as INSTANCE_STATUS_CODE;
+        list = list.filter((i) => i.status === code);
+    }
+    return list;
+});
+
+const selectedNode = computed(() => nodes.value.find((n) => n.uuid === selectedNodeId.value));
+
+const instanceCounts = computed(() => {
+    const running = instances.value.filter((i) => i.status === INSTANCE_STATUS_CODE.RUNNING).length;
+    const stopped = instances.value.filter((i) => i.status === INSTANCE_STATUS_CODE.STOPPED).length;
+    const total = instances.value.length;
+    return { running, stopped, total };
+});
+
+// ─── Helpers ───
+const getStatusText = (status: INSTANCE_STATUS_CODE): string => {
+    const map: Record<INSTANCE_STATUS_CODE, string> = {
+        [INSTANCE_STATUS_CODE.BUSY]: "Busy",
+        [INSTANCE_STATUS_CODE.STOPPED]: "Stopped",
+        [INSTANCE_STATUS_CODE.STOPPING]: "Stopping",
+        [INSTANCE_STATUS_CODE.STARTING]: "Starting",
+        [INSTANCE_STATUS_CODE.RUNNING]: "Running"
+    };
+    return map[status] || "Unknown";
+};
+
+const getStatusClass = (status: INSTANCE_STATUS_CODE): string => {
+    const map: Record<INSTANCE_STATUS_CODE, string> = {
+        [INSTANCE_STATUS_CODE.BUSY]: "status--busy",
+        [INSTANCE_STATUS_CODE.STOPPED]: "status--stopped",
+        [INSTANCE_STATUS_CODE.STOPPING]: "status--stopping",
+        [INSTANCE_STATUS_CODE.STARTING]: "status--starting",
+        [INSTANCE_STATUS_CODE.RUNNING]: "status--running"
+    };
+    return map[status] || "";
+};
+
+const statusIconMap: Record<number, Component> = {
+    [INSTANCE_STATUS_CODE.BUSY]: ClockCircleOutlined,
+    [INSTANCE_STATUS_CODE.STOPPED]: MinusCircleOutlined,
+    [INSTANCE_STATUS_CODE.STOPPING]: PauseCircleOutlined,
+    [INSTANCE_STATUS_CODE.STARTING]: ClockCircleOutlined,
+    [INSTANCE_STATUS_CODE.RUNNING]: PlayCircleOutlined
+};
+
+const getStatusIconComponent = (status: INSTANCE_STATUS_CODE): Component => {
+    return statusIconMap[status] || QuestionCircleOutlined;
+};
+
+// ─── Data Fetching ───
+const fetchNodes = async () => {
+    try {
+        const res = await executeNodeList();
+        if (res.value) {
+            nodes.value = res.value;
+            if (nodes.value.length > 0 && !selectedNodeId.value) {
+                selectedNodeId.value = nodes.value[0].uuid;
+            }
+        }
+    } catch (err) {
+        console.error("Failed to fetch nodes:", err);
+    }
+};
+
+const fetchInstances = async () => {
+    if (!selectedNodeId.value) return;
+    loading.value = true;
+    try {
+        const res = await executeRemoteInstances({
+            params: {
+                daemonId: selectedNodeId.value,
+                page: currentPage.value,
+                page_size: pageSize,
+                instance_name: searchText.value.trim() || undefined,
+                status: statusFilter.value !== "all" ? statusFilter.value : undefined
+            }
+        });
+        if (res.value) {
+            instances.value = res.value.data || [];
+            totalPages.value = res.value.maxPage || 1;
+        }
+    } catch (err) {
+        console.error("Failed to fetch instances:", err);
+    } finally {
+        loading.value = false;
+    }
+};
+
+// ─── Actions ───
+const handleStart = async (uuid: string) => {
+    operatingIds.value.add(uuid);
+    try {
+        await executeOpen({
+            params: { uuid, daemonId: selectedNodeId.value }
+        });
+        setTimeout(() => fetchInstances(), 1000);
+    } catch (err) {
+        console.error("Failed to start instance:", err);
+    } finally {
+        operatingIds.value.delete(uuid);
+    }
+};
+
+const handleStop = async (uuid: string) => {
+    operatingIds.value.add(uuid);
+    try {
+        await executeStop({
+            params: { uuid, daemonId: selectedNodeId.value }
+        });
+        setTimeout(() => fetchInstances(), 1000);
+    } catch (err) {
+        console.error("Failed to stop instance:", err);
+    } finally {
+        operatingIds.value.delete(uuid);
+    }
+};
+
+const handleRestart = async (uuid: string) => {
+    operatingIds.value.add(uuid);
+    try {
+        await executeRestart({
+            params: { uuid, daemonId: selectedNodeId.value }
+        });
+        setTimeout(() => fetchInstances(), 1000);
+    } catch (err) {
+        console.error("Failed to restart instance:", err);
+    } finally {
+        operatingIds.value.delete(uuid);
+    }
+};
+
+const handleKill = async (uuid: string) => {
+    operatingIds.value.add(uuid);
+    try {
+        await executeKill({
+            params: { uuid, daemonId: selectedNodeId.value }
+        });
+        setTimeout(() => fetchInstances(), 1000);
+    } catch (err) {
+        console.error("Failed to kill instance:", err);
+    } finally {
+        operatingIds.value.delete(uuid);
+    }
+};
+
+const isOperating = (uuid: string) => operatingIds.value.has(uuid);
+
+// ─── Watch & Lifecycle ───
+watch(selectedNodeId, () => {
+    currentPage.value = 1;
+    fetchInstances();
+});
+
+watch([searchText, statusFilter], () => {
+    currentPage.value = 1;
+    fetchInstances();
+});
+
+onMounted(async () => {
+    await fetchNodes();
+    await fetchInstances();
+    refreshTimer = setInterval(fetchInstances, 10000);
+});
+
+onUnmounted(() => {
+    if (refreshTimer) {
+        clearInterval(refreshTimer);
+        refreshTimer = null;
+    }
+});
+</script>
+
+<template>
+    <div class="dim">
+        <!-- Toolbar -->
+        <div class="dim-toolbar">
+            <div class="dim-toolbar__left">
+                <!-- Node Selector -->
+                <div class="dim-select">
+                    <label class="dim-select__label">Node:</label>
+                    <select v-model="selectedNodeId" class="dim-select__input">
+                        <option v-for="node in nodes" :key="node.uuid" :value="node.uuid">
+                            {{ node.remarks || node.ip }}:{{ node.port }}
+                            {{ node.available ? "" : " (offline)" }}
+                        </option>
+                    </select>
+                </div>
+
+                <!-- Status Filter -->
+                <div class="dim-select">
+                    <select v-model="statusFilter" class="dim-select__input">
+                        <option value="all">All Status</option>
+                        <option :value="String(INSTANCE_STATUS_CODE.RUNNING)">Running</option>
+                        <option :value="String(INSTANCE_STATUS_CODE.STOPPED)">Stopped</option>
+                        <option :value="String(INSTANCE_STATUS_CODE.STARTING)">Starting</option>
+                        <option :value="String(INSTANCE_STATUS_CODE.STOPPING)">Stopping</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="dim-toolbar__right">
+                <!-- Search -->
+                <div class="dim-search">
+                    <input v-model="searchText" type="text" class="dim-search__input"
+                        placeholder="Search instances..." />
+                    <span class="dim-search__icon">
+                        <SearchOutlined />
+                    </span>
+                </div>
+
+                <!-- Refresh -->
+                <button class="dim-btn dim-btn--icon" :class="{ 'dim-btn--loading': loading }" @click="fetchInstances">
+                    <ReloadOutlined />
+                </button>
+            </div>
+        </div>
+
+        <!-- Stats Bar -->
+        <div class="dim-stats">
+            <div class="dim-stats__item">
+                <span class="dim-stats__dot dim-stats__dot--total"></span>
+                <span>Total: {{ instanceCounts.total }}</span>
+            </div>
+            <div class="dim-stats__item">
+                <span class="dim-stats__dot dim-stats__dot--running"></span>
+                <span>Running: {{ instanceCounts.running }}</span>
+            </div>
+            <div class="dim-stats__item">
+                <span class="dim-stats__dot dim-stats__dot--stopped"></span>
+                <span>Stopped: {{ instanceCounts.stopped }}</span>
+            </div>
+            <div v-if="selectedNode" class="dim-stats__node">
+                <span>
+                    <ApiOutlined /> {{ selectedNode.remarks || selectedNode.ip }}
+                </span>
+                <span :class="selectedNode.available ? 'dim-stats__online' : 'dim-stats__offline'">
+                    {{ selectedNode.available ? "Online" : "Offline" }}
+                </span>
+            </div>
+        </div>
+
+        <!-- Instance List -->
+        <div class="dim-list" :class="{ 'dim-list--loading': loading }">
+            <div v-if="loading && instances.length === 0" class="dim-empty">
+                <div class="dim-spinner"></div>
+                <p>Loading instances...</p>
+            </div>
+
+            <div v-else-if="filteredInstances.length === 0" class="dim-empty">
+                <span class="dim-empty__icon">
+                    <InboxOutlined />
+                </span>
+                <p>No instances found</p>
+            </div>
+
+            <div v-for="instance in filteredInstances" :key="instance.instanceUuid" class="dim-instance"
+                :class="{ 'dim-instance--operating': isOperating(instance.instanceUuid) }">
+                <div class="dim-instance__info">
+                    <div class="dim-instance__header">
+                        <span class="dim-instance__status" :class="getStatusClass(instance.status)">
+                            <component :is="getStatusIconComponent(instance.status)" />
+                        </span>
+                        <span class="dim-instance__name">{{ instance.config.nickname || "Unnamed" }}</span>
+                        <span class="dim-instance__badge" :class="getStatusClass(instance.status)">
+                            {{ getStatusText(instance.status) }}
+                        </span>
+                    </div>
+                    <div class="dim-instance__meta">
+                        <span class="dim-instance__uuid" :title="instance.instanceUuid">
+                            {{ instance.instanceUuid.substring(0, 12) }}...
+                        </span>
+                        <span v-if="instance.config.type" class="dim-instance__type">
+                            {{ instance.config.type }}
+                        </span>
+                        <span
+                            v-if="instance.info?.currentPlayers !== undefined && instance.status === INSTANCE_STATUS_CODE.RUNNING"
+                            class="dim-instance__players">
+                            <TeamOutlined /> {{ instance.info.currentPlayers }}/{{ instance.info.maxPlayers }}
+                        </span>
+                    </div>
+                </div>
+
+                <div class="dim-instance__actions">
+                    <button v-if="instance.status === INSTANCE_STATUS_CODE.STOPPED" class="dim-action dim-action--start"
+                        :disabled="isOperating(instance.instanceUuid)" @click.stop="handleStart(instance.instanceUuid)"
+                        title="Start">
+                        <CaretRightOutlined />
+                    </button>
+                    <button v-if="instance.status === INSTANCE_STATUS_CODE.RUNNING"
+                        class="dim-action dim-action--restart" :disabled="isOperating(instance.instanceUuid)"
+                        @click.stop="handleRestart(instance.instanceUuid)" title="Restart">
+                        <ReloadOutlined />
+                    </button>
+                    <button v-if="instance.status === INSTANCE_STATUS_CODE.RUNNING" class="dim-action dim-action--stop"
+                        :disabled="isOperating(instance.instanceUuid)" @click.stop="handleStop(instance.instanceUuid)"
+                        title="Stop">
+                        <StopOutlined />
+                    </button>
+                    <button
+                        v-if="instance.status === INSTANCE_STATUS_CODE.RUNNING || instance.status === INSTANCE_STATUS_CODE.STOPPING"
+                        class="dim-action dim-action--kill" :disabled="isOperating(instance.instanceUuid)"
+                        @click.stop="handleKill(instance.instanceUuid)" title="Kill">
+                        <CloseCircleOutlined />
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pagination -->
+        <div v-if="totalPages > 1" class="dim-pagination">
+            <button class="dim-btn dim-btn--sm" :disabled="currentPage <= 1" @click="currentPage--; fetchInstances()">
+                <LeftOutlined /> Prev
+            </button>
+            <span class="dim-pagination__info">{{ currentPage }} / {{ totalPages }}</span>
+            <button class="dim-btn dim-btn--sm" :disabled="currentPage >= totalPages"
+                @click="currentPage++; fetchInstances()">
+                Next
+                <RightOutlined />
+            </button>
+        </div>
+    </div>
+</template>
+
+<style lang="scss" scoped>
+.dim {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 13px;
+}
+
+// ─── Toolbar ───
+.dim-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 12px 16px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    flex-wrap: wrap;
+
+    &__left,
+    &__right {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+}
+
+.dim-select {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+
+    &__label {
+        color: rgba(255, 255, 255, 0.5);
+        font-size: 12px;
+        white-space: nowrap;
+    }
+
+    &__input {
+        background: rgba(255, 255, 255, 0.06);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 6px;
+        color: rgba(255, 255, 255, 0.9);
+        padding: 6px 10px;
+        font-size: 12px;
+        outline: none;
+        cursor: pointer;
+        max-width: 200px;
+
+        &:focus {
+            border-color: rgba(22, 119, 255, 0.5);
+        }
+
+        option {
+            background: #1a1a2e;
+            color: #fff;
+        }
+    }
+}
+
+.dim-search {
+    position: relative;
+
+    &__input {
+        background: rgba(255, 255, 255, 0.06);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 6px;
+        color: rgba(255, 255, 255, 0.9);
+        padding: 6px 10px 6px 28px;
+        font-size: 12px;
+        outline: none;
+        width: 180px;
+        transition: all 0.2s;
+
+        &::placeholder {
+            color: rgba(255, 255, 255, 0.3);
+        }
+
+        &:focus {
+            border-color: rgba(22, 119, 255, 0.5);
+            width: 220px;
+        }
+    }
+
+    &__icon {
+        position: absolute;
+        left: 8px;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 12px;
+        pointer-events: none;
+        display: flex;
+        align-items: center;
+    }
+}
+
+.dim-btn {
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 6px;
+    color: rgba(255, 255, 255, 0.8);
+    padding: 6px 12px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+
+    &:hover:not(:disabled) {
+        background: rgba(255, 255, 255, 0.1);
+    }
+
+    &:disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
+    }
+
+    &--icon {
+        padding: 6px 8px;
+        font-size: 14px;
+        line-height: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    &--loading {
+        animation: spin 1s linear infinite;
+    }
+
+    &--sm {
+        padding: 4px 10px;
+        font-size: 11px;
+    }
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+// ─── Stats Bar ───
+.dim-stats {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 8px 16px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.6);
+    flex-wrap: wrap;
+
+    &__item {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+    &__dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+
+        &--total {
+            background: #1677ff;
+        }
+
+        &--running {
+            background: #52c41a;
+        }
+
+        &--stopped {
+            background: #8c8c8c;
+        }
+    }
+
+    &__node {
+        margin-left: auto;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    &__online {
+        color: #52c41a;
+        font-weight: 500;
+    }
+
+    &__offline {
+        color: #ff4d4f;
+        font-weight: 500;
+    }
+}
+
+// ─── Instance List ───
+.dim-list {
+    flex: 1;
+    overflow-y: auto;
+    padding: 8px;
+
+    &--loading {
+        opacity: 0.7;
+    }
+
+    &::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+        background: rgba(255, 255, 255, 0.15);
+        border-radius: 3px;
+    }
+
+    &::-webkit-scrollbar-track {
+        background: transparent;
+    }
+}
+
+.dim-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 48px 16px;
+    color: rgba(255, 255, 255, 0.4);
+
+    &__icon {
+        font-size: 36px;
+        margin-bottom: 12px;
+    }
+
+    p {
+        margin: 8px 0 0;
+        font-size: 13px;
+    }
+}
+
+.dim-spinner {
+    width: 28px;
+    height: 28px;
+    border: 3px solid rgba(255, 255, 255, 0.1);
+    border-top-color: #1677ff;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin-bottom: 8px;
+}
+
+.dim-instance {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 14px;
+    margin-bottom: 4px;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.04);
+    transition: all 0.2s;
+    cursor: default;
+
+    &:hover {
+        background: rgba(255, 255, 255, 0.06);
+        border-color: rgba(255, 255, 255, 0.08);
+    }
+
+    &--operating {
+        opacity: 0.6;
+        pointer-events: none;
+    }
+
+    &__info {
+        flex: 1;
+        min-width: 0;
+    }
+
+    &__header {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 4px;
+    }
+
+    &__status {
+        font-size: 12px;
+        line-height: 1;
+        display: flex;
+        align-items: center;
+    }
+
+    &__name {
+        font-size: 13px;
+        font-weight: 500;
+        color: rgba(255, 255, 255, 0.9);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 300px;
+    }
+
+    &__badge {
+        font-size: 10px;
+        padding: 2px 8px;
+        border-radius: 10px;
+        font-weight: 500;
+        white-space: nowrap;
+
+        &.status--running {
+            background: rgba(82, 196, 26, 0.15);
+            color: #52c41a;
+        }
+
+        &.status--stopped {
+            background: rgba(140, 140, 140, 0.15);
+            color: #8c8c8c;
+        }
+
+        &.status--starting,
+        &.status--stopping {
+            background: rgba(250, 173, 20, 0.15);
+            color: #faad14;
+        }
+
+        &.status--busy {
+            background: rgba(255, 77, 79, 0.15);
+            color: #ff4d4f;
+        }
+    }
+
+    &__meta {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        font-size: 11px;
+        color: rgba(255, 255, 255, 0.4);
+    }
+
+    &__uuid {
+        font-family: "Cascadia Code", "Fira Code", monospace;
+        font-size: 11px;
+    }
+
+    &__type {
+        background: rgba(255, 255, 255, 0.06);
+        padding: 1px 6px;
+        border-radius: 4px;
+        font-size: 10px;
+    }
+
+    &__players {
+        font-size: 11px;
+        color: rgba(255, 255, 255, 0.6);
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+    &__actions {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        flex-shrink: 0;
+        margin-left: 12px;
+    }
+}
+
+// ─── Action Buttons ───
+.dim-action {
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    border-radius: 6px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+    background: rgba(255, 255, 255, 0.06);
+    line-height: 1;
+
+    &:hover:not(:disabled) {
+        transform: scale(1.1);
+    }
+
+    &:disabled {
+        opacity: 0.3;
+        cursor: not-allowed;
+    }
+
+    &--start {
+        color: #52c41a;
+
+        &:hover:not(:disabled) {
+            background: rgba(82, 196, 26, 0.2);
+        }
+    }
+
+    &--stop {
+        color: #faad14;
+
+        &:hover:not(:disabled) {
+            background: rgba(250, 173, 20, 0.2);
+        }
+    }
+
+    &--restart {
+        color: #1677ff;
+
+        &:hover:not(:disabled) {
+            background: rgba(22, 119, 255, 0.2);
+        }
+    }
+
+    &--kill {
+        color: #ff4d4f;
+
+        &:hover:not(:disabled) {
+            background: rgba(255, 77, 79, 0.2);
+        }
+    }
+}
+
+// ─── Pagination ───
+.dim-pagination {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    padding: 10px 16px;
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+
+    &__info {
+        font-size: 12px;
+        color: rgba(255, 255, 255, 0.5);
+    }
+}
+</style>
