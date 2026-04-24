@@ -16,6 +16,7 @@ import {
     CloseCircleOutlined,
     InboxOutlined,
     LeftOutlined,
+    LoadingOutlined,
     MinusCircleOutlined,
     PauseCircleOutlined,
     PlayCircleOutlined,
@@ -127,9 +128,9 @@ const fetchNodes = async () => {
     }
 };
 
-const fetchInstances = async () => {
+const fetchInstances = async (silent = false) => {
     if (!selectedNodeId.value) return;
-    loading.value = true;
+    if (!silent) loading.value = true;
     try {
         const res = await executeRemoteInstances({
             params: {
@@ -147,7 +148,7 @@ const fetchInstances = async () => {
     } catch (err) {
         console.error("Failed to fetch instances:", err);
     } finally {
-        loading.value = false;
+        if (!silent) loading.value = false;
     }
 };
 
@@ -158,7 +159,7 @@ const handleStart = async (uuid: string) => {
         await executeOpen({
             params: { uuid, daemonId: selectedNodeId.value }
         });
-        setTimeout(() => fetchInstances(), 1000);
+        setTimeout(() => fetchInstances(true), 1000);
     } catch (err) {
         console.error("Failed to start instance:", err);
     } finally {
@@ -172,7 +173,7 @@ const handleStop = async (uuid: string) => {
         await executeStop({
             params: { uuid, daemonId: selectedNodeId.value }
         });
-        setTimeout(() => fetchInstances(), 1000);
+        setTimeout(() => fetchInstances(true), 1000);
     } catch (err) {
         console.error("Failed to stop instance:", err);
     } finally {
@@ -186,7 +187,7 @@ const handleRestart = async (uuid: string) => {
         await executeRestart({
             params: { uuid, daemonId: selectedNodeId.value }
         });
-        setTimeout(() => fetchInstances(), 1000);
+        setTimeout(() => fetchInstances(true), 1000);
     } catch (err) {
         console.error("Failed to restart instance:", err);
     } finally {
@@ -200,7 +201,7 @@ const handleKill = async (uuid: string) => {
         await executeKill({
             params: { uuid, daemonId: selectedNodeId.value }
         });
-        setTimeout(() => fetchInstances(), 1000);
+        setTimeout(() => fetchInstances(true), 1000);
     } catch (err) {
         console.error("Failed to kill instance:", err);
     } finally {
@@ -234,7 +235,7 @@ watch([searchText, statusFilter], () => {
 onMounted(async () => {
     await fetchNodes();
     await fetchInstances();
-    refreshTimer = setInterval(fetchInstances, 10000);
+    refreshTimer = setInterval(() => fetchInstances(true), 10000);
 });
 
 onUnmounted(() => {
@@ -292,8 +293,9 @@ onUnmounted(() => {
                 </div>
 
                 <!-- Refresh -->
-                <button class="dim-btn dim-btn--icon" :class="{ 'dim-btn--loading': loading }" @click="fetchInstances">
-                    <ReloadOutlined />
+                <button class="dim-btn dim-btn--icon" @click="fetchInstances()">
+                    <LoadingOutlined v-if="loading" />
+                    <ReloadOutlined v-else />
                 </button>
             </div>
         </div>
@@ -346,7 +348,7 @@ onUnmounted(() => {
                         </span>
                         <span class="dim-instance__name">{{
                             instance.config.nickname || t("TXT_CODE_DESKTOP_IM_UNNAMED")
-                            }}</span><span class="dim-instance__badge" :class="getStatusClass(instance.status)">
+                        }}</span><span class="dim-instance__badge" :class="getStatusClass(instance.status)">
                             {{ getStatusText(instance.status) }}
                         </span>
                     </div>
@@ -534,10 +536,6 @@ onUnmounted(() => {
         display: flex;
         align-items: center;
         justify-content: center;
-    }
-
-    &--loading {
-        animation: spin 1s linear infinite;
     }
 
     &--sm {
