@@ -270,7 +270,6 @@ const isComponentIcon = (icon: Component | string): boolean => typeof icon !== "
     &--active {
         background-color: rgba(255, 255, 255, 0.12);
         color: #fff;
-        border-bottom: 2px solid var(--color-blue-5);
     }
 }
 

@@ -79,10 +79,6 @@ const handleClick = () => {
         margin-bottom: 6px;
         transition: transform 0.2s ease;
         filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
-
-        .desktop-icon:active & {
-            transform: scale(0.92);
-        }
     }
 
     &__anticon {
