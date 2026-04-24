@@ -21,6 +21,7 @@ const emit = defineEmits<{
     (e: "toggle-window", id: string): void;
     (e: "open-start-menu"): void;
     (e: "exit-desktop"): void;
+    (e: "open-user-info"): void;
 }>();
 
 const currentTime = ref("");
@@ -53,6 +54,11 @@ const handleSwitchToNormalMode = () => {
     router.push("/");
 };
 
+const handleOpenUserInfo = () => {
+    startMenuOpen.value = false;
+    emit("open-user-info");
+};
+
 const isComponentIcon = (icon: Component | string): boolean => typeof icon !== "string";
 </script>
 
@@ -68,7 +74,7 @@ const isComponentIcon = (icon: Component | string): boolean => typeof icon !== "
         <!-- Start Menu Popup -->
         <Transition name="start-menu">
             <div v-if="startMenuOpen" class="taskbar__start-menu" @click.stop>
-                <div class="start-menu__header">
+                <div class="start-menu__header" @click="handleOpenUserInfo" style="cursor: pointer;">
                     <span class="start-menu__user-icon">
                         <UserOutlined />
                     </span>
@@ -184,6 +190,11 @@ const isComponentIcon = (icon: Component | string): boolean => typeof icon !== "
         align-items: center;
         gap: 10px;
         padding: 16px;
+        transition: background-color 0.15s;
+
+        &:hover {
+            background-color: rgba(255, 255, 255, 0.08);
+        }
     }
 
     .start-menu__user-icon {

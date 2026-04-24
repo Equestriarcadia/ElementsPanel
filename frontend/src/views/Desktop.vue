@@ -16,6 +16,7 @@ import DesktopSettings from "@/widgets/desktop/DesktopSettings.vue";
 import type { TaskbarWindow } from "@/widgets/desktop/DesktopTaskbar.vue";
 import DesktopTaskbar from "@/widgets/desktop/DesktopTaskbar.vue";
 import DesktopTerminalSelector from "@/widgets/desktop/DesktopTerminalSelector.vue";
+import DesktopUserInfo from "@/widgets/desktop/DesktopUserInfo.vue";
 import DesktopUsers from "@/widgets/desktop/DesktopUsers.vue";
 import DesktopWindow from "@/widgets/desktop/DesktopWindow.vue";
 import {
@@ -26,7 +27,8 @@ import {
     SettingOutlined,
     ShoppingOutlined,
     SyncOutlined,
-    TeamOutlined
+    TeamOutlined,
+    UserOutlined
 } from "@ant-design/icons-vue";
 import { computed, markRaw, reactive, ref, type Component } from "vue";
 import { useRouter } from "vue-router";
@@ -240,6 +242,37 @@ const openNewInstanceWindow = () => {
     });
 };
 
+const openUserInfoWindow = () => {
+    const windowId = "user-info";
+    const existing = windows.get(windowId);
+
+    if (existing) {
+        existing.minimized = false;
+        existing.visible = true;
+        focusWindow(windowId);
+        return;
+    }
+
+    windowOffset = (windowOffset + 1) % 8;
+    const offsetX = 140 + windowOffset * 30;
+    const offsetY = 100 + windowOffset * 30;
+
+    windows.set(windowId, {
+        id: windowId,
+        title: t("TXT_CODE_9bb2f08b"),
+        icon: markRaw(UserOutlined),
+        visible: true,
+        minimized: false,
+        maximized: false,
+        zIndex: ++nextZIndex,
+        content: "user-info",
+        initialX: offsetX,
+        initialY: offsetY,
+        initialWidth: 600,
+        initialHeight: 500
+    });
+};
+
 const closeWindow = (id: string) => {
     windows.delete(id);
 };
@@ -394,6 +427,8 @@ const username = computed(() => appState.userInfo?.userName || "User");
                                 <DesktopTerminalSelector v-else-if="win.content === 'terminal'"
                                     @open-console="openInstanceConsole" />
 
+                                <DesktopUserInfo v-else-if="win.content === 'user-info'" />
+
                                 <div v-else class="window-page">
                                     <p>{{ win.title }}</p>
                                 </div>
@@ -402,7 +437,7 @@ const username = computed(() => appState.userInfo?.userName || "User");
                     </TransitionGroup>
 
                     <DesktopTaskbar :windows="taskbarWindows" :username="username" @toggle-window="toggleWindow"
-                        @exit-desktop="exitDesktop" />
+                        @exit-desktop="exitDesktop" @open-user-info="openUserInfoWindow" />
 
                     <DesktopContextMenu :visible="ctxMenu.visible" :x="ctxMenu.x" :y="ctxMenu.y" :items="ctxMenuItems"
                         @close="closeContextMenu" />
