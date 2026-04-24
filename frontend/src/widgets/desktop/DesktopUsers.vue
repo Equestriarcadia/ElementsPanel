@@ -15,6 +15,7 @@ import {
     UserOutlined
 } from "@ant-design/icons-vue";
 import { computed, onMounted, reactive, ref } from "vue";
+import DesktopWindow from "./DesktopWindow.vue";
 
 const { execute: fetchUsersApi, isLoading: loading } = getUserInfoApi();
 const { execute: addUserApiExec } = addUserApi();
@@ -41,6 +42,18 @@ const saving = ref(false);
 const showDeleteConfirm = ref(false);
 const deletingUser = ref<BaseUserInfo | null>(null);
 
+const windowWidth = ref(window.innerWidth);
+const windowHeight = ref(window.innerHeight);
+
+onMounted(() => {
+    const updateWindowSize = () => {
+        windowWidth.value = window.innerWidth;
+        windowHeight.value = window.innerHeight;
+    };
+    window.addEventListener('resize', updateWindowSize);
+    fetchUsers();
+});
+
 const fetchUsers = async () => {
     try {
         const res = await fetchUsersApi({
@@ -60,10 +73,6 @@ const fetchUsers = async () => {
         total.value = 0;
     }
 };
-
-onMounted(() => {
-    fetchUsers();
-});
 
 let searchTimer: ReturnType<typeof setTimeout> | undefined;
 const onSearchInput = () => {
@@ -227,7 +236,7 @@ const formatTime = (time: string): string => {
             <div class="du-search">
                 <SearchOutlined class="du-search__icon" />
                 <input v-model="searchQuery" class="du-search__input" :placeholder="t('TXT_CODE_DESKTOP_USERS_SEARCH')"
-                    @input="onSearchInput" />
+                    autocomplete="off" spellcheck="false" @input="onSearchInput" />
             </div>
             <button class="du-btn du-btn--primary" @click="openAddDialog">
                 <PlusOutlined />
@@ -313,24 +322,19 @@ const formatTime = (time: string): string => {
 
         <Teleport to="body">
             <Transition name="du-dialog-fade">
-                <div v-if="showDialog" class="du-dialog-overlay" @click.self="closeDialog">
-                    <div class="du-dialog">
-                        <div class="du-dialog__header">
-                            <h3>
-                                <template v-if="dialogMode === 'add'">
-                                    <PlusOutlined /> {{ t("TXT_CODE_DESKTOP_USERS_ADD") }}
-                                </template>
-                                <template v-else>
-                                    <EditOutlined /> {{ t("TXT_CODE_DESKTOP_USERS_EDIT") }}
-                                </template>
-                            </h3>
-                        </div>
+                <DesktopWindow v-if="showDialog" id="user-edit-dialog"
+                    :title="dialogMode === 'add' ? t('TXT_CODE_DESKTOP_USERS_ADD') : t('TXT_CODE_DESKTOP_USERS_EDIT')"
+                    :icon="dialogMode === 'add' ? PlusOutlined : EditOutlined" :visible="showDialog" :minimized="false"
+                    :maximized="false" :active="true" :initial-width="420" :initial-height="380"
+                    :initial-x="windowWidth / 2 - 210" :initial-y="windowHeight / 2 - 190" :z-index="10001"
+                    :show-minimize="false" :show-maximize="false" :resizable="false" @close="closeDialog">
+                    <div class="du-dialog-content">
                         <div class="du-dialog__body">
                             <div class="du-form-group">
                                 <label class="du-form-label">
                                     <UserOutlined /> {{ t("TXT_CODE_DESKTOP_USERS_USERNAME") }}
                                 </label>
-                                <input v-model="form.username" class="du-form-input"
+                                <input v-model="form.username" class="du-form-input" autocomplete="new-password"
                                     :placeholder="t('TXT_CODE_DESKTOP_USERS_USERNAME')"
                                     :disabled="dialogMode === 'edit'" />
                             </div>
@@ -339,6 +343,7 @@ const formatTime = (time: string): string => {
                                     <KeyOutlined /> {{ t("TXT_CODE_DESKTOP_USERS_PASSWORD") }}
                                 </label>
                                 <input v-model="form.password" type="password" class="du-form-input"
+                                    autocomplete="new-password"
                                     :placeholder="dialogMode === 'edit' ? t('TXT_CODE_DESKTOP_USERS_PASSWORD_HELP') : ''" />
                                 <span v-if="dialogMode === 'edit'" class="du-form-hint">
                                     {{ t("TXT_CODE_DESKTOP_USERS_PASSWORD_HELP") }}
@@ -371,7 +376,7 @@ const formatTime = (time: string): string => {
                             </button>
                         </div>
                     </div>
-                </div>
+                </DesktopWindow>
             </Transition>
         </Teleport>
 
@@ -755,6 +760,13 @@ const formatTime = (time: string): string => {
     }
 }
 
+.du-dialog-content {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    background: transparent;
+}
+
 .du-form-group {
     margin-bottom: 14px;
 
@@ -859,12 +871,13 @@ const formatTime = (time: string): string => {
 
 .du-dialog-fade-enter-active,
 .du-dialog-fade-leave-active {
-    transition: opacity 0.2s ease;
+    transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 .du-dialog-fade-enter-from,
 .du-dialog-fade-leave-to {
     opacity: 0;
+    transform: scale(0.95);
 }
 
 .du-table-wrap::-webkit-scrollbar {

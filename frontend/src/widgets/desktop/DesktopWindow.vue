@@ -20,6 +20,9 @@ export interface DesktopWindowProps {
     initialWidth?: number;
     initialHeight?: number;
     zIndex?: number;
+    showMinimize?: boolean;
+    showMaximize?: boolean;
+    resizable?: boolean;
 }
 
 const props = withDefaults(defineProps<DesktopWindowProps>(), {
@@ -27,7 +30,10 @@ const props = withDefaults(defineProps<DesktopWindowProps>(), {
     initialY: 60,
     initialWidth: 800,
     initialHeight: 500,
-    zIndex: 100
+    zIndex: 100,
+    showMinimize: true,
+    showMaximize: true,
+    resizable: true
 });
 
 const emit = defineEmits<{
@@ -87,7 +93,7 @@ const onMouseMove = (e: MouseEvent) => {
         x.value = Math.max(0, e.clientX - dragOffset.value.x);
         y.value = Math.max(0, e.clientY - dragOffset.value.y);
     }
-    if (isResizing.value) {
+    if (isResizing.value && props.resizable) {
         width.value = Math.max(400, resizeStart.value.w + (e.clientX - resizeStart.value.x));
         height.value = Math.max(300, resizeStart.value.h + (e.clientY - resizeStart.value.y));
     }
@@ -99,7 +105,7 @@ const onMouseUp = () => {
 };
 
 const onResizeStart = (e: MouseEvent) => {
-    if (props.maximized) return;
+    if (props.maximized || !props.resizable) return;
     isResizing.value = true;
     resizeStart.value = {
         x: e.clientX,
@@ -113,6 +119,7 @@ const onResizeStart = (e: MouseEvent) => {
 };
 
 const handleMaximize = () => {
+    if (!props.showMaximize) return;
     if (!props.maximized) {
         savedPos.value = { x: x.value, y: y.value, w: width.value, h: height.value };
     } else {
@@ -156,10 +163,12 @@ onUnmounted(() => {
                     <span class="window__title">{{ title }}</span>
                 </div>
                 <div class="window__controls">
-                    <div class="window__control window__control--minimize" @click.stop="emit('minimize', id)">
+                    <div v-if="showMinimize" class="window__control window__control--minimize"
+                        @click.stop="emit('minimize', id)">
                         <MinusOutlined />
                     </div>
-                    <div class="window__control window__control--maximize" @click.stop="handleMaximize">
+                    <div v-if="showMaximize" class="window__control window__control--maximize"
+                        @click.stop="handleMaximize">
                         <FullscreenExitOutlined v-if="maximized" />
                         <FullscreenOutlined v-else />
                     </div>
@@ -175,7 +184,7 @@ onUnmounted(() => {
             </div>
 
             <!-- Resize Handle -->
-            <div v-if="!maximized" class="window__resize-handle" @mousedown="onResizeStart"></div>
+            <div v-if="!maximized && resizable" class="window__resize-handle" @mousedown="onResizeStart"></div>
         </div>
     </Transition>
 </template>
