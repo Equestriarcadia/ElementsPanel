@@ -210,6 +210,16 @@ const handleKill = async (uuid: string) => {
 
 const isOperating = (uuid: string) => operatingIds.value.has(uuid);
 
+const emit = defineEmits<{
+    (e: "open-console", instance: InstanceDetail, daemonId: string): void;
+}>();
+
+const handleInstanceDblClick = (instance: InstanceDetail) => {
+    if (selectedNodeId.value) {
+        emit("open-console", instance, selectedNodeId.value);
+    }
+};
+
 // ─── Watch & Lifecycle ───
 watch(selectedNodeId, () => {
     currentPage.value = 1;
@@ -327,7 +337,8 @@ onUnmounted(() => {
             </div>
 
             <div v-for="instance in filteredInstances" :key="instance.instanceUuid" class="dim-instance"
-                :class="{ 'dim-instance--operating': isOperating(instance.instanceUuid) }">
+                :class="{ 'dim-instance--operating': isOperating(instance.instanceUuid) }"
+                @dblclick="handleInstanceDblClick(instance)">
                 <div class="dim-instance__info">
                     <div class="dim-instance__header">
                         <span class="dim-instance__status" :class="getStatusClass(instance.status)">
@@ -335,7 +346,7 @@ onUnmounted(() => {
                         </span>
                         <span class="dim-instance__name">{{
                             instance.config.nickname || t("TXT_CODE_DESKTOP_IM_UNNAMED")
-                        }}</span><span class="dim-instance__badge" :class="getStatusClass(instance.status)">
+                            }}</span><span class="dim-instance__badge" :class="getStatusClass(instance.status)">
                             {{ getStatusText(instance.status) }}
                         </span>
                     </div>

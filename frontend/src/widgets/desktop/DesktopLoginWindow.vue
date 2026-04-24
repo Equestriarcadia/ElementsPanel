@@ -131,13 +131,13 @@ const handleNext = async () => {
                     <span class="window__title">ElementsPanel</span>
                 </div>
                 <div class="window__controls">
-                    <div class="window__control window__control--minimize window__control--disabled">
+                    <div class="window__control window__control--disabled">
                         <MinusOutlined />
                     </div>
-                    <div class="window__control window__control--maximize window__control--disabled">
+                    <div class="window__control window__control--disabled">
                         <FullscreenOutlined />
                     </div>
-                    <div class="window__control window__control--close window__control--disabled">
+                    <div class="window__control window__control--disabled">
                         <CloseOutlined />
                     </div>
                 </div>
@@ -304,11 +304,6 @@ const handleNext = async () => {
         cursor: not-allowed;
 
         &:hover {
-            background-color: transparent;
-            color: rgba(255, 255, 255, 0.7);
-        }
-
-        &.window__control--close:hover {
             background-color: transparent;
             color: rgba(255, 255, 255, 0.7);
         }

@@ -4,6 +4,7 @@ import { useAppStateStore } from "@/stores/useAppStateStore";
 import type { ContextMenuItem } from "@/widgets/desktop/DesktopContextMenu.vue";
 import DesktopContextMenu from "@/widgets/desktop/DesktopContextMenu.vue";
 import DesktopIcon from "@/widgets/desktop/DesktopIcon.vue";
+import DesktopInstanceConsole from "@/widgets/desktop/DesktopInstanceConsole.vue";
 import DesktopInstanceManager from "@/widgets/desktop/DesktopInstanceManager.vue";
 import DesktopLoginWindow from "@/widgets/desktop/DesktopLoginWindow.vue";
 import type { TaskbarWindow } from "@/widgets/desktop/DesktopTaskbar.vue";
@@ -135,6 +136,8 @@ interface WindowState {
     initialY: number;
     initialWidth: number;
     initialHeight: number;
+    instanceId?: string;
+    daemonId?: string;
 }
 
 const windows = reactive<Map<string, WindowState>>(new Map());
@@ -170,6 +173,39 @@ const openWindow = (appId: string) => {
         initialY: offsetY,
         initialWidth: 850,
         initialHeight: 520
+    });
+};
+
+const openInstanceConsole = (instance: any, daemonId: string) => {
+    const windowId = `console-${instance.instanceUuid}`;
+    const existing = windows.get(windowId);
+
+    if (existing) {
+        existing.minimized = false;
+        existing.visible = true;
+        focusWindow(windowId);
+        return;
+    }
+
+    windowOffset = (windowOffset + 1) % 8;
+    const offsetX = 100 + windowOffset * 30;
+    const offsetY = 60 + windowOffset * 30;
+
+    windows.set(windowId, {
+        id: windowId,
+        title: instance.config.nickname || "Console",
+        icon: markRaw(CodeOutlined),
+        visible: true,
+        minimized: false,
+        maximized: false,
+        zIndex: ++nextZIndex,
+        content: "instance-console",
+        initialX: offsetX,
+        initialY: offsetY,
+        initialWidth: 800,
+        initialHeight: 500,
+        instanceId: instance.instanceUuid,
+        daemonId: daemonId
     });
 };
 
@@ -308,7 +344,11 @@ const username = computed(() => appState.userInfo?.userName || "User");
                 :initial-width="win.initialWidth" :initial-height="win.initialHeight" :z-index="win.zIndex"
                 @close="closeWindow" @minimize="minimizeWindow" @maximize="maximizeWindow" @focus="focusWindow">
                 <div class="window-inner-content">
-                    <DesktopInstanceManager v-if="win.content === 'instances'" />
+                    <DesktopInstanceManager v-if="win.content === 'instances'" @open-console="openInstanceConsole" />
+
+                    <DesktopInstanceConsole
+                        v-else-if="win.content === 'instance-console' && win.instanceId && win.daemonId"
+                        :instance-id="win.instanceId" :daemon-id="win.daemonId" />
 
                     <div v-else-if="win.content === 'overview'" class="window-page">
                         <div class="window-page__header">
@@ -408,16 +448,16 @@ const username = computed(() => appState.userInfo?.userName || "User");
                                 <div class="about-row">
                                     <span class="about-label">{{
                                         t("TXT_CODE_DESKTOP_ABOUT_USER")
-                                        }}</span>
+                                    }}</span>
                                     <span class="about-value">{{ username }}</span>
                                 </div>
                                 <div class="about-row">
                                     <span class="about-label">{{
                                         t("TXT_CODE_DESKTOP_ABOUT_ROLE")
-                                        }}</span>
+                                    }}</span>
                                     <span class="about-value">{{
                                         isAdmin ? "Admin" : "User"
-                                        }}</span>
+                                    }}</span>
                                 </div>
                             </div>
                         </div>
