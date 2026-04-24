@@ -222,12 +222,12 @@ const isComponentIcon = (icon: Component | string): boolean => typeof icon !== "
 
 .start-menu-enter-from {
     opacity: 0;
-    transform: translateY(10px) scale(0.96);
+    transform: translateY(10px);
 }
 
 .start-menu-leave-to {
     opacity: 0;
-    transform: translateY(10px) scale(0.96);
+    transform: translateY(10px);
 }
 
 .start-menu-overlay {
