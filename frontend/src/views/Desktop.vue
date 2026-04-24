@@ -13,6 +13,7 @@ import DesktopNodeManager from "@/widgets/desktop/DesktopNodeManager.vue";
 import DesktopOverview from "@/widgets/desktop/DesktopOverview.vue";
 import type { TaskbarWindow } from "@/widgets/desktop/DesktopTaskbar.vue";
 import DesktopTaskbar from "@/widgets/desktop/DesktopTaskbar.vue";
+import DesktopTerminalSelector from "@/widgets/desktop/DesktopTerminalSelector.vue";
 import DesktopUsers from "@/widgets/desktop/DesktopUsers.vue";
 import DesktopWindow from "@/widgets/desktop/DesktopWindow.vue";
 import {
@@ -413,22 +414,8 @@ const username = computed(() => appState.userInfo?.userName || "User");
                                     </div>
                                 </div>
 
-                                <div v-else-if="win.content === 'terminal'" class="window-page">
-                                    <div class="window-page__header">
-                                        <h3>
-                                            <CodeOutlined /> {{ t("TXT_CODE_DESKTOP_TERMINAL") }}
-                                        </h3>
-                                        <p>{{ t("TXT_CODE_DESKTOP_TERMINAL_DESC") }}</p>
-                                    </div>
-                                    <div class="window-terminal-placeholder">
-                                        <div class="terminal-mock">
-                                            <div class="terminal-line">
-                                                <span class="terminal-prompt">$</span>
-                                                <span class="terminal-cursor">_</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
+                                <DesktopTerminalSelector v-else-if="win.content === 'terminal'"
+                                    @open-console="openInstanceConsole" />
 
                                 <div v-else class="window-page">
                                     <p>{{ win.title }}</p>

@@ -3528,5 +3528,7 @@
   "TXT_CODE_DESKTOP_NODES_APIKEY_HELP": "Leave empty to keep unchanged",
   "TXT_CODE_DESKTOP_NODES_CANCEL": "Cancel",
   "TXT_CODE_DESKTOP_NODES_SAVE": "Save",
-  "TXT_CODE_DESKTOP_NODES_DELETE_CONFIRM": "Are you sure you want to delete node {name}?"
+  "TXT_CODE_DESKTOP_NODES_DELETE_CONFIRM": "Are you sure you want to delete node {name}?",
+  "TXT_CODE_DESKTOP_NODES_ONLINE": "Online",
+  "TXT_CODE_DESKTOP_NODES_OFFLINE": "Offline"
 }
