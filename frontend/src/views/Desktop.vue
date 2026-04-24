@@ -8,6 +8,7 @@ import DesktopIcon from "@/widgets/desktop/DesktopIcon.vue";
 import DesktopInstanceConsole from "@/widgets/desktop/DesktopInstanceConsole.vue";
 import DesktopInstanceManager from "@/widgets/desktop/DesktopInstanceManager.vue";
 import DesktopLoginWindow from "@/widgets/desktop/DesktopLoginWindow.vue";
+import DesktopMarket from "@/widgets/desktop/DesktopMarket.vue";
 import DesktopNewInstance from "@/widgets/desktop/DesktopNewInstance.vue";
 import DesktopNodeManager from "@/widgets/desktop/DesktopNodeManager.vue";
 import DesktopOverview from "@/widgets/desktop/DesktopOverview.vue";
@@ -387,20 +388,8 @@ const username = computed(() => appState.userInfo?.userName || "User");
 
                                 <DesktopSettings v-else-if="win.content === 'settings'" />
 
-                                <div v-else-if="win.content === 'market'" class="window-page">
-                                    <div class="window-page__header">
-                                        <h3>
-                                            <ShoppingOutlined /> {{ t("TXT_CODE_DESKTOP_MARKET") }}
-                                        </h3>
-                                        <p>{{ t("TXT_CODE_DESKTOP_MARKET_DESC") }}</p>
-                                    </div>
-                                    <div class="window-page__actions">
-                                        <button class="window-btn window-btn--primary"
-                                            @click="navigateToRoute('market')">
-                                            {{ t("TXT_CODE_DESKTOP_OPEN_FULL") }}
-                                        </button>
-                                    </div>
-                                </div>
+                                <DesktopMarket v-else-if="win.content === 'market'"
+                                    @open-console="openInstanceConsole" />
 
                                 <DesktopTerminalSelector v-else-if="win.content === 'terminal'"
                                     @open-console="openInstanceConsole" />
