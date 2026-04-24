@@ -3452,5 +3452,7 @@
   "TXT_CODE_DESKTOP_TERMINAL_DESC": "Access the system terminal for direct command execution.",
   "TXT_CODE_DESKTOP_ABOUT_DESC": "ElementsPanel - Open-source, distributed server management panel.",
   "TXT_CODE_DESKTOP_ABOUT_USER": "Current User",
-  "TXT_CODE_DESKTOP_ABOUT_ROLE": "Role"
+  "TXT_CODE_DESKTOP_ABOUT_ROLE": "Role",
+  "TXT_CODE_DESKTOP_LOGGING_IN": "Logging in...",
+  "TXT_CODE_DESKTOP_LOGIN_SUCCESS": "Login successful!"
 }

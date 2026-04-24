@@ -20,8 +20,7 @@ export interface RouterMetaInfo {
   permission?: number;
   redirect?:
   | string
-  | ((
-    userInfo: LoginUserInfo | undefined,
+  | ((userInfo: LoginUserInfo | undefined,
     to: RouteLocationNormalized,
     from: RouteLocationNormalized
   ) => string);
@@ -335,7 +334,7 @@ const originRouterConfig: RouterConfig[] = [
     name: t("TXT_CODE_DESKTOP_MODE"),
     component: DesktopPage,
     meta: {
-      permission: ROLE.ADMIN,
+      permission: ROLE.GUEST,
       mainMenu: false
     }
   }
@@ -409,7 +408,7 @@ router.beforeEach(async (to, from, next) => {
   if (
     toRoutePath.includes("_open_page") ||
     toRoutePath.startsWith("/sso/") ||
-    ["/shop", "/login", "/install", "/404"].includes(toRoutePath)
+    ["/shop", "/login", "/install", "/404", "/desktop"].includes(toRoutePath)
   ) {
     return next();
   }

@@ -3452,5 +3452,7 @@
   "TXT_CODE_DESKTOP_TERMINAL_DESC": "访问系统终端进行直接命令执行。",
   "TXT_CODE_DESKTOP_ABOUT_DESC": "ElementsPanel - 开源、分布式服务器管理面板。",
   "TXT_CODE_DESKTOP_ABOUT_USER": "当前用户",
-  "TXT_CODE_DESKTOP_ABOUT_ROLE": "角色"
+  "TXT_CODE_DESKTOP_ABOUT_ROLE": "角色",
+  "TXT_CODE_DESKTOP_LOGGING_IN": "登录中...",
+  "TXT_CODE_DESKTOP_LOGIN_SUCCESS": "登录成功!"
 }
