@@ -3502,5 +3502,13 @@
   "TXT_CODE_DESKTOP_IM_RESTART": "重启",
   "TXT_CODE_DESKTOP_IM_KILL": "终止",
   "TXT_CODE_DESKTOP_IM_PREV": "上一页",
-  "TXT_CODE_DESKTOP_IM_NEXT": "下一页"
+  "TXT_CODE_DESKTOP_IM_NEXT": "下一页",
+  "TXT_CODE_DESKTOP_IM_NEW_INSTANCE": "新增实例",
+  "TXT_CODE_DESKTOP_NEW_INSTANCE_DESC": "选择一种方式来创建您的新实例",
+  "TXT_CODE_QUICK_START": "快速开始",
+  "TXT_CODE_QUICK_START_DESC": "使用预设模板快速部署常见的游戏服务器",
+  "TXT_CODE_APP_MARKET": "应用市场",
+  "TXT_CODE_APP_MARKET_DESC": "从应用市场浏览并安装各种应用程序",
+  "TXT_CODE_CUSTOM_INSTANCE": "自定义实例",
+  "TXT_CODE_CUSTOM_INSTANCE_DESC": "手动配置所有参数来创建一个完全自定义的实例"
 }

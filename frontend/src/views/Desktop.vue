@@ -8,6 +8,7 @@ import DesktopIcon from "@/widgets/desktop/DesktopIcon.vue";
 import DesktopInstanceConsole from "@/widgets/desktop/DesktopInstanceConsole.vue";
 import DesktopInstanceManager from "@/widgets/desktop/DesktopInstanceManager.vue";
 import DesktopLoginWindow from "@/widgets/desktop/DesktopLoginWindow.vue";
+import DesktopNewInstance from "@/widgets/desktop/DesktopNewInstance.vue";
 import DesktopOverview from "@/widgets/desktop/DesktopOverview.vue";
 import type { TaskbarWindow } from "@/widgets/desktop/DesktopTaskbar.vue";
 import DesktopTaskbar from "@/widgets/desktop/DesktopTaskbar.vue";
@@ -204,6 +205,37 @@ const openInstanceConsole = (instance: any, daemonId: string) => {
     });
 };
 
+const openNewInstanceWindow = () => {
+    const windowId = "new-instance";
+    const existing = windows.get(windowId);
+
+    if (existing) {
+        existing.minimized = false;
+        existing.visible = true;
+        focusWindow(windowId);
+        return;
+    }
+
+    windowOffset = (windowOffset + 1) % 8;
+    const offsetX = 120 + windowOffset * 30;
+    const offsetY = 80 + windowOffset * 30;
+
+    windows.set(windowId, {
+        id: windowId,
+        title: t("TXT_CODE_DESKTOP_IM_NEW_INSTANCE"),
+        icon: markRaw(DesktopOutlined),
+        visible: true,
+        minimized: false,
+        maximized: false,
+        zIndex: ++nextZIndex,
+        content: "new-instance",
+        initialX: offsetX,
+        initialY: offsetY,
+        initialWidth: 500,
+        initialHeight: 400
+    });
+};
+
 const closeWindow = (id: string) => {
     windows.delete(id);
 };
@@ -335,7 +367,10 @@ const username = computed(() => appState.userInfo?.userName || "User");
                             @minimize="minimizeWindow" @maximize="maximizeWindow" @focus="focusWindow">
                             <div class="window-inner-content">
                                 <DesktopInstanceManager v-if="win.content === 'instances'"
-                                    @open-console="openInstanceConsole" />
+                                    @open-console="openInstanceConsole" @open-new-instance="openNewInstanceWindow" />
+
+                                <DesktopNewInstance v-else-if="win.content === 'new-instance'"
+                                    @close="closeWindow(win.id)" />
 
                                 <DesktopInstanceConsole
                                     v-else-if="win.content === 'instance-console' && win.instanceId && win.daemonId"

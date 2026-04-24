@@ -29,6 +29,7 @@ import {
     MinusCircleOutlined,
     PauseCircleOutlined,
     PlayCircleOutlined,
+    PlusOutlined,
     QuestionCircleOutlined,
     RedoOutlined,
     ReloadOutlined,
@@ -228,6 +229,7 @@ const isOperating = (uuid: string) => operatingIds.value.has(uuid);
 
 const emit = defineEmits<{
     (e: "open-console", instance: InstanceDetail, daemonId: string): void;
+    (e: "open-new-instance"): void;
 }>();
 
 const findInstance = (item: InstanceDetail) => {
@@ -500,6 +502,11 @@ onUnmounted(() => {
                     <LoadingOutlined v-if="loading" />
                     <ReloadOutlined v-else />
                 </button>
+
+                <!-- New Instance -->
+                <button class="dim-btn dim-btn--primary" @click="emit('open-new-instance')">
+                    <PlusOutlined /> {{ t("TXT_CODE_DESKTOP_IM_NEW_INSTANCE") }}
+                </button>
             </div>
         </div>
 
@@ -551,7 +558,7 @@ onUnmounted(() => {
                         </span>
                         <span class="dim-instance__name">{{
                             instance.config.nickname || t("TXT_CODE_DESKTOP_IM_UNNAMED")
-                        }}</span><span class="dim-instance__badge" :class="getStatusClass(instance.status)">
+                            }}</span><span class="dim-instance__badge" :class="getStatusClass(instance.status)">
                             {{ getStatusText(instance.status) }}
                         </span>
                     </div>

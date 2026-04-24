@@ -3503,5 +3503,13 @@
   "TXT_CODE_DESKTOP_USERS_USERNAME_REQUIRED": "Username is required",
   "TXT_CODE_DESKTOP_USERS_PASSWORD_REQUIRED": "Password is required for new users",
   "TXT_CODE_DESKTOP_USERS_ENABLED": "Enabled",
-  "TXT_CODE_DESKTOP_USERS_DISABLED": "Disabled"
+  "TXT_CODE_DESKTOP_USERS_DISABLED": "Disabled",
+  "TXT_CODE_DESKTOP_IM_NEW_INSTANCE": "New Instance",
+  "TXT_CODE_DESKTOP_NEW_INSTANCE_DESC": "Choose a way to create your new instance",
+  "TXT_CODE_QUICK_START": "Quick Start",
+  "TXT_CODE_QUICK_START_DESC": "Quickly deploy common game servers using preset templates",
+  "TXT_CODE_APP_MARKET": "App Market",
+  "TXT_CODE_APP_MARKET_DESC": "Browse and install various applications from the app market",
+  "TXT_CODE_CUSTOM_INSTANCE": "Custom Instance",
+  "TXT_CODE_CUSTOM_INSTANCE_DESC": "Manually configure all parameters to create a fully customized instance"
 }
