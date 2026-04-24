@@ -13,6 +13,7 @@ import {
   BgColorsOutlined,
   BuildOutlined,
   CloseCircleOutlined,
+  DesktopOutlined,
   GithubFilled,
   LogoutOutlined,
   RedoOutlined,
@@ -225,6 +226,15 @@ export function useHeaderMenus() {
           });
         },
         conditions: !containerState.isDesignMode && isAdmin.value,
+        onlyPC: true
+      },
+      {
+        title: t("TXT_CODE_DESKTOP_MODE"),
+        icon: DesktopOutlined,
+        click: () => {
+          router.push("/desktop");
+        },
+        conditions: !containerState.isDesignMode && isLogged.value,
         onlyPC: true
       },
       {

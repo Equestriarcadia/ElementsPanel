@@ -1,6 +1,7 @@
 <script setup lang="ts">
+import { router } from "@/config/router";
 import { t } from "@/lang/i18n";
-import { LogoutOutlined, UserOutlined } from "@ant-design/icons-vue";
+import { AppstoreOutlined, LogoutOutlined, UserOutlined } from "@ant-design/icons-vue";
 import { ref, type Component } from "vue";
 
 export interface TaskbarWindow {
@@ -47,6 +48,11 @@ const handleExitDesktop = () => {
     emit("exit-desktop");
 };
 
+const handleSwitchToNormalMode = () => {
+    startMenuOpen.value = false;
+    router.push("/");
+};
+
 const isComponentIcon = (icon: Component | string): boolean => typeof icon !== "string";
 </script>
 
@@ -69,6 +75,12 @@ const isComponentIcon = (icon: Component | string): boolean => typeof icon !== "
                     <span class="start-menu__username">{{ username }}</span>
                 </div>
                 <div class="start-menu__divider"></div>
+                <div class="start-menu__item" @click="handleSwitchToNormalMode">
+                    <span class="start-menu__item-icon">
+                        <AppstoreOutlined />
+                    </span>
+                    <span>{{ t("TXT_CODE_DESKTOP_EXIT") }}</span>
+                </div>
                 <div class="start-menu__item" @click="handleExitDesktop">
                     <span class="start-menu__item-icon">
                         <LogoutOutlined />
