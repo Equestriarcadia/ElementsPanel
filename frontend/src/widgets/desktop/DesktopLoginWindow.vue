@@ -6,8 +6,11 @@ import { sleep } from "@/tools/common";
 import { reportErrorMsg } from "@/tools/validator";
 import {
     CheckCircleOutlined,
+    CloseOutlined,
+    FullscreenOutlined,
     LoadingOutlined,
     LockOutlined,
+    MinusOutlined,
     UserOutlined
 } from "@ant-design/icons-vue";
 import { message, Modal } from "ant-design-vue";
@@ -119,54 +122,60 @@ const handleNext = async () => {
         <div ref="windowRef" class="desktop-login-window"
             :class="{ 'is-logging': loginStep === 1, 'is-dragging': isDragging }"
             :style="{ left: pos.x + 'px', top: pos.y + 'px' }">
-            <!-- Drag handle header -->
-            <div class="desktop-login-drag-handle" @mousedown="onMouseDown">
-                <div class="drag-dots">
-                    <span></span><span></span><span></span>
+            <!-- Title Bar -->
+            <div class="window__titlebar" @mousedown="onMouseDown">
+                <div class="window__titlebar-left">
+                    <span class="window__icon">
+                        <img src="@/assets/logo.svg" alt="logo" style="width: 14px; height: 14px;" />
+                    </span>
+                    <span class="window__title">ElementsPanel</span>
+                </div>
+                <div class="window__controls">
+                    <div class="window__control window__control--minimize window__control--disabled">
+                        <MinusOutlined />
+                    </div>
+                    <div class="window__control window__control--maximize window__control--disabled">
+                        <FullscreenOutlined />
+                    </div>
+                    <div class="window__control window__control--close window__control--disabled">
+                        <CloseOutlined />
+                    </div>
                 </div>
             </div>
 
-            <div class="desktop-login-header">
-                <h2>ElementsPanel</h2>
-            </div>
-
             <!-- Login form -->
-            <div v-show="loginStep === 0" class="desktop-login-body">
+            <div v-show="loginStep <= 1" class="desktop-login-body">
                 <p class="desktop-login-subtitle">{{ t("TXT_CODE_5b60ad00") }}</p>
                 <form class="desktop-login-form" @submit.prevent="handleLogin">
                     <div v-if="!is2Fa">
                         <div class="desktop-login-field">
                             <UserOutlined class="field-icon" />
                             <input v-model="formData.username" type="text" :placeholder="t('TXT_CODE_80a560a1')"
-                                autocomplete="username" />
+                                autocomplete="username" :disabled="loginStep === 1" />
                         </div>
                         <div class="desktop-login-field">
                             <LockOutlined class="field-icon" />
                             <input v-model="formData.password" type="password" :placeholder="t('TXT_CODE_551b0348')"
-                                autocomplete="current-password" @keydown.enter="handleLogin" />
+                                autocomplete="current-password" @keydown.enter="handleLogin"
+                                :disabled="loginStep === 1" />
                         </div>
                     </div>
                     <div v-else>
                         <div class="desktop-login-field">
                             <LockOutlined class="field-icon" />
                             <input v-model="formData.code" type="text" :placeholder="t('TXT_CODE_7ac8b1d3')"
-                                autocomplete="off" @keydown.enter="handleLogin" />
+                                autocomplete="off" @keydown.enter="handleLogin" :disabled="loginStep === 1" />
                         </div>
                     </div>
-                    <button type="submit" class="desktop-login-btn">
-                        {{ t("TXT_CODE_d2c1a316") }}
+                    <button type="submit" class="desktop-login-btn" :disabled="loginStep === 1">
+                        <LoadingOutlined v-if="loginStep === 1" />
+                        {{ loginStep === 1 ? t("TXT_CODE_DESKTOP_LOGGING_IN") : t("TXT_CODE_d2c1a316") }}
                     </button>
                 </form>
                 <div class="desktop-login-footer">
                     Powered by
                     <a href="https://mcsmanager.com" target="_blank" rel="noopener noreferrer">ElementsPanel</a>
                 </div>
-            </div>
-
-            <!-- Loading -->
-            <div v-show="loginStep === 1" class="desktop-login-body desktop-login-center">
-                <LoadingOutlined class="login-state-icon spinning" />
-                <p>{{ t("TXT_CODE_DESKTOP_LOGGING_IN") }}</p>
             </div>
 
             <!-- Success -->
@@ -190,26 +199,20 @@ const handleNext = async () => {
 .desktop-login-window {
     position: absolute;
     width: 380px;
-    background: rgba(30, 40, 60, 0.85);
-    backdrop-filter: saturate(150%) blur(24px);
+    background: rgba(32, 32, 40, 0.92);
+    backdrop-filter: saturate(180%) blur(20px);
     border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 16px;
-    box-shadow:
-        0 24px 80px rgba(0, 0, 0, 0.5),
-        0 0 1px rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
     overflow: hidden;
     animation: loginWindowAppear 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+    display: flex;
+    flex-direction: column;
+    transition: border-radius 0.2s ease, box-shadow 0.2s ease;
 
     &.is-dragging {
+        opacity: 0.92;
         transition: none;
-        user-select: none;
-        box-shadow:
-            0 32px 100px rgba(0, 0, 0, 0.6),
-            0 0 1px rgba(255, 255, 255, 0.15);
-    }
-
-    &:not(.is-dragging) {
-        transition: box-shadow 0.3s ease, border-color 0.3s ease;
     }
 
     &.is-logging {
@@ -232,56 +235,83 @@ const handleNext = async () => {
     }
 }
 
-.desktop-login-drag-handle {
+.window__titlebar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 38px;
+    padding: 0 8px 0 12px;
+    background: rgba(0, 0, 0, 0.2);
+    cursor: default;
+    user-select: none;
+    flex-shrink: 0;
+
+    &-left {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        overflow: hidden;
+    }
+}
+
+.window__icon {
+    font-size: 14px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    color: rgba(255, 255, 255, 0.85);
+}
+
+.window__title {
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.85);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.window__controls {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    flex-shrink: 0;
+}
+
+.window__control {
+    width: 32px;
     height: 28px;
     display: flex;
     align-items: center;
     justify-content: center;
-    cursor: grab;
-    user-select: none;
-    background: rgba(255, 255, 255, 0.02);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+    border-radius: 4px;
+    cursor: pointer;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 12px;
+    transition: background-color 0.12s;
 
-    &:active {
-        cursor: grabbing;
+    &:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+        color: #fff;
     }
 
-    .drag-dots {
-        display: flex;
-        gap: 4px;
+    &--close:hover {
+        background-color: #e81123;
+        color: #fff;
+    }
 
-        span {
-            width: 4px;
-            height: 4px;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.2);
+    &--disabled {
+        opacity: 0.3;
+        cursor: not-allowed;
+
+        &:hover {
+            background-color: transparent;
+            color: rgba(255, 255, 255, 0.7);
         }
-    }
-}
 
-.desktop-login-header {
-    text-align: center;
-    padding: 20px 24px 0;
-
-    .desktop-login-logo {
-        width: 64px;
-        height: 64px;
-        border-radius: 16px;
-        background: linear-gradient(135deg, #faad14, #fa8c16);
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 32px;
-        color: #fff;
-        margin-bottom: 12px;
-    }
-
-    h2 {
-        font-size: 22px;
-        font-weight: 700;
-        color: #fff;
-        margin: 0;
-        letter-spacing: 0.5px;
+        &.window__control--close:hover {
+            background-color: transparent;
+            color: rgba(255, 255, 255, 0.7);
+        }
     }
 }
 
@@ -355,15 +385,24 @@ const handleNext = async () => {
     font-weight: 600;
     cursor: pointer;
     transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
 
-    &:hover {
+    &:hover:not(:disabled) {
         background: linear-gradient(135deg, #4096ff, #69b1ff);
         transform: translateY(-1px);
         box-shadow: 0 4px 16px rgba(22, 119, 255, 0.3);
     }
 
-    &:active {
+    &:active:not(:disabled) {
         transform: translateY(0);
+    }
+
+    &:disabled {
+        opacity: 0.7;
+        cursor: not-allowed;
     }
 }
 
