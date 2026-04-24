@@ -104,7 +104,6 @@ onMounted(async () => {
 
 .login-fade-leave-to {
   opacity: 0;
-  transform: scale(0.9);
 }
 
 .login-fade-enter-active {

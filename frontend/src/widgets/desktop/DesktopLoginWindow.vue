@@ -1,10 +1,12 @@
 <script setup lang="ts">
+import { router } from "@/config/router";
 import { t } from "@/lang/i18n";
 import { loginUser } from "@/services/apis";
 import { useAppStateStore } from "@/stores/useAppStateStore";
 import { sleep } from "@/tools/common";
 import { reportErrorMsg } from "@/tools/validator";
 import {
+    AppstoreOutlined,
     CheckCircleOutlined,
     LoadingOutlined,
     LockOutlined,
@@ -127,6 +129,11 @@ const handleNext = async () => {
                     </span>
                     <span class="window__title">ElementsPanel</span>
                 </div>
+                <div class="window__controls">
+                    <div class="window__control" @click="router.push('/login')" :title="t('TXT_CODE_DESKTOP_EXIT')">
+                        <AppstoreOutlined />
+                    </div>
+                </div>
             </div>
 
             <!-- Login form -->
@@ -200,13 +207,6 @@ const handleNext = async () => {
     &.is-dragging {
         opacity: 1;
         transition: none;
-    }
-
-    &.is-logging {
-        border-color: rgba(22, 119, 255, 0.5);
-        box-shadow:
-            0 24px 80px rgba(0, 0, 0, 0.5),
-            0 0 30px rgba(22, 119, 255, 0.2);
     }
 }
 

@@ -10,6 +10,7 @@ import { reportErrorMsg } from "@/tools/validator";
 import type { LayoutCard } from "@/types";
 import {
   CheckCircleOutlined,
+  DesktopOutlined,
   LoadingOutlined,
   LockOutlined,
   LoginOutlined,
@@ -145,6 +146,15 @@ onMounted(async () => {
     <CardPanel class="login-panel">
       <template #body>
         <div v-show="loginStep === 0" class="login-panel-body">
+          <div style="position: absolute; top: 24px; right: 24px; z-index: 10;">
+            <a-tooltip :title="t('TXT_CODE_DESKTOP_MODE')">
+              <a-button type="text" @click="router.push('/desktop')">
+                <template #icon>
+                  <DesktopOutlined />
+                </template>
+              </a-button>
+            </a-tooltip>
+          </div>
           <a-typography-title :level="3" class="mb-20 glitch-wrapper">
             <div class="glitch" :data-text="props.card?.title ? props.card?.title : t('TXT_CODE_3ba5ad')">
               {{ props.card?.title ? props.card?.title : t("TXT_CODE_3ba5ad") }}
@@ -277,8 +287,6 @@ onMounted(async () => {
 .logging {
   .login-panel {
     transform: scale(0.94);
-    border: 2px solid var(--color-blue-5);
-    box-shadow: 0 0 20px rgba(28, 120, 207, 0.3);
   }
 }
 
@@ -290,6 +298,7 @@ onMounted(async () => {
   background-color: var(--login-panel-bg);
 
   .login-panel-body {
+    position: relative;
     padding: 28px 24px;
     min-height: 322px;
   }
