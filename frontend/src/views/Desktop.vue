@@ -18,7 +18,6 @@ import {
     CodeOutlined,
     DashboardOutlined,
     DesktopOutlined,
-    InfoCircleOutlined,
     SettingOutlined,
     ShoppingOutlined,
     SyncOutlined,
@@ -103,18 +102,11 @@ const desktopApps = computed<DesktopApp[]>(() => {
             icon: markRaw(CodeOutlined),
             color: "#434343",
             windowContent: "terminal"
-        },
-        {
-            id: "about",
-            label: t("TXT_CODE_DESKTOP_ABOUT"),
-            icon: markRaw(InfoCircleOutlined),
-            color: "#597ef7",
-            windowContent: "about"
         }
     ];
 
     if (!isAdmin.value) {
-        return apps.filter((a) => ["instances", "settings", "about"].includes(a.id));
+        return apps.filter((a) => ["instances", "settings"].includes(a.id));
     }
     return apps;
 });
@@ -415,32 +407,6 @@ const username = computed(() => appState.userInfo?.userName || "User");
                                     </div>
                                 </div>
 
-                                <div v-else-if="win.content === 'about'" class="window-page window-page--about">
-                                    <div class="about-content">
-                                        <div class="about-logo">
-                                            <img src="/desktop-icon.svg" alt="ElementsPanel" />
-                                        </div>
-                                        <h2>ElementsPanel</h2>
-                                        <p class="about-desc">{{ t("TXT_CODE_DESKTOP_ABOUT_DESC") }}</p>
-                                        <div class="about-info">
-                                            <div class="about-row">
-                                                <span class="about-label">{{
-                                                    t("TXT_CODE_DESKTOP_ABOUT_USER")
-                                                }}</span>
-                                                <span class="about-value">{{ username }}</span>
-                                            </div>
-                                            <div class="about-row">
-                                                <span class="about-label">{{
-                                                    t("TXT_CODE_DESKTOP_ABOUT_ROLE")
-                                                }}</span>
-                                                <span class="about-value">{{
-                                                    isAdmin ? "Admin" : "User"
-                                                }}</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
                                 <div v-else class="window-page">
                                     <p>{{ win.title }}</p>
                                 </div>
@@ -532,11 +498,6 @@ const username = computed(() => appState.userInfo?.userName || "User");
         padding-top: 16px;
     }
 
-    &--about {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
 }
 
 .window-btn {
@@ -598,57 +559,6 @@ const username = computed(() => appState.userInfo?.userName || "User");
     51%,
     100% {
         opacity: 0;
-    }
-}
-
-.about-content {
-    text-align: center;
-    padding: 32px;
-
-    .about-logo {
-        margin-bottom: 16px;
-
-        img {
-            width: 64px;
-            height: 64px;
-        }
-    }
-
-    h2 {
-        font-size: 24px;
-        font-weight: 700;
-        color: #fff;
-        margin: 0 0 8px 0;
-    }
-
-    .about-desc {
-        font-size: 13px;
-        color: rgba(255, 255, 255, 0.6);
-        margin-bottom: 24px;
-    }
-
-    .about-info {
-        text-align: left;
-        max-width: 280px;
-        margin: 0 auto;
-    }
-
-    .about-row {
-        display: flex;
-        justify-content: space-between;
-        padding: 8px 0;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-    }
-
-    .about-label {
-        color: rgba(255, 255, 255, 0.5);
-        font-size: 13px;
-    }
-
-    .about-value {
-        color: rgba(255, 255, 255, 0.9);
-        font-size: 13px;
-        font-weight: 500;
     }
 }
 
