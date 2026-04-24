@@ -11,6 +11,7 @@ import DesktopLoginWindow from "@/widgets/desktop/DesktopLoginWindow.vue";
 import DesktopNewInstance from "@/widgets/desktop/DesktopNewInstance.vue";
 import DesktopNodeManager from "@/widgets/desktop/DesktopNodeManager.vue";
 import DesktopOverview from "@/widgets/desktop/DesktopOverview.vue";
+import DesktopSettings from "@/widgets/desktop/DesktopSettings.vue";
 import type { TaskbarWindow } from "@/widgets/desktop/DesktopTaskbar.vue";
 import DesktopTaskbar from "@/widgets/desktop/DesktopTaskbar.vue";
 import DesktopTerminalSelector from "@/widgets/desktop/DesktopTerminalSelector.vue";
@@ -384,6 +385,8 @@ const username = computed(() => appState.userInfo?.userName || "User");
 
                                 <DesktopNodeManager v-else-if="win.content === 'nodes'" />
 
+                                <DesktopSettings v-else-if="win.content === 'settings'" />
+
                                 <div v-else-if="win.content === 'market'" class="window-page">
                                     <div class="window-page__header">
                                         <h3>
@@ -394,21 +397,6 @@ const username = computed(() => appState.userInfo?.userName || "User");
                                     <div class="window-page__actions">
                                         <button class="window-btn window-btn--primary"
                                             @click="navigateToRoute('market')">
-                                            {{ t("TXT_CODE_DESKTOP_OPEN_FULL") }}
-                                        </button>
-                                    </div>
-                                </div>
-
-                                <div v-else-if="win.content === 'settings'" class="window-page">
-                                    <div class="window-page__header">
-                                        <h3>
-                                            <SettingOutlined /> {{ t("TXT_CODE_DESKTOP_SETTINGS") }}
-                                        </h3>
-                                        <p>{{ t("TXT_CODE_DESKTOP_SETTINGS_DESC") }}</p>
-                                    </div>
-                                    <div class="window-page__actions">
-                                        <button class="window-btn window-btn--primary"
-                                            @click="navigateToRoute('settings')">
                                             {{ t("TXT_CODE_DESKTOP_OPEN_FULL") }}
                                         </button>
                                     </div>
