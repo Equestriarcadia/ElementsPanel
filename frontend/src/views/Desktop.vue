@@ -9,6 +9,7 @@ import DesktopInstanceConsole from "@/widgets/desktop/DesktopInstanceConsole.vue
 import DesktopInstanceManager from "@/widgets/desktop/DesktopInstanceManager.vue";
 import DesktopLoginWindow from "@/widgets/desktop/DesktopLoginWindow.vue";
 import DesktopNewInstance from "@/widgets/desktop/DesktopNewInstance.vue";
+import DesktopNodeManager from "@/widgets/desktop/DesktopNodeManager.vue";
 import DesktopOverview from "@/widgets/desktop/DesktopOverview.vue";
 import type { TaskbarWindow } from "@/widgets/desktop/DesktopTaskbar.vue";
 import DesktopTaskbar from "@/widgets/desktop/DesktopTaskbar.vue";
@@ -380,20 +381,7 @@ const username = computed(() => appState.userInfo?.userName || "User");
 
                                 <DesktopUsers v-else-if="win.content === 'users'" />
 
-                                <div v-else-if="win.content === 'nodes'" class="window-page">
-                                    <div class="window-page__header">
-                                        <h3>
-                                            <ClusterOutlined /> {{ t("TXT_CODE_DESKTOP_NODES") }}
-                                        </h3>
-                                        <p>{{ t("TXT_CODE_DESKTOP_NODES_DESC") }}</p>
-                                    </div>
-                                    <div class="window-page__actions">
-                                        <button class="window-btn window-btn--primary"
-                                            @click="navigateToRoute('nodes')">
-                                            {{ t("TXT_CODE_DESKTOP_OPEN_FULL") }}
-                                        </button>
-                                    </div>
-                                </div>
+                                <DesktopNodeManager v-else-if="win.content === 'nodes'" />
 
                                 <div v-else-if="win.content === 'market'" class="window-page">
                                     <div class="window-page__header">

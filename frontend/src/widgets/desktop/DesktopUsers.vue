@@ -373,13 +373,12 @@ const formatTime = (time: string): string => {
 
         <Teleport to="body">
             <Transition name="du-dialog-fade">
-                <div v-if="showDeleteConfirm" class="du-dialog-overlay" @click.self="cancelDelete">
-                    <div class="du-dialog du-dialog--small">
-                        <div class="du-dialog__header">
-                            <h3>
-                                <DeleteOutlined /> {{ t("TXT_CODE_DESKTOP_USERS_DELETE") }}
-                            </h3>
-                        </div>
+                <DesktopWindow v-if="showDeleteConfirm" id="user-delete-dialog"
+                    :title="t('TXT_CODE_DESKTOP_USERS_DELETE')" :icon="DeleteOutlined" :visible="showDeleteConfirm"
+                    :minimized="false" :maximized="false" :active="true" :initial-width="360" :initial-height="180"
+                    :initial-x="windowWidth / 2 - 180" :initial-y="windowHeight / 2 - 90" :z-index="10002"
+                    :show-minimize="false" :show-maximize="false" :resizable="false" @close="cancelDelete">
+                    <div class="du-dialog-content">
                         <div class="du-dialog__body">
                             <p class="du-delete-text">
                                 {{ t("TXT_CODE_DESKTOP_USERS_DELETE_CONFIRM", { name: deletingUser?.userName }) }}
@@ -394,7 +393,7 @@ const formatTime = (time: string): string => {
                             </button>
                         </div>
                     </div>
-                </div>
+                </DesktopWindow>
             </Transition>
         </Teleport>
     </div>
