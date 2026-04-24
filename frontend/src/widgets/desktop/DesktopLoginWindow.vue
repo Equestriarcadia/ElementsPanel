@@ -6,11 +6,8 @@ import { sleep } from "@/tools/common";
 import { reportErrorMsg } from "@/tools/validator";
 import {
     CheckCircleOutlined,
-    CloseOutlined,
-    FullscreenOutlined,
     LoadingOutlined,
     LockOutlined,
-    MinusOutlined,
     UserOutlined
 } from "@ant-design/icons-vue";
 import { message, Modal } from "ant-design-vue";
@@ -42,7 +39,7 @@ const centerWindow = () => {
     const w = 380;
     const h = 460;
     pos.x = Math.round((window.innerWidth - w) / 2);
-    pos.y = Math.round((window.innerHeight - h) / 2);
+    pos.y = Math.round((window.innerHeight - h) / 2) + 100;
 };
 
 const onMouseDown = (e: MouseEvent) => {
@@ -129,17 +126,6 @@ const handleNext = async () => {
                         <img src="/desktop-icon.svg" alt="logo" style="width: 14px; height: 14px;" />
                     </span>
                     <span class="window__title">ElementsPanel</span>
-                </div>
-                <div class="window__controls">
-                    <div class="window__control window__control--disabled">
-                        <MinusOutlined />
-                    </div>
-                    <div class="window__control window__control--disabled">
-                        <FullscreenOutlined />
-                    </div>
-                    <div class="window__control window__control--disabled">
-                        <CloseOutlined />
-                    </div>
                 </div>
             </div>
 
