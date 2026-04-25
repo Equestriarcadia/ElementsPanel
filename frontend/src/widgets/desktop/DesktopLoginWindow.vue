@@ -360,7 +360,7 @@ const handleNext = async () => {
 .desktop-login-btn {
     margin-top: 4px;
     padding: 10px 0;
-    background: linear-gradient(135deg, #1677ff, #4096ff);
+    background: #1677ff;
     border: none;
     border-radius: 8px;
     color: #fff;
@@ -374,9 +374,7 @@ const handleNext = async () => {
     gap: 8px;
 
     &:hover:not(:disabled) {
-        background: linear-gradient(135deg, #4096ff, #69b1ff);
-        transform: translateY(-1px);
-        box-shadow: 0 4px 16px rgba(22, 119, 255, 0.3);
+        background: #4096ff;
     }
 
     &:active:not(:disabled) {

@@ -1,18 +1,24 @@
 <script setup lang="ts">
 import { t } from "@/lang/i18n";
-import { addUser as addUserApi, deleteUser as deleteUserApi, editUserInfo as editUserInfoApi, getUserInfo as getUserInfoApi } from "@/services/apis";
-import type { BaseUserInfo, EditUserInfo } from "@/types/user";
+import { addUser as addUserApi, deleteUser as deleteUserApi, editUserInfo as editUserInfoApi, getUserInfo as getUserInfoApi, remoteInstances, remoteNodeList, updateUserInstance } from "@/services/apis";
+import { computeNodeName } from "@/tools/nodes";
+import type { NodeStatus } from "@/types";
+import { INSTANCE_STATUS } from "@/types/const";
+import type { BaseUserInfo, EditUserInfo, UserInstance } from "@/types/user";
 import {
     CheckCircleOutlined,
     CloseCircleOutlined,
+    DatabaseOutlined,
     DeleteOutlined,
     EditOutlined,
     KeyOutlined,
+    LinkOutlined,
     PlusOutlined,
     SafetyOutlined,
     SearchOutlined,
     UserOutlined
 } from "@ant-design/icons-vue";
+import { message } from "ant-design-vue";
 import { computed, onMounted, reactive, ref } from "vue";
 import DesktopWindow from "./DesktopWindow.vue";
 
@@ -20,6 +26,7 @@ const { execute: fetchUsersApi, isLoading: loading } = getUserInfoApi();
 const { execute: addUserApiExec } = addUserApi();
 const { execute: editUserApiExec } = editUserInfoApi();
 const { execute: deleteUserApiExec } = deleteUserApi();
+const { execute: updateUserInstanceExec } = updateUserInstance();
 
 const users = ref<BaseUserInfo[]>([]);
 const total = ref(0);
@@ -40,6 +47,23 @@ const saving = ref(false);
 
 const showDeleteConfirm = ref(false);
 const deletingUser = ref<BaseUserInfo | null>(null);
+
+// Assign instance dialog state
+const showAssignDialog = ref(false);
+const assignTargetUser = ref<BaseUserInfo | null>(null);
+const assignedInstances = ref<UserInstance[]>([]);
+const assignSaving = ref(false);
+
+// Remote node/instance selection for assign dialog
+const { execute: getNodes, state: nodes } = remoteNodeList();
+const { execute: getInstances, state: instances, isLoading: instancesLoading } = remoteInstances();
+const currentRemoteNode = ref<NodeStatus>();
+const assignForm = reactive({
+    instanceName: "",
+    currentPage: 1,
+    pageSize: 10,
+    status: ""
+});
 
 const windowWidth = ref(window.innerWidth);
 const windowHeight = ref(window.innerHeight);
@@ -205,6 +229,98 @@ const cancelDelete = () => {
     deletingUser.value = null;
 };
 
+const openAssignDialog = async (user: BaseUserInfo) => {
+    assignTargetUser.value = user;
+    assignedInstances.value = user.instances ? [...user.instances] : [];
+    assignForm.instanceName = "";
+    assignForm.currentPage = 1;
+    assignForm.status = "";
+    showAssignDialog.value = true;
+
+    await initAssignNodes();
+};
+
+const closeAssignDialog = () => {
+    showAssignDialog.value = false;
+    assignTargetUser.value = null;
+    assignedInstances.value = [];
+};
+
+const initAssignNodes = async () => {
+    await getNodes();
+    if (nodes?.value?.length) {
+        nodes.value.sort((a, b) => (a.available === b.available ? 0 : a.available ? -1 : 1));
+        currentRemoteNode.value = nodes.value[0];
+        await loadRemoteInstances();
+    }
+};
+
+const loadRemoteInstances = async () => {
+    if (!currentRemoteNode.value) return;
+    try {
+        await getInstances({
+            params: {
+                daemonId: currentRemoteNode.value.uuid,
+                page: assignForm.currentPage,
+                page_size: assignForm.pageSize,
+                instance_name: assignForm.instanceName.trim(),
+                status: assignForm.status
+            }
+        });
+    } catch {
+        // ignore
+    }
+};
+
+const handleAssignNodeChange = async (node: NodeStatus) => {
+    currentRemoteNode.value = node;
+    assignForm.currentPage = 1;
+    await loadRemoteInstances();
+};
+
+const handleAssignSearch = async () => {
+    assignForm.currentPage = 1;
+    await loadRemoteInstances();
+};
+
+const isInstanceAssigned = (instanceUuid: string): boolean => {
+    return assignedInstances.value.some(i => i.instanceUuid === instanceUuid);
+};
+
+const addAssignedInstance = (instance: UserInstance) => {
+    if (!isInstanceAssigned(instance.instanceUuid)) {
+        assignedInstances.value.push(instance);
+    }
+};
+
+const removeAssignedInstance = (instanceUuid: string) => {
+    assignedInstances.value = assignedInstances.value.filter(i => i.instanceUuid !== instanceUuid);
+};
+
+const saveAssignedInstances = async () => {
+    if (!assignTargetUser.value) return;
+    assignSaving.value = true;
+    try {
+        await updateUserInstanceExec({
+            data: {
+                config: {
+                    instances: assignedInstances.value
+                },
+                uuid: assignTargetUser.value.uuid
+            }
+        });
+        message.success(t("TXT_CODE_DESKTOP_USERS_ASSIGN_SUCCESS"));
+        showAssignDialog.value = false;
+        assignTargetUser.value = null;
+        assignedInstances.value = [];
+        fetchUsers();
+    } catch (e: any) {
+        message.error(e?.message || "Error");
+    } finally {
+        assignSaving.value = false;
+    }
+};
+
 const permissionLabel = (perm: number): string => {
     if (perm >= 10) return t("TXT_CODE_DESKTOP_USERS_ADMIN");
     if (perm >= 1) return t("TXT_CODE_DESKTOP_USERS_USER");
@@ -218,6 +334,10 @@ const formatTime = (time: string): string => {
     } catch {
         return time;
     }
+};
+
+const getInstanceStatusLabel = (status: number): string => {
+    return INSTANCE_STATUS[status as keyof typeof INSTANCE_STATUS] || t("TXT_CODE_DESKTOP_IM_UNKNOWN");
 };
 </script>
 
@@ -286,6 +406,11 @@ const formatTime = (time: string): string => {
                         </td>
                         <td class="du-table__col--actions">
                             <div class="du-action-btns">
+                                <button class="du-action-btn du-action-btn--assign"
+                                    :title="t('TXT_CODE_DESKTOP_USERS_ASSIGN_INSTANCE')"
+                                    @click="openAssignDialog(user)">
+                                    <LinkOutlined />
+                                </button>
                                 <button class="du-action-btn du-action-btn--edit"
                                     :title="t('TXT_CODE_DESKTOP_USERS_EDIT')" @click="openEditDialog(user)">
                                     <EditOutlined />
@@ -390,6 +515,123 @@ const formatTime = (time: string): string => {
                             </button>
                             <button class="du-btn du-btn--danger" :disabled="saving" @click="executeDelete">
                                 {{ t("TXT_CODE_DESKTOP_USERS_DELETE") }}
+                            </button>
+                        </div>
+                    </div>
+                </DesktopWindow>
+            </Transition>
+        </Teleport>
+
+        <Teleport to="body">
+            <Transition name="du-dialog-fade">
+                <DesktopWindow v-if="showAssignDialog" id="user-assign-dialog"
+                    :title="t('TXT_CODE_DESKTOP_USERS_ASSIGN_INSTANCE')" :icon="LinkOutlined"
+                    :visible="showAssignDialog" :minimized="false" :maximized="false" :active="true"
+                    :initial-width="780" :initial-height="560" :initial-x="windowWidth / 2 - 390"
+                    :initial-y="windowHeight / 2 - 280" :z-index="10003" :show-minimize="false" :show-maximize="false"
+                    :resizable="false" @close="closeAssignDialog">
+                    <div class="du-assign-content">
+                        <div class="du-assign-layout">
+                            <div class="du-assign-panel du-assign-panel--assigned">
+                                <div class="du-assign-panel__header">
+                                    <DatabaseOutlined />
+                                    {{ t("TXT_CODE_DESKTOP_USERS_ASSIGNED") }}
+                                    <span class="du-assign-count">{{ assignedInstances.length }}</span>
+                                </div>
+                                <div class="du-assign-panel__body">
+                                    <div v-if="assignedInstances.length === 0" class="du-assign-empty">
+                                        {{ t("TXT_CODE_DESKTOP_USERS_NO_ASSIGNED") }}
+                                    </div>
+                                    <div v-for="inst in assignedInstances" :key="inst.instanceUuid"
+                                        class="du-assign-item">
+                                        <div class="du-assign-item__info">
+                                            <span class="du-assign-item__name">{{ inst.nickname ||
+                                                t("TXT_CODE_DESKTOP_IM_UNNAMED") }}</span>
+                                            <span class="du-assign-item__node">{{ inst.hostIp }}</span>
+                                        </div>
+                                        <button class="du-assign-item__remove"
+                                            @click="removeAssignedInstance(inst.instanceUuid)">
+                                            <CloseCircleOutlined />
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="du-assign-panel du-assign-panel--browse">
+                                <div class="du-assign-panel__header">
+                                    {{ t("TXT_CODE_DESKTOP_USERS_BROWSE_INSTANCES") }}
+                                </div>
+                                <div class="du-assign-browse-toolbar">
+                                    <div class="du-assign-node-select">
+                                        <select v-if="nodes?.length" v-model="currentRemoteNode"
+                                            class="du-assign-select"
+                                            @change="handleAssignNodeChange(currentRemoteNode!)">
+                                            <option v-for="node in nodes" :key="node.uuid" :value="node"
+                                                :disabled="!node.available">
+                                                {{ computeNodeName(node.ip, node.available, node.remarks) }}
+                                            </option>
+                                        </select>
+                                    </div>
+                                    <div class="du-assign-search">
+                                        <input v-model="assignForm.instanceName" class="du-assign-search__input"
+                                            :placeholder="t('TXT_CODE_DESKTOP_IM_SEARCH')"
+                                            @input="handleAssignSearch" />
+                                    </div>
+                                </div>
+                                <div class="du-assign-panel__body">
+                                    <div v-if="instancesLoading" class="du-assign-empty">
+                                        {{ t("TXT_CODE_DESKTOP_IM_LOADING") }}
+                                    </div>
+                                    <div v-else-if="!instances?.data?.length" class="du-assign-empty">
+                                        {{ t("TXT_CODE_DESKTOP_IM_NO_INSTANCES") }}
+                                    </div>
+                                    <div v-for="inst in instances?.data || []" :key="inst.instanceUuid"
+                                        class="du-assign-item"
+                                        :class="{ 'du-assign-item--selected': isInstanceAssigned(inst.instanceUuid) }">
+                                        <div class="du-assign-item__info">
+                                            <span class="du-assign-item__name">{{ inst.config.nickname ||
+                                                t("TXT_CODE_DESKTOP_IM_UNNAMED") }}</span>
+                                            <span class="du-assign-item__status"
+                                                :class="'du-assign-item__status--' + inst.status">
+                                                {{ getInstanceStatusLabel(inst.status) }}
+                                            </span>
+                                        </div>
+                                        <button v-if="!isInstanceAssigned(inst.instanceUuid)"
+                                            class="du-assign-item__add" @click="addAssignedInstance({
+                                                instanceUuid: inst.instanceUuid,
+                                                daemonId: currentRemoteNode?.uuid ?? '',
+                                                nickname: inst.config.nickname,
+                                                status: inst.status,
+                                                hostIp: currentRemoteNode ? `${currentRemoteNode.ip}:${currentRemoteNode.port}` : ''
+                                            })">
+                                            <PlusOutlined />
+                                        </button>
+                                        <span v-else class="du-assign-item__check">
+                                            <CheckCircleOutlined />
+                                        </span>
+                                    </div>
+                                </div>
+                                <div v-if="instances" class="du-assign-pagination">
+                                    <button class="du-page-btn" :disabled="assignForm.currentPage <= 1"
+                                        @click="assignForm.currentPage--; loadRemoteInstances()">
+                                        {{ t("TXT_CODE_DESKTOP_IM_PREV") }}
+                                    </button>
+                                    <span class="du-page-info">{{ assignForm.currentPage }} / {{ instances.maxPage
+                                        }}</span>
+                                    <button class="du-page-btn" :disabled="assignForm.currentPage >= instances.maxPage"
+                                        @click="assignForm.currentPage++; loadRemoteInstances()">
+                                        {{ t("TXT_CODE_DESKTOP_IM_NEXT") }}
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="du-assign-footer">
+                            <button class="du-btn du-btn--default" @click="closeAssignDialog">
+                                {{ t("TXT_CODE_DESKTOP_USERS_CANCEL") }}
+                            </button>
+                            <button class="du-btn du-btn--primary" :disabled="assignSaving"
+                                @click="saveAssignedInstances">
+                                {{ t("TXT_CODE_DESKTOP_USERS_SAVE") }}
                             </button>
                         </div>
                     </div>
@@ -563,7 +805,7 @@ const formatTime = (time: string): string => {
     }
 
     &__col--actions {
-        min-width: 80px;
+        min-width: 120px;
         text-align: right;
     }
 }
@@ -637,6 +879,11 @@ const formatTime = (time: string): string => {
     &--delete:hover {
         background: rgba(255, 77, 79, 0.15);
         color: #ff4d4f;
+    }
+
+    &--assign:hover {
+        background: rgba(22, 119, 255, 0.15);
+        color: #1677ff;
     }
 }
 
@@ -840,6 +1087,257 @@ const formatTime = (time: string): string => {
     margin: 0;
 }
 
+.du-assign-content {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    background: transparent;
+}
+
+.du-assign-layout {
+    display: flex;
+    flex: 1;
+    gap: 12px;
+    padding: 16px;
+    overflow: hidden;
+}
+
+.du-assign-panel {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 8px;
+    overflow: hidden;
+
+    &--assigned {
+        max-width: 280px;
+        flex: 0 0 280px;
+    }
+
+    &--browse {
+        flex: 1;
+    }
+
+    &__header {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        padding: 10px 12px;
+        font-size: 12px;
+        font-weight: 600;
+        color: rgba(255, 255, 255, 0.7);
+        background: rgba(255, 255, 255, 0.03);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+    }
+
+    &__body {
+        flex: 1;
+        overflow-y: auto;
+        padding: 8px;
+    }
+}
+
+.du-assign-count {
+    margin-left: auto;
+    background: rgba(22, 119, 255, 0.2);
+    color: #1677ff;
+    font-size: 11px;
+    padding: 1px 7px;
+    border-radius: 10px;
+    font-weight: 600;
+}
+
+.du-assign-empty {
+    text-align: center;
+    padding: 24px 12px;
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.35);
+}
+
+.du-assign-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 10px;
+    border-radius: 6px;
+    transition: background 0.15s;
+    cursor: default;
+
+    &:hover {
+        background: rgba(255, 255, 255, 0.04);
+    }
+
+    &--selected {
+        background: rgba(22, 119, 255, 0.06);
+        border: 1px solid rgba(22, 119, 255, 0.15);
+    }
+
+    &__info {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+        min-width: 0;
+    }
+
+    &__name {
+        font-size: 13px;
+        color: rgba(255, 255, 255, 0.85);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    &__node {
+        font-size: 11px;
+        color: rgba(255, 255, 255, 0.35);
+        font-family: monospace;
+    }
+
+    &__status {
+        font-size: 11px;
+        padding: 1px 6px;
+        border-radius: 3px;
+        display: inline-block;
+        width: fit-content;
+
+        &--3 {
+            background: rgba(82, 196, 26, 0.15);
+            color: #52c41a;
+        }
+
+        &--0 {
+            background: rgba(255, 255, 255, 0.06);
+            color: rgba(255, 255, 255, 0.4);
+        }
+
+        &--2 {
+            background: rgba(250, 173, 20, 0.15);
+            color: #faad14;
+        }
+
+        &--1 {
+            background: rgba(255, 77, 79, 0.15);
+            color: #ff4d4f;
+        }
+
+        &---1 {
+            background: rgba(255, 77, 79, 0.15);
+            color: #ff4d4f;
+        }
+    }
+
+    &__remove,
+    &__add {
+        width: 24px;
+        height: 24px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 13px;
+        transition: all 0.15s;
+        flex-shrink: 0;
+        background: transparent;
+        color: rgba(255, 255, 255, 0.4);
+    }
+
+    &__remove:hover {
+        background: rgba(255, 77, 79, 0.15);
+        color: #ff4d4f;
+    }
+
+    &__add:hover {
+        background: rgba(22, 119, 255, 0.15);
+        color: #1677ff;
+    }
+
+    &__check {
+        color: #52c41a;
+        font-size: 14px;
+        flex-shrink: 0;
+    }
+}
+
+.du-assign-browse-toolbar {
+    display: flex;
+    gap: 8px;
+    padding: 8px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.du-assign-node-select {
+    flex-shrink: 0;
+}
+
+.du-assign-select {
+    padding: 5px 8px;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 4px;
+    color: #fff;
+    font-size: 12px;
+    outline: none;
+    cursor: pointer;
+    max-width: 180px;
+
+    option {
+        background: #1a1a2e;
+        color: #fff;
+    }
+
+    &:focus {
+        border-color: rgba(255, 255, 255, 0.2);
+    }
+}
+
+.du-assign-search {
+    flex: 1;
+
+    &__input {
+        width: 100%;
+        padding: 5px 8px;
+        background: rgba(255, 255, 255, 0.06);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 4px;
+        color: #fff;
+        font-size: 12px;
+        outline: none;
+        box-sizing: border-box;
+
+        &::placeholder {
+            color: rgba(255, 255, 255, 0.3);
+        }
+
+        &:focus {
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+    }
+}
+
+.du-assign-pagination {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 8px;
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.du-assign-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    padding: 12px 16px;
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
 .du-dialog-fade-enter-active,
 .du-dialog-fade-leave-active {
     transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
@@ -860,6 +1358,19 @@ const formatTime = (time: string): string => {
 }
 
 .du-table-wrap::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 2px;
+}
+
+.du-assign-panel__body::-webkit-scrollbar {
+    width: 4px;
+}
+
+.du-assign-panel__body::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.du-assign-panel__body::-webkit-scrollbar-thumb {
     background: rgba(255, 255, 255, 0.1);
     border-radius: 2px;
 }

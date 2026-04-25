@@ -3530,5 +3530,10 @@
   "TXT_CODE_DESKTOP_NODES_SAVE": "Save",
   "TXT_CODE_DESKTOP_NODES_DELETE_CONFIRM": "Are you sure you want to delete node {name}?",
   "TXT_CODE_DESKTOP_NODES_ONLINE": "Online",
-  "TXT_CODE_DESKTOP_NODES_OFFLINE": "Offline"
+  "TXT_CODE_DESKTOP_NODES_OFFLINE": "Offline",
+  "TXT_CODE_DESKTOP_USERS_ASSIGN_INSTANCE": "Assign Instance",
+  "TXT_CODE_DESKTOP_USERS_ASSIGNED": "Assigned",
+  "TXT_CODE_DESKTOP_USERS_NO_ASSIGNED": "No instances assigned",
+  "TXT_CODE_DESKTOP_USERS_BROWSE_INSTANCES": "Browse Instances",
+  "TXT_CODE_DESKTOP_USERS_ASSIGN_SUCCESS": "Instances assigned successfully"
 }
