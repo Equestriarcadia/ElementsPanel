@@ -32,6 +32,7 @@ import {
 import { Modal, type ItemType, type UploadChangeParam, type UploadProps } from "ant-design-vue";
 import dayjs from "dayjs";
 import { computed, h, onMounted, onUnmounted, ref, watch, type CSSProperties } from "vue";
+import DesktopWindow from "./DesktopWindow.vue";
 
 const props = defineProps<{
     instanceId: string;
@@ -87,7 +88,8 @@ const {
     isImage,
     showImage,
     pushSelected,
-    selectionData
+    selectionData,
+    loadingWindow
 } = useFileManager(props.instanceId, props.daemonId, props.sessionId || "");
 
 const { openRightClickMenu } = useRightClickMenu();
@@ -287,7 +289,7 @@ const menuList = (record: DataType) =>
             label: t("TXT_CODE_a64f3007"),
             key: "unzip",
             icon: h(FileZipOutlined),
-            onClick: () => unzipFile(record.name),
+            onClick: () => unzipFile(record.name, false),
             condition: () => record.type === 1 && isCompressFile(record.name)
         },
         {
@@ -334,7 +336,7 @@ const menuList = (record: DataType) =>
             label: t("TXT_CODE_88122886"),
             key: "zip",
             icon: h(FileZipOutlined),
-            onClick: () => zipFile()
+            onClick: () => zipFile(false)
         },
         {
             label: t("TXT_CODE_ecbd7449"),
@@ -487,7 +489,16 @@ const onTableMouseUp = () => {
     }
 };
 
+const windowWidth = ref(window.innerWidth);
+const windowHeight = ref(window.innerHeight);
+
 onMounted(async () => {
+    const updateWindowSize = () => {
+        windowWidth.value = window.innerWidth;
+        windowHeight.value = window.innerHeight;
+    };
+    window.addEventListener('resize', updateWindowSize);
+
     await getFileStatus();
     dialog.value.loading = true;
 
@@ -510,6 +521,10 @@ onUnmounted(() => {
     task = undefined;
     document.removeEventListener('mousemove', onTableMouseMove);
     document.removeEventListener('mouseup', onTableMouseUp);
+    window.removeEventListener('resize', () => {
+        windowWidth.value = window.innerWidth;
+        windowHeight.value = window.innerHeight;
+    });
 });
 </script>
 
@@ -707,71 +722,109 @@ onUnmounted(() => {
         </div>
 
         <!-- Dialogs -->
-        <a-modal v-model:open="dialog.show" :title="dialog.title" :confirm-loading="dialog.loading"
-            :style="dialog.style" @ok="dialog.ok()" @cancel="dialog.cancel()">
-            <p>{{ dialog.info }}</p>
+        <Teleport to="body">
+            <Transition name="dfm-dialog-fade">
+                <DesktopWindow v-if="dialog.show" id="file-manager-dialog" :title="dialog.title" :icon="FileOutlined"
+                    :visible="dialog.show" :minimized="false" :maximized="false" :active="true" :initial-width="420"
+                    :initial-height="380" :initial-x="windowWidth / 2 - 210" :initial-y="windowHeight / 2 - 190"
+                    :z-index="10002" :show-minimize="false" :show-maximize="false" :resizable="false"
+                    @close="dialog.cancel()">
+                    <div class="dfm-dialog-content">
+                        <div class="dfm-dialog__body">
+                            <p>{{ dialog.info }}</p>
 
-            <a-input v-if="dialog.mode == ''" :ref="dialog.ref" v-model:value="dialog.value"
-                :placeholder="t('TXT_CODE_4ea93630')" />
+                            <a-input v-if="dialog.mode == ''" :ref="dialog.ref" v-model:value="dialog.value"
+                                :placeholder="t('TXT_CODE_4ea93630')" />
 
-            <a-space v-if="dialog.mode == 'unzip'" direction="vertical" class="w-100">
-                <a-typography-title :level="5">{{ t("TXT_CODE_a6453188") }}</a-typography-title>
-                <a-radio-group v-model:value="dialog.unzipmode">
-                    <a-radio-button value="0">{{ t("TXT_CODE_7907c99") }}</a-radio-button>
-                    <a-radio-button value="1">{{ t("TXT_CODE_329fb904") }}</a-radio-button>
-                </a-radio-group>
+                            <a-space v-if="dialog.mode == 'unzip'" direction="vertical" class="w-100">
+                                <a-typography-title :level="5">{{ t("TXT_CODE_a6453188") }}</a-typography-title>
+                                <a-radio-group v-model:value="dialog.unzipmode">
+                                    <a-radio-button value="0">{{ t("TXT_CODE_7907c99") }}</a-radio-button>
+                                    <a-radio-button value="1">{{ t("TXT_CODE_329fb904") }}</a-radio-button>
+                                </a-radio-group>
 
-                <a-input v-if="dialog.unzipmode == '1'" v-model:value="dialog.value"
-                    :placeholder="t('TXT_CODE_377e5535')" />
-            </a-space>
+                                <a-input v-if="dialog.unzipmode == '1'" v-model:value="dialog.value"
+                                    :placeholder="t('TXT_CODE_377e5535')" />
+                            </a-space>
 
-            <a-space v-if="dialog.mode == 'zip'" direction="vertical" class="w-100">
-                <a-input :ref="dialog.ref" v-model:value="dialog.value" :placeholder="t('TXT_CODE_366bad15')"
-                    addon-after=". zip" />
-            </a-space>
+                            <a-space v-if="dialog.mode == 'zip'" direction="vertical" class="w-100">
+                                <a-input :ref="dialog.ref" v-model:value="dialog.value"
+                                    :placeholder="t('TXT_CODE_366bad15')" addon-after=". zip" />
+                            </a-space>
 
-            <a-space v-if="dialog.mode == 'unzip'" direction="vertical" class="w-100 mt-16">
-                <a-typography-title :level="5">{{ t("TXT_CODE_2841f4a") }}</a-typography-title>
-                <a-radio-group v-model:value="dialog.code">
-                    <a-radio-button value="utf-8">UTF-8</a-radio-button>
-                    <a-radio-button value="gbk">GBK</a-radio-button>
-                    <a-radio-button value="big5">BIG5</a-radio-button>
-                </a-radio-group>
-            </a-space>
+                            <a-space v-if="dialog.mode == 'unzip'" direction="vertical" class="w-100 mt-16">
+                                <a-typography-title :level="5">{{ t("TXT_CODE_2841f4a") }}</a-typography-title>
+                                <a-radio-group v-model:value="dialog.code">
+                                    <a-radio-button value="utf-8">UTF-8</a-radio-button>
+                                    <a-radio-button value="gbk">GBK</a-radio-button>
+                                    <a-radio-button value="big5">BIG5</a-radio-button>
+                                </a-radio-group>
+                            </a-space>
 
-            <a-space v-if="dialog.mode == 'zip'" direction="vertical" class="w-100 mt-16">
-                <a-typography-text>
-                    {{ t("TXT_CODE_92ebdc7f") }}
-                </a-typography-text>
-            </a-space>
-
-            <a-space v-if="dialog.mode == 'permission'" direction="vertical" class="w-100 select-none">
-                <a-spin :spinning="permission.loading">
-                    <div class="dfm-permission">
-                        <a-checkbox-group v-for="item in permission.item" :key="item.key"
-                            v-model:value="permission.data[item.role]">
-                            <a-row class="direction-column">
-                                <a-typography-text class="mb-10">
-                                    <strong>{{ item.key }}</strong>
+                            <a-space v-if="dialog.mode == 'zip'" direction="vertical" class="w-100 mt-16">
+                                <a-typography-text>
+                                    {{ t("TXT_CODE_92ebdc7f") }}
                                 </a-typography-text>
-                                <a-col class="mb-10">
-                                    <a-checkbox value="4">{{ t("TXT_CODE_798f592e") }}</a-checkbox>
-                                </a-col>
-                                <a-col class="mb-10">
-                                    <a-checkbox value="2">{{ t("TXT_CODE_46c4e9ac") }}</a-checkbox>
-                                </a-col>
-                                <a-col class="mb-10">
-                                    <a-checkbox value="1">{{ t("TXT_CODE_e97669d8") }}</a-checkbox>
-                                </a-col>
-                            </a-row>
-                        </a-checkbox-group>
+                            </a-space>
+
+                            <a-space v-if="dialog.mode == 'permission'" direction="vertical" class="w-100 select-none">
+                                <a-spin :spinning="permission.loading">
+                                    <div class="dfm-permission">
+                                        <a-checkbox-group v-for="item in permission.item" :key="item.key"
+                                            v-model:value="permission.data[item.role]">
+                                            <a-row class="direction-column">
+                                                <a-typography-text class="mb-10">
+                                                    <strong>{{ item.key }}</strong>
+                                                </a-typography-text>
+                                                <a-col class="mb-10">
+                                                    <a-checkbox value="4">{{ t("TXT_CODE_798f592e") }}</a-checkbox>
+                                                </a-col>
+                                                <a-col class="mb-10">
+                                                    <a-checkbox value="2">{{ t("TXT_CODE_46c4e9ac") }}</a-checkbox>
+                                                </a-col>
+                                                <a-col class="mb-10">
+                                                    <a-checkbox value="1">{{ t("TXT_CODE_e97669d8") }}</a-checkbox>
+                                                </a-col>
+                                            </a-row>
+                                        </a-checkbox-group>
+                                    </div>
+                                    <a-checkbox v-model:checked="permission.deep" class="mt-15">
+                                        {{ t("TXT_CODE_74fd665e") }}
+                                    </a-checkbox>
+                                </a-spin>
+                            </a-space>
+                        </div>
+                        <div class="dfm-dialog__footer">
+                            <button class="dfm-btn dfm-btn--default" @click="dialog.cancel()">
+                                {{ t("TXT_CODE_DESKTOP_USERS_CANCEL") }}
+                            </button>
+                            <button class="dfm-btn dfm-btn--primary" :disabled="dialog.loading" @click="dialog.ok()">
+                                {{ t("TXT_CODE_DESKTOP_USERS_SAVE") }}
+                            </button>
+                        </div>
                     </div>
-                    <a-checkbox v-model:checked="permission.deep" class="mt-15">
-                        {{ t("TXT_CODE_74fd665e") }}
-                    </a-checkbox>
-                </a-spin>
-            </a-space>
-        </a-modal>
+                </DesktopWindow>
+            </Transition>
+        </Teleport>
+
+        <!-- Loading Window -->
+        <Teleport to="body">
+            <Transition name="dfm-dialog-fade">
+                <DesktopWindow v-if="loadingWindow.show" id="file-manager-loading-dialog" :title="loadingWindow.title"
+                    :icon="FileZipOutlined" :visible="loadingWindow.show" :minimized="false" :maximized="false"
+                    :active="true" :initial-width="360" :initial-height="180" :initial-x="windowWidth / 2 - 180"
+                    :initial-y="windowHeight / 2 - 90" :z-index="10003" :show-minimize="false" :show-maximize="false"
+                    :resizable="false">
+                    <div class="dfm-dialog-content">
+                        <div class="dfm-dialog__body"
+                            style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px;">
+                            <a-spin size="large" />
+                            <p style="margin: 0; color: var(--desktop-window-text);">{{ loadingWindow.text }}</p>
+                        </div>
+                    </div>
+                </DesktopWindow>
+            </Transition>
+        </Teleport>
 
     </div>
 </template>
@@ -948,5 +1001,74 @@ onUnmounted(() => {
 
 :deep(.ant-btn-sm) {
     font-size: 11px;
+}
+
+.dfm-dialog-fade-enter-active,
+.dfm-dialog-fade-leave-active {
+    transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.dfm-dialog-fade-enter-from,
+.dfm-dialog-fade-leave-to {
+    opacity: 0;
+    transform: scale(0.95);
+}
+
+.dfm-dialog-content {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    background: transparent;
+}
+
+.dfm-dialog__body {
+    padding: 16px 20px;
+    flex: 1;
+    overflow-y: auto;
+}
+
+.dfm-dialog__footer {
+    padding: 12px 20px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    border-top: 1px solid var(--desktop-window-border);
+}
+
+.dfm-btn {
+    padding: 7px 16px;
+    border: none;
+    border-radius: 6px;
+    font-size: 13px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.2s;
+    color: var(--desktop-window-text);
+    white-space: nowrap;
+
+    &:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+
+    &--primary {
+        background: var(--color-blue-5, #1677ff);
+        color: #fff;
+
+        &:hover:not(:disabled) {
+            background: var(--color-blue-6, #4096ff);
+        }
+    }
+
+    &--default {
+        background: var(--desktop-window-titlebar-bg);
+        border: 1px solid var(--desktop-window-border);
+
+        &:hover:not(:disabled) {
+            background: var(--desktop-window-control-hover);
+        }
+    }
 }
 </style>

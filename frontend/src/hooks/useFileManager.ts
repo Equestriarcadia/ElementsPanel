@@ -250,9 +250,26 @@ export const useFileManager = (instanceId: string = "", daemonId: string = "", s
     ok: () => { },
     cancel: () => {
       dialog.value.value = "";
+      dialog.value.show = false;
     },
     style: {}
   });
+
+  const loadingWindow = ref({
+    show: false,
+    title: "",
+    text: ""
+  });
+
+  const showLoadingWindow = (title: string, text: string) => {
+    loadingWindow.value.title = title;
+    loadingWindow.value.text = text;
+    loadingWindow.value.show = true;
+  };
+
+  const hideLoadingWindow = () => {
+    loadingWindow.value.show = false;
+  };
 
   const openDialog = (
     title: string,
@@ -469,16 +486,21 @@ export const useFileManager = (instanceId: string = "", daemonId: string = "", s
     return;
   };
 
-  const zipFile = async () => {
+  const zipFile = async (showLoadingDialog = true) => {
     if (!selectionData.value || selectionData.value.length === 0)
       return reportErrorMsg(t("TXT_CODE_b152cd75"));
     const filename = await openDialog(t("TXT_CODE_f8a15a94"), t("TXT_CODE_366bad15"), "", "zip");
     const { execute } = compressFileApi();
-    const loadingDialog = await openLoadingDialog(
-      t("TXT_CODE_b3825da"),
-      t("TXT_CODE_ba027d6c"),
-      t("TXT_CODE_e1070b52")
-    );
+    let loadingDialog: any = null;
+    if (showLoadingDialog) {
+      loadingDialog = await openLoadingDialog(
+        t("TXT_CODE_b3825da"),
+        t("TXT_CODE_ba027d6c"),
+        t("TXT_CODE_e1070b52")
+      );
+    } else {
+      showLoadingWindow(t("TXT_CODE_b3825da"), t("TXT_CODE_ba027d6c"));
+    }
     try {
       await execute({
         params: {
@@ -498,18 +520,24 @@ export const useFileManager = (instanceId: string = "", daemonId: string = "", s
       message.error(t("TXT_CODE_dba9bf61"));
       reportErrorMsg(error.message);
     } finally {
-      loadingDialog.cancel();
+      if (loadingDialog) loadingDialog.cancel();
+      hideLoadingWindow();
     }
   };
 
-  const unzipFile = async (name: string) => {
+  const unzipFile = async (name: string, showLoadingDialog = true) => {
     const dirname = await openDialog(t("TXT_CODE_7669fd3f"), "", "", "unzip");
     const { execute } = compressFileApi();
-    const loadingDialog = await openLoadingDialog(
-      t("TXT_CODE_b3825da"),
-      t("TXT_CODE_b82225c3"),
-      t("TXT_CODE_6f038f25")
-    );
+    let loadingDialog: any = null;
+    if (showLoadingDialog) {
+      loadingDialog = await openLoadingDialog(
+        t("TXT_CODE_b3825da"),
+        t("TXT_CODE_b82225c3"),
+        t("TXT_CODE_6f038f25")
+      );
+    } else {
+      showLoadingWindow(t("TXT_CODE_b3825da"), t("TXT_CODE_b82225c3"));
+    }
     try {
       await execute({
         params: {
@@ -529,7 +557,8 @@ export const useFileManager = (instanceId: string = "", daemonId: string = "", s
       message.error(t("TXT_CODE_26d7316f"));
       reportErrorMsg(error.message);
     } finally {
-      loadingDialog.cancel();
+      if (loadingDialog) loadingDialog.cancel();
+      hideLoadingWindow();
     }
   };
 
@@ -955,6 +984,7 @@ export const useFileManager = (instanceId: string = "", daemonId: string = "", s
     pushSelected,
     oneSelected,
     isImage,
-    showImage
+    showImage,
+    loadingWindow
   };
 };
