@@ -2,10 +2,11 @@
 import { router } from "@/config/router";
 import { t } from "@/lang/i18n";
 import { useAppConfigStore } from "@/stores/useAppConfigStore";
-import { AppstoreOutlined, LogoutOutlined, UserOutlined } from "@ant-design/icons-vue";
+import { AppTheme } from "@/types/const";
+import { AppstoreOutlined, LogoutOutlined, SwapOutlined, UserOutlined } from "@ant-design/icons-vue";
 import { ref, type Component } from "vue";
 
-const { isDarkTheme } = useAppConfigStore();
+const { isDarkTheme, setTheme } = useAppConfigStore();
 
 export interface TaskbarWindow {
     id: string;
@@ -106,6 +107,11 @@ const handleOpenUserInfo = () => {
     emit("open-user-info");
 };
 
+const handleToggleTheme = () => {
+    startMenuOpen.value = false;
+    setTheme(isDarkTheme.value ? AppTheme.LIGHT : AppTheme.DARK);
+};
+
 const isComponentIcon = (icon: Component | string): boolean => typeof icon !== "string";
 </script>
 
@@ -126,6 +132,13 @@ const isComponentIcon = (icon: Component | string): boolean => typeof icon !== "
                         <UserOutlined />
                     </span>
                     <span class="start-menu__username">{{ username }}</span>
+                </div>
+                <div class="start-menu__divider"></div>
+                <div class="start-menu__item" @click="handleToggleTheme">
+                    <span class="start-menu__item-icon">
+                        <SwapOutlined />
+                    </span>
+                    <span>{{ isDarkTheme ? t("TXT_CODE_673eac8e") : t("TXT_CODE_5e4a370d") }}</span>
                 </div>
                 <div class="start-menu__divider"></div>
                 <div class="start-menu__item" @click="handleSwitchToNormalMode">
