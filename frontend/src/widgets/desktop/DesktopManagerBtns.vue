@@ -41,6 +41,7 @@ const emit = defineEmits<{
     (e: "open-file-manager"): void;
     (e: "open-mod-manager"): void;
     (e: "open-schedule"): void;
+    (e: "open-event-config"): void;
 }>();
 
 const { isAdmin, state } = useAppStateStore();
@@ -175,7 +176,7 @@ const btns = computed(() => {
             title: t("TXT_CODE_d341127b"),
             icon: DashboardOutlined,
             click: () => {
-                eventConfigDialog.value?.openDialog();
+                emit("open-event-config");
             }
         },
         {

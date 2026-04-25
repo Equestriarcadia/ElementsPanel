@@ -50,6 +50,7 @@ const emit = defineEmits<{
     (e: "open-server-config", instanceId: string, daemonId: string, type: string): void;
     (e: "open-file-manager", instanceId: string, daemonId: string, instanceName: string): void;
     (e: "open-schedule", instanceId: string, daemonId: string): void;
+    (e: "open-event-config", instanceId: string, daemonId: string): void;
 }>();
 
 const { state, isAdmin } = useAppStateStore();
@@ -410,8 +411,8 @@ onUnmounted(() => {
         <DesktopManagerBtns :instance-id="instanceId" :daemon-id="daemonId"
             @open-server-config="(type: string) => emit('open-server-config', instanceId, daemonId, type)"
             @open-file-manager="emit('open-file-manager', instanceId, daemonId, getInstanceName || instanceId)"
-            @open-mod-manager="openDialog('mod-manager')"
-            @open-schedule="emit('open-schedule', instanceId, daemonId)" />
+            @open-mod-manager="openDialog('mod-manager')" @open-schedule="emit('open-schedule', instanceId, daemonId)"
+            @open-event-config="emit('open-event-config', instanceId, daemonId)" />
     </div>
 </template>
 

@@ -6,6 +6,7 @@ import { useAppStateStore } from "@/stores/useAppStateStore";
 import { useLayoutConfigStore } from "@/stores/useLayoutConfig";
 import type { ContextMenuItem } from "@/widgets/desktop/DesktopContextMenu.vue";
 import DesktopContextMenu from "@/widgets/desktop/DesktopContextMenu.vue";
+import DesktopEventConfig from "@/widgets/desktop/DesktopEventConfig.vue";
 import DesktopFileEditor from "@/widgets/desktop/DesktopFileEditor.vue";
 import DesktopFileManager from "@/widgets/desktop/DesktopFileManager.vue";
 import DesktopIcon from "@/widgets/desktop/DesktopIcon.vue";
@@ -384,6 +385,39 @@ const openScheduleWindow = (instanceId: string, daemonId: string) => {
     });
 };
 
+const openEventConfigWindow = (instanceId: string, daemonId: string) => {
+    const windowId = `event-config-${instanceId}`;
+    const existing = windows.get(windowId);
+
+    if (existing) {
+        existing.minimized = false;
+        existing.visible = true;
+        focusWindow(windowId);
+        return;
+    }
+
+    windowOffset = (windowOffset + 1) % 8;
+    const offsetX = 120 + windowOffset * 30;
+    const offsetY = 80 + windowOffset * 30;
+
+    windows.set(windowId, {
+        id: windowId,
+        title: t("TXT_CODE_10150756"),
+        icon: markRaw(DashboardOutlined),
+        visible: true,
+        minimized: false,
+        maximized: false,
+        zIndex: ++nextZIndex,
+        content: "event-config",
+        initialX: offsetX,
+        initialY: offsetY,
+        initialWidth: 500,
+        initialHeight: 450,
+        instanceId: instanceId,
+        daemonId: daemonId
+    });
+};
+
 const openNewInstanceWindow = () => {
     const windowId = "new-instance";
     const existing = windows.get(windowId);
@@ -610,7 +644,8 @@ const username = computed(() => appState.userInfo?.userName || "User");
                                     v-else-if="win.content === 'instance-console' && win.instanceId && win.daemonId"
                                     :instance-id="win.instanceId" :daemon-id="win.daemonId"
                                     @open-server-config="openServerConfigWindow"
-                                    @open-file-manager="openFileManagerWindow" @open-schedule="openScheduleWindow" />
+                                    @open-file-manager="openFileManagerWindow" @open-schedule="openScheduleWindow"
+                                    @open-event-config="openEventConfigWindow" />
 
                                 <DesktopServerConfig
                                     v-else-if="win.content === 'server-config' && win.instanceId && win.daemonId && win.type"
@@ -619,6 +654,11 @@ const username = computed(() => appState.userInfo?.userName || "User");
                                 <DesktopSchedule
                                     v-else-if="win.content === 'schedule' && win.instanceId && win.daemonId"
                                     :instance-id="win.instanceId" :daemon-id="win.daemonId" />
+
+                                <DesktopEventConfig
+                                    v-else-if="win.content === 'event-config' && win.instanceId && win.daemonId"
+                                    :instance-id="win.instanceId" :daemon-id="win.daemonId"
+                                    @close="closeWindow(win.id)" />
 
                                 <DesktopFileManager
                                     v-else-if="win.content === 'file-manager' && win.instanceId && win.daemonId"
