@@ -10,9 +10,11 @@ import {
     ArrowLeftOutlined,
     CloudDownloadOutlined,
     CodeOutlined,
+    CloudDownloadOutlined as InstallIcon,
     SearchOutlined
 } from "@ant-design/icons-vue";
 import { computed, onMounted, ref } from "vue";
+import DesktopWindow from "./DesktopWindow.vue";
 
 const emit = defineEmits<{
     "open-console": [instance: any, daemonId: string];
@@ -50,6 +52,17 @@ const selectedTemplate = ref<QuickStartPackages | null>(null);
 const selectedTemplateType = ref<"normal" | "docker">("normal");
 const instanceName = ref("");
 const isInstalling = ref(false);
+
+const windowWidth = ref(window.innerWidth);
+const windowHeight = ref(window.innerHeight);
+
+onMounted(() => {
+    const updateWindowSize = () => {
+        windowWidth.value = window.innerWidth;
+        windowHeight.value = window.innerHeight;
+    };
+    window.addEventListener('resize', updateWindowSize);
+});
 
 const { execute: executeCreateAsyncTask } = createAsyncTask();
 
@@ -222,42 +235,47 @@ const handleInstall = async () => {
             </div>
         </template>
 
-        <!-- Install Dialog -->
-        <div v-if="showInstallDialog" class="dm-dialog-overlay" @click.self="closeInstallDialog">
-            <div class="dm-dialog">
-                <div class="dm-dialog__header">
-                    <h3>{{ t("TXT_CODE_c10ea805") }}</h3>
-                </div>
-                <div class="dm-dialog__content">
-                    <div v-if="selectedTemplate" class="dm-template-info">
-                        <img v-if="selectedTemplate.image" :src="selectedTemplate.image"
-                            class="dm-template-info__img" />
-                        <div class="dm-template-info__text">
-                            <h4>{{ selectedTemplate.title }}</h4>
-                            <p>{{ selectedTemplate.description }}</p>
-                            <div class="dm-template-info__tags">
-                                <span class="dm-tag">{{ selectedTemplate.platform }}</span>
-                                <span class="dm-tag">{{ selectedTemplateType === 'docker' ? 'Docker' : 'Normal'
-                                    }}</span>
+        <!-- Install Window -->
+        <Teleport to="body">
+            <Transition name="du-dialog-fade">
+                <DesktopWindow v-if="showInstallDialog" id="market-install-dialog" :title="t('TXT_CODE_c10ea805')"
+                    :icon="InstallIcon" :visible="showInstallDialog" :minimized="false" :maximized="false"
+                    :active="true" :initial-width="480" :initial-height="400" :initial-x="windowWidth / 2 - 240"
+                    :initial-y="windowHeight / 2 - 200" :z-index="10001" :show-minimize="false" :show-maximize="false"
+                    :resizable="false" @close="closeInstallDialog">
+                    <div class="dm-install-content">
+                        <div class="dm-install-body">
+                            <div v-if="selectedTemplate" class="dm-template-info">
+                                <img v-if="selectedTemplate.image" :src="selectedTemplate.image"
+                                    class="dm-template-info__img" />
+                                <div class="dm-template-info__text">
+                                    <h4>{{ selectedTemplate.title }}</h4>
+                                    <p>{{ selectedTemplate.description }}</p>
+                                    <div class="dm-template-info__tags">
+                                        <span class="dm-tag">{{ selectedTemplate.platform }}</span>
+                                        <span class="dm-tag">{{ selectedTemplateType === 'docker' ? 'Docker' : 'Normal'
+                                        }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="dm-form-group">
+                                <label>{{ t("TXT_CODE_44ae0e7") }}</label>
+                                <input v-model="instanceName" class="dm-input" :placeholder="t('TXT_CODE_cf27ab7e')"
+                                    maxlength="50" />
                             </div>
                         </div>
+                        <div class="dm-install-footer">
+                            <button class="dm-btn dm-btn--default" @click="closeInstallDialog" :disabled="isInstalling">
+                                {{ t("TXT_CODE_a0451c97") }}
+                            </button>
+                            <button class="dm-btn dm-btn--primary" @click="handleInstall" :disabled="isInstalling">
+                                {{ isInstalling ? t("TXT_CODE_DESKTOP_IM_LOADING") : t("TXT_CODE_e4898801") }}
+                            </button>
+                        </div>
                     </div>
-                    <div class="dm-form-group">
-                        <label>{{ t("TXT_CODE_44ae0e7") }}</label>
-                        <input v-model="instanceName" class="dm-input" :placeholder="t('TXT_CODE_cf27ab7e')"
-                            maxlength="50" />
-                    </div>
-                </div>
-                <div class="dm-dialog__footer">
-                    <button class="dm-btn dm-btn--default" @click="closeInstallDialog" :disabled="isInstalling">
-                        {{ t("TXT_CODE_a0451c97") }}
-                    </button>
-                    <button class="dm-btn dm-btn--primary" @click="handleInstall" :disabled="isInstalling">
-                        {{ isInstalling ? t("TXT_CODE_DESKTOP_IM_LOADING") : t("TXT_CODE_e4898801") }}
-                    </button>
-                </div>
-            </div>
-        </div>
+                </DesktopWindow>
+            </Transition>
+        </Teleport>
     </div>
 </template>
 
@@ -547,50 +565,26 @@ const handleInstall = async () => {
     }
 }
 
-/* Dialog Styles */
-.dm-dialog-overlay {
-    position: absolute;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.6);
-    backdrop-filter: blur(4px);
+.dm-install-content {
     display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 100;
+    flex-direction: column;
+    height: 100%;
+    background: transparent;
 }
 
-.dm-dialog {
-    width: 480px;
-    background: #1a1a2e;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 12px;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
-    overflow: hidden;
+.dm-install-body {
+    flex: 1;
+    padding: 24px;
+    overflow-y: auto;
+}
 
-    &__header {
-        padding: 20px 24px;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-
-        h3 {
-            margin: 0;
-            font-size: 16px;
-            font-weight: 600;
-            color: #fff;
-        }
-    }
-
-    &__content {
-        padding: 24px;
-    }
-
-    &__footer {
-        padding: 16px 24px;
-        border-top: 1px solid rgba(255, 255, 255, 0.06);
-        display: flex;
-        justify-content: flex-end;
-        gap: 12px;
-        background: rgba(0, 0, 0, 0.2);
-    }
+.dm-install-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    padding: 16px 24px;
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+    background: rgba(0, 0, 0, 0.2);
 }
 
 .dm-template-info {
@@ -651,6 +645,7 @@ const handleInstall = async () => {
     font-size: 14px;
     outline: none;
     transition: border-color 0.2s;
+    box-sizing: border-box;
 
     &:focus {
         border-color: var(--color-blue-5, #1677ff);
@@ -659,5 +654,16 @@ const handleInstall = async () => {
     &::placeholder {
         color: rgba(255, 255, 255, 0.3);
     }
+}
+
+.du-dialog-fade-enter-active,
+.du-dialog-fade-leave-active {
+    transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.du-dialog-fade-enter-from,
+.du-dialog-fade-leave-to {
+    opacity: 0;
+    transform: scale(0.95);
 }
 </style>

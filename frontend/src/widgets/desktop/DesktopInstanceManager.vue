@@ -558,7 +558,7 @@ onUnmounted(() => {
                         </span>
                         <span class="dim-instance__name">{{
                             instance.config.nickname || t("TXT_CODE_DESKTOP_IM_UNNAMED")
-                            }}</span><span class="dim-instance__badge" :class="getStatusClass(instance.status)">
+                        }}</span><span class="dim-instance__badge" :class="getStatusClass(instance.status)">
                             {{ getStatusText(instance.status) }}
                         </span>
                     </div>
