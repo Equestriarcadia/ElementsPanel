@@ -186,7 +186,7 @@ onUnmounted(() => {
         </div>
 
         <!-- Content -->
-        <div class="window__content">
+        <div class="window__content" @contextmenu.stop>
             <slot></slot>
         </div>
 
