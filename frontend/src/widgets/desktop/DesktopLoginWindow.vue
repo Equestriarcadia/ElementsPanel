@@ -7,7 +7,6 @@ import { sleep } from "@/tools/common";
 import { reportErrorMsg } from "@/tools/validator";
 import {
     AppstoreOutlined,
-    CheckCircleOutlined,
     LoadingOutlined,
     LockOutlined,
     UserOutlined
@@ -101,9 +100,6 @@ const handleLogin = async () => {
 const handleNext = async () => {
     try {
         await updateUserInfo();
-        loginStep.value = 2;
-        await sleep(1000);
-        loginStep.value = 3;
         emit("login-success");
     } catch (error: any) {
         console.error(error);
@@ -170,10 +166,6 @@ const handleNext = async () => {
                 </div>
             </div>
 
-            <div v-show="loginStep >= 2" class="desktop-login-body desktop-login-center">
-                <CheckCircleOutlined class="login-state-icon success" />
-                <p>{{ t("TXT_CODE_DESKTOP_LOGIN_SUCCESS") }}</p>
-            </div>
         </div>
     </div>
 </template>

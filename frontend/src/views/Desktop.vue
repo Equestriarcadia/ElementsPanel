@@ -92,16 +92,18 @@ onMounted(async () => {
 });
 
 //─── Login Overlay ───
-const showLoginOverlay = computed(() => !isLogged.value);
+const showLoginOverlay = ref(!isLogged.value);
 
 const handleLoginSuccess = () => {
-    // Login overlay will auto-hide via isLogged becoming true
+    showLoginOverlay.value = false;
 };
 
 // Watch for login state changes to load layout after login
 watch(isLogged, (logged) => {
     if (logged) {
         loadDesktopLayout();
+    } else {
+        showLoginOverlay.value = true;
     }
 });
 
@@ -942,108 +944,101 @@ const username = computed(() => appState.userInfo?.userName || "User");
     <div class="desktop-container" @click="onDesktopClick" @contextmenu="onDesktopContextMenu">
         <div class="desktop-wallpaper" :style="wallpaperStyle"></div>
         <Transition name="desktop-fade">
-            <template v-if="!showLoginOverlay">
-                <div class="desktop-content-wrapper">
-                    <div class="desktop-icons">
-                        <DesktopIcon v-for="app in desktopApps" :key="app.id" :id="app.id" :label="app.label"
-                            :icon="app.icon" :color="app.color" :selected="selectedIconId === app.id"
-                            @select="selectIcon" @open="openWindow" />
-                    </div>
-
-                    <TransitionGroup name="desktop-window-group">
-                        <DesktopWindow v-for="[id, win] in windows" :key="id" :id="win.id" :title="win.title"
-                            :icon="win.icon" :visible="win.visible" :minimized="win.minimized"
-                            :maximized="win.maximized" :active="win.id === activeWindowId" :initial-x="win.initialX"
-                            :initial-y="win.initialY" :initial-width="win.initialWidth"
-                            :initial-height="win.initialHeight" :z-index="win.zIndex" @close="closeWindow"
-                            @minimize="minimizeWindow" @maximize="maximizeWindow" @focus="focusWindow"
-                            @moved="handleWindowMoved" @resized="handleWindowResized"
-                            @contextmenu-titlebar="onTitlebarContextMenu">
-                            <div class="window-inner-content">
-                                <DesktopMyApps v-if="win.content === 'my-apps'" @open-console="openInstanceConsole" />
-
-                                <DesktopInstanceManager v-else-if="win.content === 'instances'"
-                                    @open-console="openInstanceConsole" @open-new-instance="openNewInstanceWindow" />
-
-                                <DesktopNewInstance v-else-if="win.content === 'new-instance'"
-                                    @close="closeWindow(win.id)" />
-
-                                <DesktopInstanceConsole
-                                    v-else-if="win.content === 'instance-console' && win.instanceId && win.daemonId"
-                                    :instance-id="win.instanceId" :daemon-id="win.daemonId"
-                                    @open-server-config="openServerConfigWindow"
-                                    @open-file-manager="openFileManagerWindow" @open-mod-manager="openModManagerWindow"
-                                    @open-schedule="openScheduleWindow" @open-event-config="openEventConfigWindow"
-                                    @open-term-config="openTermConfigWindow" @open-mc-ping="openMcPingWindow" />
-
-                                <DesktopServerConfig
-                                    v-else-if="win.content === 'server-config' && win.instanceId && win.daemonId && win.type"
-                                    :instance-id="win.instanceId" :daemon-id="win.daemonId" :type="win.type" />
-
-                                <DesktopSchedule
-                                    v-else-if="win.content === 'schedule' && win.instanceId && win.daemonId"
-                                    :instance-id="win.instanceId" :daemon-id="win.daemonId" />
-
-                                <DesktopEventConfig
-                                    v-else-if="win.content === 'event-config' && win.instanceId && win.daemonId"
-                                    :instance-id="win.instanceId" :daemon-id="win.daemonId"
-                                    @close="closeWindow(win.id)" />
-
-                                <DesktopTermConfig
-                                    v-else-if="win.content === 'term-config' && win.instanceId && win.daemonId"
-                                    :instance-id="win.instanceId" :daemon-id="win.daemonId"
-                                    @close="closeWindow(win.id)" />
-
-                                <DesktopMcPing v-else-if="win.content === 'mc-ping' && win.instanceId && win.daemonId"
-                                    :instance-id="win.instanceId" :daemon-id="win.daemonId"
-                                    @close="closeWindow(win.id)" />
-
-                                <DesktopModManager
-                                    v-else-if="win.content === 'mod-manager' && win.instanceId && win.daemonId"
-                                    :instance-id="win.instanceId" :daemon-id="win.daemonId"
-                                    @close="closeWindow(win.id)" />
-
-                                <DesktopFileManager
-                                    v-else-if="win.content === 'file-manager' && win.instanceId && win.daemonId"
-                                    :instance-id="win.instanceId" :daemon-id="win.daemonId" :session-id="win.id"
-                                    @open-file-editor="(filePath: string, fileName: string) => openFileEditorWindow(win.instanceId!, win.daemonId!, filePath, fileName)" />
-
-                                <DesktopFileEditor
-                                    v-else-if="win.content === 'file-editor' && win.instanceId && win.daemonId && win.filePath && win.fileName"
-                                    :instance-id="win.instanceId" :daemon-id="win.daemonId" :file-path="win.filePath"
-                                    :file-name="win.fileName" @close="closeWindow(win.id)" />
-
-                                <DesktopOverview v-else-if="win.content === 'overview'" />
-
-                                <DesktopUsers v-else-if="win.content === 'users'" />
-
-                                <DesktopNodeManager v-else-if="win.content === 'nodes'" />
-
-                                <DesktopSettings v-else-if="win.content === 'settings'" />
-
-                                <DesktopMarket v-else-if="win.content === 'market'"
-                                    @open-console="openInstanceConsole" />
-
-                                <DesktopTerminalSelector v-else-if="win.content === 'terminal'"
-                                    @open-console="openInstanceConsole" />
-
-                                <DesktopUserInfo v-else-if="win.content === 'user-info'" />
-
-                                <div v-else class="window-page">
-                                    <p>{{ win.title }}</p>
-                                </div>
-                            </div>
-                        </DesktopWindow>
-                    </TransitionGroup>
-                    <DesktopTaskbar :windows="taskbarWindows" :username="username" @toggle-window="toggleWindow"
-                        @exit-desktop="exitDesktop" @open-user-info="openUserInfoWindow"
-                        @reorder-windows="handleReorderWindows" @contextmenu-window="onTaskbarContextMenu" />
-                    <DesktopContextMenu :visible="ctxMenu.visible" :x="ctxMenu.x" :y="ctxMenu.y" :items="ctxMenuItems"
-                        @close="closeContextMenu" />
+            <div v-if="!showLoginOverlay" class="desktop-content-wrapper">
+                <div class="desktop-icons">
+                    <DesktopIcon v-for="app in desktopApps" :key="app.id" :id="app.id" :label="app.label"
+                        :icon="app.icon" :color="app.color" :selected="selectedIconId === app.id" @select="selectIcon"
+                        @open="openWindow" />
                 </div>
-            </template>
+
+                <TransitionGroup name="desktop-window-group">
+                    <DesktopWindow v-for="[id, win] in windows" :key="id" :id="win.id" :title="win.title"
+                        :icon="win.icon" :visible="win.visible" :minimized="win.minimized" :maximized="win.maximized"
+                        :active="win.id === activeWindowId" :initial-x="win.initialX" :initial-y="win.initialY"
+                        :initial-width="win.initialWidth" :initial-height="win.initialHeight" :z-index="win.zIndex"
+                        @close="closeWindow" @minimize="minimizeWindow" @maximize="maximizeWindow" @focus="focusWindow"
+                        @moved="handleWindowMoved" @resized="handleWindowResized"
+                        @contextmenu-titlebar="onTitlebarContextMenu">
+                        <div class="window-inner-content">
+                            <DesktopMyApps v-if="win.content === 'my-apps'" @open-console="openInstanceConsole" />
+
+                            <DesktopInstanceManager v-else-if="win.content === 'instances'"
+                                @open-console="openInstanceConsole" @open-new-instance="openNewInstanceWindow" />
+
+                            <DesktopNewInstance v-else-if="win.content === 'new-instance'"
+                                @close="closeWindow(win.id)" />
+
+                            <DesktopInstanceConsole
+                                v-else-if="win.content === 'instance-console' && win.instanceId && win.daemonId"
+                                :instance-id="win.instanceId" :daemon-id="win.daemonId"
+                                @open-server-config="openServerConfigWindow" @open-file-manager="openFileManagerWindow"
+                                @open-mod-manager="openModManagerWindow" @open-schedule="openScheduleWindow"
+                                @open-event-config="openEventConfigWindow" @open-term-config="openTermConfigWindow"
+                                @open-mc-ping="openMcPingWindow" />
+
+                            <DesktopServerConfig
+                                v-else-if="win.content === 'server-config' && win.instanceId && win.daemonId && win.type"
+                                :instance-id="win.instanceId" :daemon-id="win.daemonId" :type="win.type" />
+
+                            <DesktopSchedule v-else-if="win.content === 'schedule' && win.instanceId && win.daemonId"
+                                :instance-id="win.instanceId" :daemon-id="win.daemonId" />
+
+                            <DesktopEventConfig
+                                v-else-if="win.content === 'event-config' && win.instanceId && win.daemonId"
+                                :instance-id="win.instanceId" :daemon-id="win.daemonId" @close="closeWindow(win.id)" />
+
+                            <DesktopTermConfig
+                                v-else-if="win.content === 'term-config' && win.instanceId && win.daemonId"
+                                :instance-id="win.instanceId" :daemon-id="win.daemonId" @close="closeWindow(win.id)" />
+
+                            <DesktopMcPing v-else-if="win.content === 'mc-ping' && win.instanceId && win.daemonId"
+                                :instance-id="win.instanceId" :daemon-id="win.daemonId" @close="closeWindow(win.id)" />
+
+                            <DesktopModManager
+                                v-else-if="win.content === 'mod-manager' && win.instanceId && win.daemonId"
+                                :instance-id="win.instanceId" :daemon-id="win.daemonId" @close="closeWindow(win.id)" />
+
+                            <DesktopFileManager
+                                v-else-if="win.content === 'file-manager' && win.instanceId && win.daemonId"
+                                :instance-id="win.instanceId" :daemon-id="win.daemonId" :session-id="win.id"
+                                @open-file-editor="(filePath: string, fileName: string) => openFileEditorWindow(win.instanceId!, win.daemonId!, filePath, fileName)" />
+
+                            <DesktopFileEditor
+                                v-else-if="win.content === 'file-editor' && win.instanceId && win.daemonId && win.filePath && win.fileName"
+                                :instance-id="win.instanceId" :daemon-id="win.daemonId" :file-path="win.filePath"
+                                :file-name="win.fileName" @close="closeWindow(win.id)" />
+
+                            <DesktopOverview v-else-if="win.content === 'overview'" />
+
+                            <DesktopUsers v-else-if="win.content === 'users'" />
+
+                            <DesktopNodeManager v-else-if="win.content === 'nodes'" />
+
+                            <DesktopSettings v-else-if="win.content === 'settings'" />
+
+                            <DesktopMarket v-else-if="win.content === 'market'" @open-console="openInstanceConsole" />
+
+                            <DesktopTerminalSelector v-else-if="win.content === 'terminal'"
+                                @open-console="openInstanceConsole" />
+
+                            <DesktopUserInfo v-else-if="win.content === 'user-info'" />
+
+                            <div v-else class="window-page">
+                                <p>{{ win.title }}</p>
+                            </div>
+                        </div>
+                    </DesktopWindow>
+                </TransitionGroup>
+                <DesktopTaskbar :windows="taskbarWindows" :username="username" @toggle-window="toggleWindow"
+                    @exit-desktop="exitDesktop" @open-user-info="openUserInfoWindow"
+                    @reorder-windows="handleReorderWindows" @contextmenu-window="onTaskbarContextMenu" />
+                <DesktopContextMenu :visible="ctxMenu.visible" :x="ctxMenu.x" :y="ctxMenu.y" :items="ctxMenuItems"
+                    @close="closeContextMenu" />
+            </div>
         </Transition>
-        <DesktopLoginWindow v-if="showLoginOverlay" @login-success="handleLoginSuccess" />
+        <Transition name="login-fade">
+            <DesktopLoginWindow v-if="showLoginOverlay" @login-success="handleLoginSuccess" />
+        </Transition>
     </div>
 </template>
 
@@ -1123,5 +1118,39 @@ const username = computed(() => appState.userInfo?.userName || "User");
 .desktop-window-group-leave-to {
     opacity: 0;
     transform: scale(0.9);
+}
+
+.desktop-content-wrapper {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+}
+
+.desktop-fade-enter-active {
+    transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.desktop-fade-leave-active {
+    transition: all 0.3s ease;
+}
+
+.desktop-fade-enter-from {
+    opacity: 0;
+    transform: scale(1.05);
+}
+
+.desktop-fade-leave-to {
+    opacity: 0;
+    transform: scale(0.95);
+}
+
+.login-fade-enter-active,
+.login-fade-leave-active {
+    transition: opacity 0.6s ease;
+}
+
+.login-fade-enter-from,
+.login-fade-leave-to {
+    opacity: 0;
 }
 </style>
