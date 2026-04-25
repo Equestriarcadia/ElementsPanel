@@ -11,6 +11,7 @@ import DesktopEventConfig from "@/widgets/desktop/DesktopEventConfig.vue";
 import DesktopFileEditor from "@/widgets/desktop/DesktopFileEditor.vue";
 import DesktopFileManager from "@/widgets/desktop/DesktopFileManager.vue";
 import DesktopIcon from "@/widgets/desktop/DesktopIcon.vue";
+import DesktopImageViewer from "@/widgets/desktop/DesktopImageViewer.vue";
 import DesktopInstanceConsole from "@/widgets/desktop/DesktopInstanceConsole.vue";
 import DesktopInstanceManager from "@/widgets/desktop/DesktopInstanceManager.vue";
 import DesktopLoginWindow from "@/widgets/desktop/DesktopLoginWindow.vue";
@@ -272,6 +273,7 @@ const ICON_MAP: Record<string, Component> = {
     "instance-console": markRaw(CodeOutlined),
     "file-manager": markRaw(FolderOpenOutlined),
     "file-editor": markRaw(EditOutlined),
+    "image-viewer": markRaw(FolderOpenOutlined),
     "server-config": markRaw(ControlOutlined),
     "schedule": markRaw(FieldTimeOutlined),
     "event-config": markRaw(DashboardOutlined),
@@ -439,6 +441,34 @@ const openFileEditorWindow = (instanceId: string, daemonId: string, filePath: st
         initialX: offsetX,
         initialY: offsetY,
         initialWidth: 900,
+        initialHeight: 600,
+        instanceId: instanceId,
+        daemonId: daemonId,
+        filePath: filePath,
+        fileName: fileName
+    });
+    saveDesktopLayout();
+};
+
+const openImageViewerWindow = (instanceId: string, daemonId: string, filePath: string, fileName: string) => {
+    const windowId = `image-viewer-${instanceId}-${Date.now()}`;
+
+    windowOffset = (windowOffset + 1) % 8;
+    const offsetX = 140 + windowOffset * 30;
+    const offsetY = 100 + windowOffset * 30;
+
+    windows.set(windowId, {
+        id: windowId,
+        title: fileName,
+        icon: markRaw(FolderOpenOutlined),
+        visible: true,
+        minimized: false,
+        maximized: false,
+        zIndex: ++nextZIndex,
+        content: "image-viewer",
+        initialX: offsetX,
+        initialY: offsetY,
+        initialWidth: 800,
         initialHeight: 600,
         instanceId: instanceId,
         daemonId: daemonId,
@@ -1001,10 +1031,16 @@ const username = computed(() => appState.userInfo?.userName || "User");
                             <DesktopFileManager
                                 v-else-if="win.content === 'file-manager' && win.instanceId && win.daemonId"
                                 :instance-id="win.instanceId" :daemon-id="win.daemonId" :session-id="win.id"
-                                @open-file-editor="(filePath: string, fileName: string) => openFileEditorWindow(win.instanceId!, win.daemonId!, filePath, fileName)" />
+                                @open-file-editor="(filePath: string, fileName: string) => openFileEditorWindow(win.instanceId!, win.daemonId!, filePath, fileName)"
+                                @open-image-viewer="(filePath: string, fileName: string) => openImageViewerWindow(win.instanceId!, win.daemonId!, filePath, fileName)" />
 
                             <DesktopFileEditor
                                 v-else-if="win.content === 'file-editor' && win.instanceId && win.daemonId && win.filePath && win.fileName"
+                                :instance-id="win.instanceId" :daemon-id="win.daemonId" :file-path="win.filePath"
+                                :file-name="win.fileName" @close="closeWindow(win.id)" />
+
+                            <DesktopImageViewer
+                                v-else-if="win.content === 'image-viewer' && win.instanceId && win.daemonId && win.filePath && win.fileName"
                                 :instance-id="win.instanceId" :daemon-id="win.daemonId" :file-path="win.filePath"
                                 :file-name="win.fileName" @close="closeWindow(win.id)" />
 

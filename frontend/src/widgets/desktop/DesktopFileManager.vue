@@ -41,6 +41,7 @@ const props = defineProps<{
 
 const emit = defineEmits<{
     (e: "open-file-editor", filePath: string, fileName: string): void;
+    (e: "open-image-viewer", filePath: string, fileName: string): void;
 }>();
 
 const { isPhone } = useScreen();
@@ -253,7 +254,10 @@ const editFile = (fileName: string) => {
 const handleClickFile = async (file: DataType) => {
     if (file.type === 0) return rowClickTable(file.name, file.type);
     const fileExtName = getFileExtName(file.name);
-    if (isImage(fileExtName)) return showImage(file);
+    if (isImage(fileExtName)) {
+        const path = currentPath.value + file.name;
+        return emit("open-image-viewer", path, file.name);
+    }
     return editFile(file.name);
 };
 
