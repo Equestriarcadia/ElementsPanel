@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { t } from "@/lang/i18n";
 import { logoutUser } from "@/services/apis/index";
+import { getDesktopLayoutConfig, setDesktopLayoutConfig } from "@/services/apis/layout";
 import { useAppConfigStore } from "@/stores/useAppConfigStore";
 import { useAppStateStore } from "@/stores/useAppStateStore";
 import { useLayoutConfigStore } from "@/stores/useLayoutConfig";
@@ -44,7 +45,7 @@ import {
     TeamOutlined,
     UserOutlined
 } from "@ant-design/icons-vue";
-import { computed, markRaw, onMounted, reactive, ref, type Component, type CSSProperties } from "vue";
+import { computed, markRaw, onMounted, reactive, ref, watch, type Component, type CSSProperties } from "vue";
 import { useRouter } from "vue-router";
 
 const router = useRouter();
@@ -88,6 +89,13 @@ const showLoginOverlay = computed(() => !isLogged.value);
 const handleLoginSuccess = () => {
     // Login overlay will auto-hide via isLogged becoming true
 };
+
+// Watch for login state changes to load layout after login
+watch(isLogged, (logged) => {
+    if (logged) {
+        loadDesktopLayout();
+    }
+});
 
 //─── Desktop Icons ───
 interface DesktopApp {
@@ -177,7 +185,7 @@ const selectIcon = (id: string) => {
     selectedIconId.value = id;
 };
 
-// ─── Window Management ───
+//─── Window Management ───
 interface WindowState {
     id: string;
     title: string;
@@ -201,6 +209,111 @@ interface WindowState {
 const windows = reactive<Map<string, WindowState>>(new Map());
 let nextZIndex = 100;
 let windowOffset = 0;
+
+// ─── Desktop Layout Persistence ───
+const { execute: executeGetLayout } = getDesktopLayoutConfig();
+const { execute: executeSaveLayout } = setDesktopLayoutConfig();
+
+let saveLayoutTimer: ReturnType<typeof setTimeout> | null = null;
+let layoutLoaded = false;
+
+const saveDesktopLayout = () => {
+    if (!isLogged.value || !layoutLoaded) return;
+    if (saveLayoutTimer) clearTimeout(saveLayoutTimer);
+    saveLayoutTimer = setTimeout(async () => {
+        try {
+            const windowList: any[] = [];
+            windows.forEach((win) => {
+                windowList.push({
+                    id: win.id,
+                    content: win.content,
+                    title: win.title,
+                    x: win.initialX,
+                    y: win.initialY,
+                    width: win.initialWidth,
+                    height: win.initialHeight,
+                    maximized: win.maximized,
+                    zIndex: win.zIndex,
+                    instanceId: win.instanceId,
+                    daemonId: win.daemonId,
+                    type: win.type,
+                    filePath: win.filePath,
+                    fileName: win.fileName
+                });
+            });
+            await executeSaveLayout({
+                data: { windows: windowList, updatedAt: Date.now() }
+            });
+        } catch (e) {
+            // Silently ignore save errors
+        }
+    }, 500);
+};
+
+const ICON_MAP: Record<string, Component> = {
+    "instances": markRaw(DesktopOutlined),
+    "overview": markRaw(DashboardOutlined),
+    "users": markRaw(TeamOutlined),
+    "nodes": markRaw(ClusterOutlined),
+    "market": markRaw(ShoppingOutlined),
+    "settings": markRaw(SettingOutlined),
+    "terminal": markRaw(CodeOutlined),
+    "my-apps": markRaw(AppstoreOutlined),
+    "instance-console": markRaw(CodeOutlined),
+    "file-manager": markRaw(FolderOpenOutlined),
+    "file-editor": markRaw(EditOutlined),
+    "server-config": markRaw(ControlOutlined),
+    "schedule": markRaw(FieldTimeOutlined),
+    "event-config": markRaw(DashboardOutlined),
+    "term-config": markRaw(CodeOutlined),
+    "new-instance": markRaw(DesktopOutlined),
+    "user-info": markRaw(UserOutlined)
+};
+
+const loadDesktopLayout = async () => {
+    try {
+        const result = await executeGetLayout();
+        const layout = result?.value;
+        if (layout && Array.isArray(layout.windows) && layout.windows.length > 0) {
+            windows.clear();
+            for (const win of layout.windows) {
+                const icon = ICON_MAP[win.content] || markRaw(DesktopOutlined);
+                const zIndex = typeof win.zIndex === "number" ? win.zIndex : ++nextZIndex;
+                if (zIndex > nextZIndex) nextZIndex = zIndex;
+                windows.set(win.id, {
+                    id: win.id,
+                    title: win.title || win.id,
+                    icon,
+                    visible: true,
+                    minimized: false,
+                    maximized: win.maximized || false,
+                    zIndex,
+                    content: win.content,
+                    initialX: win.x || 100,
+                    initialY: win.y || 60,
+                    initialWidth: win.width || 800,
+                    initialHeight: win.height || 500,
+                    instanceId: win.instanceId,
+                    daemonId: win.daemonId,
+                    type: win.type,
+                    filePath: win.filePath,
+                    fileName: win.fileName
+                });
+            }
+        }
+        layoutLoaded = true;
+    } catch (e) {
+        layoutLoaded = true;
+        // Silently ignore load errors
+    }
+};
+
+// Load layout on mount if already logged in
+onMounted(async () => {
+    if (isLogged.value) {
+        await loadDesktopLayout();
+    }
+});
 
 const openWindow = (appId: string) => {
     const app = desktopApps.value.find((a) => a.id === appId);
@@ -232,6 +345,7 @@ const openWindow = (appId: string) => {
         initialWidth: 980,
         initialHeight: 580
     });
+    saveDesktopLayout();
 };
 
 const openInstanceConsole = (instance: any, daemonId: string) => {
@@ -265,6 +379,7 @@ const openInstanceConsole = (instance: any, daemonId: string) => {
         instanceId: instance.instanceUuid,
         daemonId: daemonId
     });
+    saveDesktopLayout();
 };
 
 const openFileManagerWindow = (instanceId: string, daemonId: string, instanceName: string) => {
@@ -290,6 +405,7 @@ const openFileManagerWindow = (instanceId: string, daemonId: string, instanceNam
         instanceId: instanceId,
         daemonId: daemonId
     });
+    saveDesktopLayout();
 };
 
 const openFileEditorWindow = (instanceId: string, daemonId: string, filePath: string, fileName: string) => {
@@ -317,6 +433,7 @@ const openFileEditorWindow = (instanceId: string, daemonId: string, filePath: st
         filePath: filePath,
         fileName: fileName
     });
+    saveDesktopLayout();
 };
 
 const openServerConfigWindow = (instanceId: string, daemonId: string, type: string) => {
@@ -351,6 +468,7 @@ const openServerConfigWindow = (instanceId: string, daemonId: string, type: stri
         daemonId: daemonId,
         type: type
     });
+    saveDesktopLayout();
 };
 
 const openScheduleWindow = (instanceId: string, daemonId: string) => {
@@ -384,6 +502,7 @@ const openScheduleWindow = (instanceId: string, daemonId: string) => {
         instanceId: instanceId,
         daemonId: daemonId
     });
+    saveDesktopLayout();
 };
 
 const openEventConfigWindow = (instanceId: string, daemonId: string) => {
@@ -417,6 +536,7 @@ const openEventConfigWindow = (instanceId: string, daemonId: string) => {
         instanceId: instanceId,
         daemonId: daemonId
     });
+    saveDesktopLayout();
 };
 
 const openTermConfigWindow = (instanceId: string, daemonId: string) => {
@@ -450,6 +570,7 @@ const openTermConfigWindow = (instanceId: string, daemonId: string) => {
         instanceId: instanceId,
         daemonId: daemonId
     });
+    saveDesktopLayout();
 };
 
 const openNewInstanceWindow = () => {
@@ -481,6 +602,7 @@ const openNewInstanceWindow = () => {
         initialWidth: 500,
         initialHeight: 400
     });
+    saveDesktopLayout();
 };
 
 const openUserInfoWindow = () => {
@@ -512,10 +634,12 @@ const openUserInfoWindow = () => {
         initialWidth: 600,
         initialHeight: 500
     });
+    saveDesktopLayout();
 };
 
 const closeWindow = (id: string) => {
     windows.delete(id);
+    saveDesktopLayout();
 };
 
 const minimizeWindow = (id: string) => {
@@ -525,7 +649,10 @@ const minimizeWindow = (id: string) => {
 
 const maximizeWindow = (id: string) => {
     const win = windows.get(id);
-    if (win) win.maximized = !win.maximized;
+    if (win) {
+        win.maximized = !win.maximized;
+        saveDesktopLayout();
+    }
 };
 
 const focusWindow = (id: string) => {
@@ -545,6 +672,27 @@ const toggleWindow = (id: string) => {
         win.minimized = true;
     } else {
         focusWindow(id);
+    }
+};
+
+// ─── Handle window moved/resized events fromDesktopWindow ───
+const handleWindowMoved = (id: string, newX: number, newY: number) => {
+    const win = windows.get(id);
+    if (win) {
+        win.initialX = newX;
+        win.initialY = newY;
+        saveDesktopLayout();
+    }
+};
+
+const handleWindowResized = (id: string, newX: number, newY: number, newWidth: number, newHeight: number) => {
+    const win = windows.get(id);
+    if (win) {
+        win.initialX = newX;
+        win.initialY = newY;
+        win.initialWidth = newWidth;
+        win.initialHeight = newHeight;
+        saveDesktopLayout();
     }
 };
 
@@ -648,7 +796,6 @@ const username = computed(() => appState.userInfo?.userName || "User");
 <template>
     <div class="desktop-container" @click="onDesktopClick" @contextmenu="onDesktopContextMenu">
         <div class="desktop-wallpaper" :style="wallpaperStyle"></div>
-
         <Transition name="desktop-fade">
             <template v-if="!showLoginOverlay">
                 <div class="desktop-content-wrapper">
@@ -664,7 +811,8 @@ const username = computed(() => appState.userInfo?.userName || "User");
                             :maximized="win.maximized" :active="win.id === activeWindowId" :initial-x="win.initialX"
                             :initial-y="win.initialY" :initial-width="win.initialWidth"
                             :initial-height="win.initialHeight" :z-index="win.zIndex" @close="closeWindow"
-                            @minimize="minimizeWindow" @maximize="maximizeWindow" @focus="focusWindow">
+                            @minimize="minimizeWindow" @maximize="maximizeWindow" @focus="focusWindow"
+                            @moved="handleWindowMoved" @resized="handleWindowResized">
                             <div class="window-inner-content">
                                 <DesktopMyApps v-if="win.content === 'my-apps'" @open-console="openInstanceConsole" />
 
@@ -732,18 +880,14 @@ const username = computed(() => appState.userInfo?.userName || "User");
                             </div>
                         </DesktopWindow>
                     </TransitionGroup>
-
                     <DesktopTaskbar :windows="taskbarWindows" :username="username" @toggle-window="toggleWindow"
                         @exit-desktop="exitDesktop" @open-user-info="openUserInfoWindow"
                         @reorder-windows="handleReorderWindows" />
-
                     <DesktopContextMenu :visible="ctxMenu.visible" :x="ctxMenu.x" :y="ctxMenu.y" :items="ctxMenuItems"
                         @close="closeContextMenu" />
                 </div>
             </template>
         </Transition>
-
-
         <DesktopLoginWindow v-if="showLoginOverlay" @login-success="handleLoginSuccess" />
     </div>
 </template>

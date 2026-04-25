@@ -40,7 +40,7 @@ const emit = defineEmits<{
     (e: "close", id: string): void;
     (e: "minimize", id: string): void;
     (e: "maximize", id: string): void;
-    (e: "focus", id: string): void;
+    (e: "focus", id: string): void; (e: "moved", id: string, x: number, y: number): void; (e: "resized", id: string, x: number, y: number, width: number, height: number): void;
 }>();
 
 const x = ref(props.initialX);
@@ -100,8 +100,14 @@ const onMouseMove = (e: MouseEvent) => {
 };
 
 const onMouseUp = () => {
-    isDragging.value = false;
-    isResizing.value = false;
+    if (isDragging.value) {
+        isDragging.value = false;
+        emit("moved", props.id, x.value, y.value);
+    }
+    if (isResizing.value) {
+        isResizing.value = false;
+        emit("resized", props.id, x.value, y.value, width.value, height.value);
+    }
 };
 
 const onResizeStart = (e: MouseEvent) => {

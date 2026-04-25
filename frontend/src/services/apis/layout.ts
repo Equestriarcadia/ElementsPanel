@@ -33,3 +33,21 @@ export const uploadFile = useDefineApi<
   headers: { "Content-Type": "multipart/form-data" },
   url: "/api/overview/upload_assets"
 });
+
+export const getDesktopLayoutConfig = useDefineApi<any, any>({
+  url: "/api/overview/desktop_layout",
+  method: "GET"
+});
+
+export const setDesktopLayoutConfig = useDefineApi<
+  {
+    data: any;
+  },
+  any
+>({
+  url: "/api/overview/desktop_layout",
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json"
+  }
+});

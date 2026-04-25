@@ -11,6 +11,10 @@ import { $t, i18next } from "../i18n";
 import { speedLimit } from "../middleware/limit";
 import permission from "../middleware/permission";
 import {
+  getDesktopLayout,
+  setDesktopLayout
+} from "../service/desktop_layout_service";
+import {
   getFrontendLayoutConfig,
   resetFrontendLayoutConfig,
   setFrontendLayoutConfig
@@ -225,6 +229,33 @@ router.delete("/layout", permission({ level: ROLE.ADMIN }), async (ctx) => {
   ctx.body = true;
 });
 
+// [Logged-in User]
+// Get user's desktop window layout
+router.get("/desktop_layout", permission({ level: ROLE.USER }), async (ctx) => {
+  const userUuid = ctx.session?.["uuid"];
+  if (!userUuid) {
+    ctx.status = 403;
+    ctx.body = "User not logged in";
+    return;
+  }
+  const layout = getDesktopLayout(userUuid);
+  ctx.body = layout || { windows: [], updatedAt: 0 };
+});
+
+// [Logged-in User]
+// Save user's desktop window layout
+router.post("/desktop_layout", permission({ level: ROLE.USER }), async (ctx) => {
+  const userUuid = ctx.session?.["uuid"];
+  if (!userUuid) {
+    ctx.status = 403;
+    ctx.body = "User not logged in";
+    return;
+  }
+  const layout = ctx.request.body;
+  setDesktopLayout(userUuid, layout);
+  ctx.body = true;
+});
+
 // [Top-level Permission]
 // Upload file to asserts directory, only administrator can upload
 router.post("/upload_assets", permission({ level: ROLE.ADMIN }), async (ctx) => {
@@ -249,10 +280,10 @@ router.post("/upload_assets", permission({ level: ROLE.ADMIN }), async (ctx) => 
   } finally {
     if (Array.isArray(files)) {
       files.forEach((v) => {
-        if (v?.filepath) fs.remove(v.filepath, () => {});
+        if (v?.filepath) fs.remove(v.filepath, () => { });
       });
     } else {
-      if (tmpFile?.filepath) fs.remove(tmpFile.filepath, () => {});
+      if (tmpFile?.filepath) fs.remove(tmpFile.filepath, () => { });
     }
   }
 });
