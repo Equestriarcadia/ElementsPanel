@@ -96,7 +96,7 @@ watch(instanceInfo, (val) => {
                 </a-form-item>
             </a-form>
             <div v-else class="devent-config__loading">
-                {{ t("TXT_CODE_LOADING") }}
+                {{ t("TXT_CODE_b197be11") }}
             </div>
         </div>
         <div class="devent-config__footer">

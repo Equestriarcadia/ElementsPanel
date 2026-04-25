@@ -143,7 +143,7 @@ watch(instanceInfo, (val) => {
                 </a-row>
             </a-form>
             <div v-else class="dterm-config__loading">
-                {{ t("TXT_CODE_LOADING") }}
+                {{ t("TXT_CODE_b197be11") }}
             </div>
         </div>
         <div class="dterm-config__footer">
