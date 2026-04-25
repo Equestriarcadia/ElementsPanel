@@ -205,7 +205,12 @@ onUnmounted(() => {
     display: flex;
     flex-direction: column;
     overflow: hidden;
-    transition: border-radius 0.2s ease, box-shadow 0.2s ease;
+    transition: left 0.25s ease,
+        top 0.25s ease,
+        width 0.25s ease,
+        height 0.25s ease,
+        border-radius 0.25s ease,
+        box-shadow 0.25s ease;
 
     &--active {
         border-color: rgba(255, 255, 255, 0.12);
