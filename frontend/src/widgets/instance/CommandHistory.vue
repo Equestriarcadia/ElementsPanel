@@ -76,7 +76,8 @@ onMounted(() => {
 <style scoped lang="scss">
 .history-container {
     height: 100%;
-    overflow-y: auto;
+    overflow-x: auto;
+    overflow-y: hidden;
     padding: 4px 0;
 }
 
@@ -88,9 +89,9 @@ onMounted(() => {
 
 .history-list {
     display: flex;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
     gap: 6px;
-    align-content: flex-start;
+    align-items: center;
 }
 
 .history-item {
@@ -103,6 +104,7 @@ onMounted(() => {
     background-color: var(--color-gray-2);
     border: 1px solid var(--color-gray-3);
     max-width: 100%;
+    flex-shrink: 0;
 
     &:hover {
         background-color: var(--color-gray-4);

@@ -93,8 +93,8 @@ const onMouseDownTitlebar = (e: MouseEvent) => {
 
 const onMouseMove = (e: MouseEvent) => {
     if (isDragging.value) {
-        x.value = Math.max(0, e.clientX - dragOffset.value.x);
-        y.value = Math.max(0, e.clientY - dragOffset.value.y);
+        x.value = e.clientX - dragOffset.value.x;
+        y.value = e.clientY - dragOffset.value.y;
     }
     if (isResizing.value && props.resizable) {
         width.value = Math.max(400, resizeStart.value.w + (e.clientX - resizeStart.value.x));
@@ -159,7 +159,8 @@ onUnmounted(() => {
     <div v-show="visible && !minimized" class="desktop-window" :class="{
         'desktop-window--active': active,
         'desktop-window--maximized': maximized,
-        'desktop-window--dragging': isDragging
+        'desktop-window--dragging': isDragging,
+        'desktop-window--resizing': isResizing
     }" :style="windowStyle" @mousedown="handleFocus">
         <!-- Title Bar -->
         <div class="window__titlebar" @mousedown="onMouseDownTitlebar" @dblclick="handleMaximize">
@@ -217,7 +218,8 @@ onUnmounted(() => {
         box-shadow: 0 12px 48px rgba(0, 0, 0, 0.45);
     }
 
-    &--dragging {
+    &--dragging,
+    &--resizing {
         transition: none;
     }
 
