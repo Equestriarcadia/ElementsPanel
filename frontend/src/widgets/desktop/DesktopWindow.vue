@@ -40,7 +40,9 @@ const emit = defineEmits<{
     (e: "close", id: string): void;
     (e: "minimize", id: string): void;
     (e: "maximize", id: string): void;
-    (e: "focus", id: string): void; (e: "moved", id: string, x: number, y: number): void; (e: "resized", id: string, x: number, y: number, width: number, height: number): void;
+    (e: "focus", id: string): void;
+    (e: "moved", id: string, x: number, y: number): void;
+    (e: "resized", id: string, x: number, y: number, width: number, height: number): void;
 }>();
 
 const x = ref(props.initialX);
@@ -85,7 +87,8 @@ const onMouseDownTitlebar = (e: MouseEvent) => {
         x: e.clientX - x.value,
         y: e.clientY - y.value
     };
-    emit("focus", props.id); e.preventDefault();
+    emit("focus", props.id);
+    e.preventDefault();
 };
 
 const onMouseMove = (e: MouseEvent) => {
@@ -153,46 +156,43 @@ onUnmounted(() => {
 </script>
 
 <template>
-    <Transition name="desktop-window">
-        <div v-show="visible && !minimized" class="desktop-window" :class="{
-            'desktop-window--active': active,
-            'desktop-window--maximized': maximized,
-            'desktop-window--dragging': isDragging
-        }" :style="windowStyle" @mousedown="handleFocus">
-            <!-- Title Bar -->
-            <div class="window__titlebar" @mousedown="onMouseDownTitlebar" @dblclick="handleMaximize">
-                <div class="window__titlebar-left">
-                    <span class="window__icon">
-                        <component :is="icon" v-if="isComponentIcon" />
-                        <img v-else :src="icon as string" alt="icon" />
-                    </span>
-                    <span class="window__title">{{ title }}</span>
+    <div v-show="visible && !minimized" class="desktop-window" :class="{
+        'desktop-window--active': active,
+        'desktop-window--maximized': maximized,
+        'desktop-window--dragging': isDragging
+    }" :style="windowStyle" @mousedown="handleFocus">
+        <!-- Title Bar -->
+        <div class="window__titlebar" @mousedown="onMouseDownTitlebar" @dblclick="handleMaximize">
+            <div class="window__titlebar-left">
+                <span class="window__icon">
+                    <component :is="icon" v-if="isComponentIcon" />
+                    <img v-else :src="icon as string" alt="icon" />
+                </span>
+                <span class="window__title">{{ title }}</span>
+            </div>
+            <div class="window__controls">
+                <div v-if="showMinimize" class="window__control window__control--minimize"
+                    @click.stop="emit('minimize', id)">
+                    <MinusOutlined />
                 </div>
-                <div class="window__controls">
-                    <div v-if="showMinimize" class="window__control window__control--minimize"
-                        @click.stop="emit('minimize', id)">
-                        <MinusOutlined />
-                    </div>
-                    <div v-if="showMaximize" class="window__control window__control--maximize"
-                        @click.stop="handleMaximize">
-                        <FullscreenExitOutlined v-if="maximized" />
-                        <FullscreenOutlined v-else />
-                    </div>
-                    <div class="window__control window__control--close" @click.stop="emit('close', id)">
-                        <CloseOutlined />
-                    </div>
+                <div v-if="showMaximize" class="window__control window__control--maximize" @click.stop="handleMaximize">
+                    <FullscreenExitOutlined v-if="maximized" />
+                    <FullscreenOutlined v-else />
+                </div>
+                <div class="window__control window__control--close" @click.stop="emit('close', id)">
+                    <CloseOutlined />
                 </div>
             </div>
-
-            <!-- Content -->
-            <div class="window__content">
-                <slot></slot>
-            </div>
-
-            <!-- Resize Handle -->
-            <div v-if="!maximized && resizable" class="window__resize-handle" @mousedown="onResizeStart"></div>
         </div>
-    </Transition>
+
+        <!-- Content -->
+        <div class="window__content">
+            <slot></slot>
+        </div>
+
+        <!-- Resize Handle -->
+        <div v-if="!maximized && resizable" class="window__resize-handle" @mousedown="onResizeStart"></div>
+    </div>
 </template>
 
 <style lang="scss" scoped>
@@ -321,23 +321,5 @@ onUnmounted(() => {
         border-right: 2px solid rgba(255, 255, 255, 0.2);
         border-bottom: 2px solid rgba(255, 255, 255, 0.2);
     }
-}
-
-.desktop-window-enter-active {
-    transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-
-.desktop-window-leave-active {
-    transition: all 0.2s ease-in;
-}
-
-.desktop-window-enter-from {
-    opacity: 0;
-    transform: scale(0.9);
-}
-
-.desktop-window-leave-to {
-    opacity: 0;
-    transform: scale(0.9);
 }
 </style>

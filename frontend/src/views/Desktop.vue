@@ -15,6 +15,7 @@ import DesktopInstanceConsole from "@/widgets/desktop/DesktopInstanceConsole.vue
 import DesktopInstanceManager from "@/widgets/desktop/DesktopInstanceManager.vue";
 import DesktopLoginWindow from "@/widgets/desktop/DesktopLoginWindow.vue";
 import DesktopMarket from "@/widgets/desktop/DesktopMarket.vue";
+import DesktopMcPing from "@/widgets/desktop/DesktopMcPing.vue";
 import DesktopMyApps from "@/widgets/desktop/DesktopMyApps.vue";
 import DesktopNewInstance from "@/widgets/desktop/DesktopNewInstance.vue";
 import DesktopNodeManager from "@/widgets/desktop/DesktopNodeManager.vue";
@@ -267,7 +268,8 @@ const ICON_MAP: Record<string, Component> = {
     "event-config": markRaw(DashboardOutlined),
     "term-config": markRaw(CodeOutlined),
     "new-instance": markRaw(DesktopOutlined),
-    "user-info": markRaw(UserOutlined)
+    "user-info": markRaw(UserOutlined),
+    "mc-ping": markRaw(CodeOutlined)
 };
 
 const loadDesktopLayout = async () => {
@@ -573,6 +575,40 @@ const openTermConfigWindow = (instanceId: string, daemonId: string) => {
     saveDesktopLayout();
 };
 
+const openMcPingWindow = (instanceId: string, daemonId: string) => {
+    const windowId = `mc-ping-${instanceId}`;
+    const existing = windows.get(windowId);
+
+    if (existing) {
+        existing.minimized = false;
+        existing.visible = true;
+        focusWindow(windowId);
+        return;
+    }
+
+    windowOffset = (windowOffset + 1) % 8;
+    const offsetX = 120 + windowOffset * 30;
+    const offsetY = 80 + windowOffset * 30;
+
+    windows.set(windowId, {
+        id: windowId,
+        title: t("TXT_CODE_40241d8e"),
+        icon: markRaw(CodeOutlined),
+        visible: true,
+        minimized: false,
+        maximized: false,
+        zIndex: ++nextZIndex,
+        content: "mc-ping",
+        initialX: offsetX,
+        initialY: offsetY,
+        initialWidth: 500,
+        initialHeight: 400,
+        instanceId: instanceId,
+        daemonId: daemonId
+    });
+    saveDesktopLayout();
+};
+
 const openNewInstanceWindow = () => {
     const windowId = "new-instance";
     const existing = windows.get(windowId);
@@ -830,8 +866,8 @@ const username = computed(() => appState.userInfo?.userName || "User");
                                     :instance-id="win.instanceId" :daemon-id="win.daemonId"
                                     @open-server-config="openServerConfigWindow"
                                     @open-file-manager="openFileManagerWindow" @open-schedule="openScheduleWindow"
-                                    @open-event-config="openEventConfigWindow"
-                                    @open-term-config="openTermConfigWindow" />
+                                    @open-event-config="openEventConfigWindow" @open-term-config="openTermConfigWindow"
+                                    @open-mc-ping="openMcPingWindow" />
 
                                 <DesktopServerConfig
                                     v-else-if="win.content === 'server-config' && win.instanceId && win.daemonId && win.type"
@@ -848,6 +884,10 @@ const username = computed(() => appState.userInfo?.userName || "User");
 
                                 <DesktopTermConfig
                                     v-else-if="win.content === 'term-config' && win.instanceId && win.daemonId"
+                                    :instance-id="win.instanceId" :daemon-id="win.daemonId"
+                                    @close="closeWindow(win.id)" />
+
+                                <DesktopMcPing v-else-if="win.content === 'mc-ping' && win.instanceId && win.daemonId"
                                     :instance-id="win.instanceId" :daemon-id="win.daemonId"
                                     @close="closeWindow(win.id)" />
 
@@ -1006,19 +1046,15 @@ const username = computed(() => appState.userInfo?.userName || "User");
 }
 
 .terminal-cursor {
-    color: #c9d1d9;
-    animation: blink 1s infinite;
+    display: inline-block;
+    width: 8px;
+    height: 14px;
+    background: #58a6ff;
+    animation: blink 1s step-end infinite;
 }
 
 @keyframes blink {
-
-    0%,
     50% {
-        opacity: 1;
-    }
-
-    51%,
-    100% {
         opacity: 0;
     }
 }
@@ -1039,22 +1075,5 @@ const username = computed(() => appState.userInfo?.userName || "User");
 .desktop-window-group-leave-to {
     opacity: 0;
     transform: scale(0.9);
-}
-
-.desktop-fade-enter-active,
-.desktop-fade-leave-active {
-    transition: opacity 0.5s ease, transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.desktop-fade-enter-from,
-.desktop-fade-leave-to {
-    opacity: 0;
-    transform: scale(1.02);
-}
-
-.desktop-content-wrapper {
-    position: absolute;
-    inset: 0;
-    z-index: 1;
 }
 </style>

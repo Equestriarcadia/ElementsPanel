@@ -42,6 +42,7 @@ const emit = defineEmits<{
     (e: "open-schedule"): void;
     (e: "open-event-config"): void;
     (e: "open-term-config"): void;
+    (e: "open-mc-ping"): void;
 }>();
 
 const { isAdmin, state } = useAppStateStore();
@@ -197,7 +198,7 @@ const btns = computed(() => {
             title: t("TXT_CODE_40241d8e"),
             icon: UsergroupDeleteOutlined,
             click: () => {
-                mcSettingsDialog.value?.openDialog();
+                emit("open-mc-ping");
             },
             condition: () => instanceInfo.value?.config.type.includes(TYPE_MINECRAFT_JAVA) ?? false
         },
