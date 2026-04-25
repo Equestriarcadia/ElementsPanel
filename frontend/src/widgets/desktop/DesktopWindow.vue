@@ -52,8 +52,9 @@ const height = ref(props.initialHeight);
 
 const isDragging = ref(false);
 const isResizing = ref(false);
+const resizeDirection = ref("");
 const dragOffset = ref({ x: 0, y: 0 });
-const resizeStart = ref({ x: 0, y: 0, w: 0, h: 0 });
+const resizeStart = ref({ x: 0, y: 0, w: 0, h: 0, winX: 0, winY: 0 });
 
 const savedPos = ref({ x: props.initialX, y: props.initialY, w: props.initialWidth, h: props.initialHeight });
 
@@ -97,8 +98,33 @@ const onMouseMove = (e: MouseEvent) => {
         y.value = e.clientY - dragOffset.value.y;
     }
     if (isResizing.value && props.resizable) {
-        width.value = Math.max(400, resizeStart.value.w + (e.clientX - resizeStart.value.x));
-        height.value = Math.max(300, resizeStart.value.h + (e.clientY - resizeStart.value.y));
+        const dx = e.clientX - resizeStart.value.x;
+        const dy = e.clientY - resizeStart.value.y;
+
+        let newWidth = resizeStart.value.w;
+        let newHeight = resizeStart.value.h;
+        let newX = resizeStart.value.winX;
+        let newY = resizeStart.value.winY;
+
+        if (resizeDirection.value.includes('e')) {
+            newWidth = Math.max(400, resizeStart.value.w + dx);
+        }
+        if (resizeDirection.value.includes('s')) {
+            newHeight = Math.max(300, resizeStart.value.h + dy);
+        }
+        if (resizeDirection.value.includes('w')) {
+            newWidth = Math.max(400, resizeStart.value.w - dx);
+            newX = resizeStart.value.winX + (resizeStart.value.w - newWidth);
+        }
+        if (resizeDirection.value.includes('n')) {
+            newHeight = Math.max(300, resizeStart.value.h - dy);
+            newY = resizeStart.value.winY + (resizeStart.value.h - newHeight);
+        }
+
+        width.value = newWidth;
+        height.value = newHeight;
+        x.value = newX;
+        y.value = newY;
     }
 };
 
@@ -113,14 +139,17 @@ const onMouseUp = () => {
     }
 };
 
-const onResizeStart = (e: MouseEvent) => {
+const onResizeStart = (e: MouseEvent, dir: string) => {
     if (props.maximized || !props.resizable) return;
     isResizing.value = true;
+    resizeDirection.value = dir;
     resizeStart.value = {
         x: e.clientX,
         y: e.clientY,
         w: width.value,
-        h: height.value
+        h: height.value,
+        winX: x.value,
+        winY: y.value
     };
     emit("focus", props.id);
     e.preventDefault();
@@ -191,8 +220,13 @@ onUnmounted(() => {
             <slot></slot>
         </div>
 
-        <!-- Resize Handle -->
-        <div v-if="!maximized && resizable" class="window__resize-handle" @mousedown="onResizeStart"></div>
+        <!-- Resize Handles -->
+        <template v-if="!maximized && resizable">
+            <div class="window__resize-handle window__resize-handle--nw" @mousedown="onResizeStart($event, 'nw')"></div>
+            <div class="window__resize-handle window__resize-handle--ne" @mousedown="onResizeStart($event, 'ne')"></div>
+            <div class="window__resize-handle window__resize-handle--sw" @mousedown="onResizeStart($event, 'sw')"></div>
+            <div class="window__resize-handle window__resize-handle--se" @mousedown="onResizeStart($event, 'se')"></div>
+        </template>
     </div>
 </template>
 
@@ -306,22 +340,43 @@ onUnmounted(() => {
 
 .window__resize-handle {
     position: absolute;
-    bottom: 0;
-    right: 0;
-    width: 16px;
-    height: 16px;
-    cursor: nwse-resize;
+    width: 12px;
+    height: 12px;
     z-index: 10;
 
-    &::after {
-        content: "";
-        position: absolute;
-        bottom: 3px;
-        right: 3px;
-        width: 8px;
-        height: 8px;
-        border-right: 2px solid rgba(255, 255, 255, 0.2);
-        border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+    &--nw {
+        top: 0;
+        left: 0;
+        cursor: nwse-resize;
+    }
+
+    &--ne {
+        top: 0;
+        right: 0;
+        cursor: nesw-resize;
+    }
+
+    &--sw {
+        bottom: 0;
+        left: 0;
+        cursor: nesw-resize;
+    }
+
+    &--se {
+        bottom: 0;
+        right: 0;
+        cursor: nwse-resize;
+
+        &::after {
+            content: "";
+            position: absolute;
+            bottom: 3px;
+            right: 3px;
+            width: 8px;
+            height: 8px;
+            border-right: 2px solid rgba(255, 255, 255, 0.2);
+            border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+        }
     }
 }
 </style>
