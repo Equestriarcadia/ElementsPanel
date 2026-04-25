@@ -204,8 +204,8 @@ const openInstanceConsole = (instance: any, daemonId: string) => {
         content: "instance-console",
         initialX: offsetX,
         initialY: offsetY,
-        initialWidth: 800,
-        initialHeight: 500,
+        initialWidth: 1000,
+        initialHeight: 650,
         instanceId: instance.instanceUuid,
         daemonId: daemonId
     });

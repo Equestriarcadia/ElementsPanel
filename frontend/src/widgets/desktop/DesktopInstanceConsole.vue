@@ -32,6 +32,7 @@ import { Modal } from "ant-design-vue";
 import { computed, h, onUnmounted } from "vue";
 import { GLOBAL_INSTANCE_NAME } from "../../config/const";
 import { arrayFilter } from "../../tools/array";
+import DesktopManagerBtns from "./DesktopManagerBtns.vue";
 
 const props = defineProps<{
     instanceId: string;
@@ -299,6 +300,7 @@ onUnmounted(() => {
             <TerminalCore :use-terminal-hook="terminalHook" :instance-id="instanceId" :daemon-id="daemonId"
                 height="100%" />
         </div>
+        <DesktopManagerBtns :instance-id="instanceId" :daemon-id="daemonId" />
     </div>
 </template>
 
