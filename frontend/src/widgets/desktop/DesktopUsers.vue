@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { t } from "@/lang/i18n";
-import { addUser as addUserApi, deleteUser as deleteUserApi, editUserInfo as editUserInfoApi, getUserInfo as getUserInfoApi, remoteInstances, remoteNodeList, updateUserInstance } from "@/services/apis";
+import { addUser as addUserApi, deleteUser as deleteUserApi, editUserInfo as editUserInfoApi, getUserInfo as getUserInfoApi, remoteInstances, remoteNodeList, updateUserInstance, userInfoApiAdvanced } from "@/services/apis";
 import { computeNodeName } from "@/tools/nodes";
 import type { NodeStatus } from "@/types";
 import { INSTANCE_STATUS } from "@/types/const";
@@ -27,6 +27,7 @@ const { execute: addUserApiExec } = addUserApi();
 const { execute: editUserApiExec } = editUserInfoApi();
 const { execute: deleteUserApiExec } = deleteUserApi();
 const { execute: updateUserInstanceExec } = updateUserInstance();
+const { execute: fetchUserAdvanced } = userInfoApiAdvanced();
 
 const users = ref<BaseUserInfo[]>([]);
 const total = ref(0);
@@ -231,7 +232,24 @@ const cancelDelete = () => {
 
 const openAssignDialog = async (user: BaseUserInfo) => {
     assignTargetUser.value = user;
-    assignedInstances.value = user.instances ? [...user.instances] : [];
+    try {
+        const res = await fetchUserAdvanced({
+            params: { uuid: user.uuid, advanced: true }
+        });
+        if (res?.value?.instances) {
+            assignedInstances.value = res.value.instances.map((inst: any) => ({
+                instanceUuid: inst.instanceUuid,
+                daemonId: inst.daemonId,
+                nickname: inst.nickname || inst.config?.nickname || t("TXT_CODE_DESKTOP_IM_UNNAMED"),
+                status: inst.status ?? 0,
+                hostIp: inst.hostIp || ""
+            }));
+        } else {
+            assignedInstances.value = [];
+        }
+    } catch {
+        assignedInstances.value = user.instances ? [...user.instances] : [];
+    }
     assignForm.instanceName = "";
     assignForm.currentPage = 1;
     assignForm.status = "";

@@ -13,6 +13,7 @@ import DesktopInstanceConsole from "@/widgets/desktop/DesktopInstanceConsole.vue
 import DesktopInstanceManager from "@/widgets/desktop/DesktopInstanceManager.vue";
 import DesktopLoginWindow from "@/widgets/desktop/DesktopLoginWindow.vue";
 import DesktopMarket from "@/widgets/desktop/DesktopMarket.vue";
+import DesktopMyApps from "@/widgets/desktop/DesktopMyApps.vue";
 import DesktopNewInstance from "@/widgets/desktop/DesktopNewInstance.vue";
 import DesktopNodeManager from "@/widgets/desktop/DesktopNodeManager.vue";
 import DesktopOverview from "@/widgets/desktop/DesktopOverview.vue";
@@ -26,6 +27,7 @@ import DesktopUserInfo from "@/widgets/desktop/DesktopUserInfo.vue";
 import DesktopUsers from "@/widgets/desktop/DesktopUsers.vue";
 import DesktopWindow from "@/widgets/desktop/DesktopWindow.vue";
 import {
+    AppstoreOutlined,
     ClusterOutlined,
     CodeOutlined,
     ControlOutlined,
@@ -154,7 +156,15 @@ const desktopApps = computed<DesktopApp[]>(() => {
     ];
 
     if (!isAdmin.value) {
-        return apps.filter((a) => ["instances", "settings"].includes(a.id));
+        return [
+            {
+                id: "my-apps",
+                label: t("TXT_CODE_DESKTOP_MY_APPS"),
+                icon: markRaw(AppstoreOutlined),
+                color: "#1677ff",
+                windowContent: "my-apps"
+            }
+        ];
     }
     return apps;
 });
@@ -588,7 +598,9 @@ const username = computed(() => appState.userInfo?.userName || "User");
                             :initial-height="win.initialHeight" :z-index="win.zIndex" @close="closeWindow"
                             @minimize="minimizeWindow" @maximize="maximizeWindow" @focus="focusWindow">
                             <div class="window-inner-content">
-                                <DesktopInstanceManager v-if="win.content === 'instances'"
+                                <DesktopMyApps v-if="win.content === 'my-apps'" @open-console="openInstanceConsole" />
+
+                                <DesktopInstanceManager v-else-if="win.content === 'instances'"
                                     @open-console="openInstanceConsole" @open-new-instance="openNewInstanceWindow" />
 
                                 <DesktopNewInstance v-else-if="win.content === 'new-instance'"
