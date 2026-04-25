@@ -84,7 +84,9 @@ const {
     toDisk,
     oneSelected,
     isImage,
-    showImage
+    showImage,
+    pushSelected,
+    selectionData
 } = useFileManager(props.instanceId, props.daemonId, props.sessionId || "");
 
 const { openRightClickMenu } = useRightClickMenu();
@@ -356,6 +358,131 @@ const downloadFromURLFile = async () => {
     await downloadFromUrl(data);
 };
 
+const tableBodyRef = ref<HTMLElement | null>(null);
+const isDragSelecting = ref(false);
+const dragSelectStart = ref({ x: 0, y: 0 });
+const dragSelectRect = ref({ x: 0, y: 0, w: 0, h: 0 });
+const dragSelectVisible = ref(false);
+
+const getTableBodyEl = (): HTMLElement | null => {
+    return document.querySelector('.dfm .ant-table-tbody');
+};
+
+const getRowEls = (): NodeListOf<HTMLElement> => {
+    return document.querySelectorAll('.dfm .ant-table-tbody tr.ant-table-row');
+};
+
+const getRowDataKey = (rowEl: HTMLElement): string | null => {
+    return rowEl.getAttribute('data-row-key');
+};
+
+const getTableWrapperEl = (): HTMLElement | null => {
+    return document.querySelector('.dfm-table-wrapper');
+};
+
+const onTableMouseDown = (e: MouseEvent) => {
+    if (e.button !== 0) return;
+    const target = e.target as HTMLElement;
+    if (target.closest('.ant-table-cell-fix-right') ||
+        target.closest('.ant-checkbox') ||
+        target.closest('.ant-btn') ||
+        target.closest('.ant-dropdown-trigger') ||
+        target.closest('.ant-input') ||
+        target.closest('.ant-select') ||
+        target.closest('.ant-pagination') ||
+        target.closest('.ant-tabs') ||
+        target.closest('.ant-breadcrumb') ||
+        target.closest('.dfm-toolbar') ||
+        target.closest('.dfm-nav') ||
+        target.closest('.dfm-upload-progress') ||
+        target.closest('.dfm-task-info')) {
+        return;
+    }
+
+    const tableBody = getTableBodyEl();
+    if (!tableBody || !tableBody.contains(target)) return;
+
+    const wrapper = getTableWrapperEl();
+    if (!wrapper) return;
+
+    const wrapperRect = wrapper.getBoundingClientRect();
+    isDragSelecting.value = true;
+    dragSelectStart.value = { x: e.clientX, y: e.clientY };
+    dragSelectRect.value = {
+        x: e.clientX - wrapperRect.left,
+        y: e.clientY - wrapperRect.top,
+        w: 0,
+        h: 0
+    };
+    dragSelectVisible.value = true;
+
+    selectChanged([], []);
+
+    e.preventDefault();
+    e.stopPropagation();
+};
+
+const onTableMouseMove = (e: MouseEvent) => {
+    if (!isDragSelecting.value) return;
+
+    const wrapper = getTableWrapperEl();
+    if (!wrapper) return;
+
+    const wrapperRect = wrapper.getBoundingClientRect();
+    const currentX = e.clientX - wrapperRect.left;
+    const currentY = e.clientY - wrapperRect.top;
+
+    const startX = dragSelectStart.value.x - wrapperRect.left;
+    const startY = dragSelectStart.value.y - wrapperRect.top;
+
+    dragSelectRect.value = {
+        x: Math.min(startX, currentX),
+        y: Math.min(startY, currentY),
+        w: Math.abs(currentX - startX),
+        h: Math.abs(currentY - startY)
+    };
+
+    const selRect = {
+        left: dragSelectRect.value.x,
+        top: dragSelectRect.value.y,
+        right: dragSelectRect.value.x + dragSelectRect.value.w,
+        bottom: dragSelectRect.value.y + dragSelectRect.value.h
+    };
+
+    const rows = getRowEls();
+    const newlySelected: string[] = [];
+    const newlySelectedRows: DataType[] = [];
+
+    rows.forEach((row) => {
+        const rowRect = row.getBoundingClientRect();
+        const rowRelTop = rowRect.top - wrapperRect.top;
+        const rowRelBottom = rowRect.bottom - wrapperRect.top;
+
+        if (rowRelBottom > selRect.top && rowRelTop < selRect.bottom) {
+            const key = getRowDataKey(row);
+            if (key && dataSource.value) {
+                const found = dataSource.value.find(d => d.name === key);
+                if (found) {
+                    newlySelected.push(key);
+                    newlySelectedRows.push(found);
+                }
+            }
+        }
+    });
+
+    selectedRowKeys.value = newlySelected;
+    if (selectionData.value) {
+        selectionData.value = newlySelectedRows;
+    }
+};
+
+const onTableMouseUp = () => {
+    if (isDragSelecting.value) {
+        isDragSelecting.value = false;
+        dragSelectVisible.value = false;
+    }
+};
+
 onMounted(async () => {
     await getFileStatus();
     dialog.value.loading = true;
@@ -369,11 +496,16 @@ onMounted(async () => {
     }
 
     dialog.value.loading = false;
+
+    document.addEventListener('mousemove', onTableMouseMove);
+    document.addEventListener('mouseup', onTableMouseUp);
 });
 
 onUnmounted(() => {
     if (task) clearInterval(task);
     task = undefined;
+    document.removeEventListener('mousemove', onTableMouseMove);
+    document.removeEventListener('mouseup', onTableMouseUp);
 });
 </script>
 
@@ -517,51 +649,56 @@ onUnmounted(() => {
 
             <!-- File Table -->
             <a-spin :spinning="spinning">
-                <a-table :row-selection="{
-                    selectedRowKeys: selectedRowKeys,
-                    onChange: selectChanged
-                }" :row-key="(record: DataType) => record.name" :data-source="dataSource" :columns="columns"
-                    :scroll="{ x: 'max-content' }" size="small" :pagination="{
-                        current: operationForm.current,
-                        pageSize: operationForm.pageSize,
-                        total: operationForm.total,
-                        hideOnSinglePage: false,
-                        showSizeChanger: true
-                    }" :custom-row="(record: DataType) => {
-                        return {
-                            onContextmenu: (e: MouseEvent) => handleRightClickRow(e, record as DataType)
-                        };
-                    }
-                        " @change="
+                <div class="dfm-table-wrapper" @mousedown="onTableMouseDown">
+                    <a-table :row-selection="{
+                        selectedRowKeys: selectedRowKeys,
+                        onChange: selectChanged
+                    }" :row-key="(record: DataType) => record.name" :data-source="dataSource" :columns="columns"
+                        :scroll="{ x: 'max-content' }" size="small" :pagination="{
+                            current: operationForm.current,
+                            pageSize: operationForm.pageSize,
+                            total: operationForm.total,
+                            hideOnSinglePage: false,
+                            showSizeChanger: true
+                        }" :custom-row="(record: DataType) => {
+                            return {
+                                onContextmenu: (e: MouseEvent) => handleRightClickRow(e, record as DataType),
+                                ondblclick: () => handleClickFile(record as DataType)
+                            };
+                        }" @change="
                             (e: any) =>
                                 handleTableChange({ current: e.current || 0, pageSize: e.pageSize || 0 })
                         ">
-                    <template #bodyCell="{ column, record }">
-                        <template v-if="column.key === 'name'">
-                            <a-button type="link" class="dfm-file-name" @click="handleClickFile(record as DataType)">
-                                <span class="mr-4">
-                                    <component :is="getFileIcon(record.name, record.type)" style="font-size: 16px" />
-                                </span>
-                                {{ record.name }}
-                            </a-button>
-                        </template>
-                        <template v-if="column.key === 'action'">
-                            <a-space>
-                                <a-tooltip v-for="(item, i) in (menuList(record as DataType) as any).filter(
-                                    (menu: any) => !menu.children
-                                )" :key="i" :title="item.label">
-                                    <a-button :icon="item.icon" type="text" size="small" :style="item.style" @click="
-                                        () => {
-                                            oneSelected(record.name, record as DataType);
-                                            item.onClick();
-                                        }
-                                    ">
+                        <template #bodyCell="{ column, record }">
+                            <template v-if="column.key === 'name'">
+                                <a-button type="link" class="dfm-file-name"
+                                    @click="handleClickFile(record as DataType)">
+                                    <span class="mr-4">
+                                        <component :is="getFileIcon(record.name, record.type)"
+                                            style="font-size: 16px" />
+                                    </span>
+                                    {{ record.name }}
+                                </a-button>
+                            </template>
+                            <template v-if="column.key === 'action'">
+                                <a-dropdown>
+                                    <template #overlay>
+                                        <a-menu mode="vertical" :items="menuList(record as DataType)"></a-menu>
+                                    </template>
+                                    <a-button size="small" type="text" class="dfm-action-btn">
+                                        <DownOutlined />
                                     </a-button>
-                                </a-tooltip>
-                            </a-space>
+                                </a-dropdown>
+                            </template>
                         </template>
-                    </template>
-                </a-table>
+                    </a-table>
+                    <div v-if="dragSelectVisible" class="dfm-drag-select-rect" :style="{
+                        left: dragSelectRect.x + 'px',
+                        top: dragSelectRect.y + 'px',
+                        width: dragSelectRect.w + 'px',
+                        height: dragSelectRect.h + 'px'
+                    }"></div>
+                </div>
             </a-spin>
         </div>
 
@@ -651,7 +788,6 @@ onUnmounted(() => {
     justify-content: space-between;
     gap: 8px;
     padding: 8px 12px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
     flex-shrink: 0;
     flex-wrap: wrap;
 
@@ -675,7 +811,6 @@ onUnmounted(() => {
 
 .dfm-upload-progress {
     padding: 6px 12px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
     flex-shrink: 0;
 
     &__info {
@@ -745,6 +880,33 @@ onUnmounted(() => {
     flex-wrap: wrap;
 }
 
+.dfm-table-wrapper {
+    position: relative;
+    user-select: none;
+}
+
+.dfm-drag-select-rect {
+    position: absolute;
+    background: rgba(22, 119, 255, 0.12);
+    border: 1px solid rgba(22, 119, 255, 0.4);
+    border-radius: 3px;
+    pointer-events: none;
+    z-index: 10;
+}
+
+.dfm-action-btn {
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 11px;
+    padding: 0 4px;
+    min-width: 20px;
+    height: 20px;
+
+    &:hover {
+        color: rgba(255, 255, 255, 0.85);
+        background: rgba(255, 255, 255, 0.08);
+    }
+}
+
 :deep(.ant-tabs-nav) {
     margin-bottom: 8px !important;
 }
@@ -763,12 +925,13 @@ onUnmounted(() => {
     border-bottom: 1px solid rgba(255, 255, 255, 0.06) !important;
     color: rgba(255, 255, 255, 0.6) !important;
     font-size: 11px !important;
-    padding: 8px 12px !important;
+    padding: 6px 10px !important;
 }
 
 :deep(.ant-table-tbody > tr > td) {
     border-bottom: 1px solid rgba(255, 255, 255, 0.04) !important;
-    padding: 6px 12px !important;
+    padding: 1px 6px !important;
+    line-height: 1.1;
 }
 
 :deep(.ant-table-tbody > tr:hover > td) {
