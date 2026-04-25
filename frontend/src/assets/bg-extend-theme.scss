@@ -105,10 +105,6 @@
   --danger-btn-color: #d32f2fac;
   --background-color-white: var(--level-1-bg-color);
 
-  .app-header-wrapper {
-    background-color: #00000093 !important;
-  }
-
   @extend .bg-extend-css;
   @extend .extend-light-css;
 }
