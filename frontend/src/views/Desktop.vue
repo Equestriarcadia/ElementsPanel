@@ -31,6 +31,7 @@ import DesktopUsers from "@/widgets/desktop/DesktopUsers.vue";
 import DesktopWindow from "@/widgets/desktop/DesktopWindow.vue";
 import {
     AppstoreOutlined,
+    CloseOutlined,
     ClusterOutlined,
     CodeOutlined,
     ControlOutlined,
@@ -41,7 +42,6 @@ import {
     FolderOpenOutlined,
     SettingOutlined,
     ShoppingOutlined,
-    SyncOutlined,
     TeamOutlined,
     UserOutlined
 } from "@ant-design/icons-vue";
@@ -761,9 +761,12 @@ const ctxMenu = reactive({
 
 const ctxMenuItems = computed<ContextMenuItem[]>(() => [
     {
-        label: t("TXT_CODE_DESKTOP_REFRESH"),
-        icon: markRaw(SyncOutlined),
-        action: () => window.location.reload()
+        label: t("TXT_CODE_DESKTOP_CLOSE_ALL"),
+        icon: markRaw(CloseOutlined),
+        action: () => {
+            windows.clear();
+            saveDesktopLayout();
+        }
     }
 ]);
 
