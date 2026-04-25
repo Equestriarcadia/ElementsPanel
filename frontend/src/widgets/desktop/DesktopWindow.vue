@@ -53,7 +53,7 @@ const isResizing = ref(false);
 const dragOffset = ref({ x: 0, y: 0 });
 const resizeStart = ref({ x: 0, y: 0, w: 0, h: 0 });
 
-const savedPos = ref({ x: 0, y: 0, w: 0, h: 0 });
+const savedPos = ref({ x: props.initialX, y: props.initialY, w: props.initialWidth, h: props.initialHeight });
 
 const isComponentIcon = computed(() => typeof props.icon !== "string");
 
