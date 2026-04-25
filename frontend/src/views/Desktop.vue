@@ -16,6 +16,7 @@ import DesktopInstanceManager from "@/widgets/desktop/DesktopInstanceManager.vue
 import DesktopLoginWindow from "@/widgets/desktop/DesktopLoginWindow.vue";
 import DesktopMarket from "@/widgets/desktop/DesktopMarket.vue";
 import DesktopMcPing from "@/widgets/desktop/DesktopMcPing.vue";
+import DesktopModManager from "@/widgets/desktop/DesktopModManager.vue";
 import DesktopMyApps from "@/widgets/desktop/DesktopMyApps.vue";
 import DesktopNewInstance from "@/widgets/desktop/DesktopNewInstance.vue";
 import DesktopNodeManager from "@/widgets/desktop/DesktopNodeManager.vue";
@@ -44,6 +45,7 @@ import {
     SettingOutlined,
     ShoppingOutlined,
     TeamOutlined,
+    UsbOutlined,
     UsergroupDeleteOutlined,
     UserOutlined
 } from "@ant-design/icons-vue";
@@ -270,7 +272,8 @@ const ICON_MAP: Record<string, Component> = {
     "term-config": markRaw(CodeOutlined),
     "new-instance": markRaw(DesktopOutlined),
     "user-info": markRaw(UserOutlined),
-    "mc-ping": markRaw(UsergroupDeleteOutlined)
+    "mc-ping": markRaw(UsergroupDeleteOutlined),
+    "mod-manager": markRaw(UsbOutlined)
 };
 
 const loadDesktopLayout = async () => {
@@ -610,6 +613,40 @@ const openMcPingWindow = (instanceId: string, daemonId: string) => {
     saveDesktopLayout();
 };
 
+const openModManagerWindow = (instanceId: string, daemonId: string) => {
+    const windowId = `mod-manager-${instanceId}`;
+    const existing = windows.get(windowId);
+
+    if (existing) {
+        existing.minimized = false;
+        existing.visible = true;
+        focusWindow(windowId);
+        return;
+    }
+
+    windowOffset = (windowOffset + 1) % 8;
+    const offsetX = 120 + windowOffset * 30;
+    const offsetY = 80 + windowOffset * 30;
+
+    windows.set(windowId, {
+        id: windowId,
+        title: t("TXT_CODE_MOD_MANAGER"),
+        icon: markRaw(UsbOutlined),
+        visible: true,
+        minimized: false,
+        maximized: false,
+        zIndex: ++nextZIndex,
+        content: "mod-manager",
+        initialX: offsetX,
+        initialY: offsetY,
+        initialWidth: 900,
+        initialHeight: 600,
+        instanceId: instanceId,
+        daemonId: daemonId
+    });
+    saveDesktopLayout();
+};
+
 const openNewInstanceWindow = () => {
     const windowId = "new-instance";
     const existing = windows.get(windowId);
@@ -866,9 +903,9 @@ const username = computed(() => appState.userInfo?.userName || "User");
                                     v-else-if="win.content === 'instance-console' && win.instanceId && win.daemonId"
                                     :instance-id="win.instanceId" :daemon-id="win.daemonId"
                                     @open-server-config="openServerConfigWindow"
-                                    @open-file-manager="openFileManagerWindow" @open-schedule="openScheduleWindow"
-                                    @open-event-config="openEventConfigWindow" @open-term-config="openTermConfigWindow"
-                                    @open-mc-ping="openMcPingWindow" />
+                                    @open-file-manager="openFileManagerWindow" @open-mod-manager="openModManagerWindow"
+                                    @open-schedule="openScheduleWindow" @open-event-config="openEventConfigWindow"
+                                    @open-term-config="openTermConfigWindow" @open-mc-ping="openMcPingWindow" />
 
                                 <DesktopServerConfig
                                     v-else-if="win.content === 'server-config' && win.instanceId && win.daemonId && win.type"
@@ -889,6 +926,11 @@ const username = computed(() => appState.userInfo?.userName || "User");
                                     @close="closeWindow(win.id)" />
 
                                 <DesktopMcPing v-else-if="win.content === 'mc-ping' && win.instanceId && win.daemonId"
+                                    :instance-id="win.instanceId" :daemon-id="win.daemonId"
+                                    @close="closeWindow(win.id)" />
+
+                                <DesktopModManager
+                                    v-else-if="win.content === 'mod-manager' && win.instanceId && win.daemonId"
                                     :instance-id="win.instanceId" :daemon-id="win.daemonId"
                                     @close="closeWindow(win.id)" />
 
@@ -993,70 +1035,6 @@ const username = computed(() => appState.userInfo?.userName || "User");
             color: rgba(255, 255, 255, 0.6);
             margin: 0;
         }
-    }
-
-    &__actions {
-        margin-top: auto;
-        padding-top: 16px;
-    }
-
-}
-
-.window-btn {
-    padding: 8px 20px;
-    border: none;
-    border-radius: 6px;
-    font-size: 13px;
-    cursor: pointer;
-    transition: all 0.2s;
-    color: #fff;
-
-    &--primary {
-        background: var(--color-blue-5);
-
-        &:hover {
-            background: var(--color-blue-6);
-            transform: translateY(-1px);
-        }
-    }
-}
-
-.window-terminal-placeholder {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-}
-
-.terminal-mock {
-    flex: 1;
-    background: #0d1117;
-    border-radius: 8px;
-    padding: 16px;
-    font-family: "Cascadia Code", "Fira Code", "Consolas", monospace;
-    font-size: 13px;
-}
-
-.terminal-line {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.terminal-prompt {
-    color: #58a6ff;
-}
-
-.terminal-cursor {
-    display: inline-block;
-    width: 8px;
-    height: 14px;
-    background: #58a6ff;
-    animation: blink 1s step-end infinite;
-}
-
-@keyframes blink {
-    50% {
-        opacity: 0;
     }
 }
 

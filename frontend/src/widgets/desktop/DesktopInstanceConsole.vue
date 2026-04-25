@@ -30,8 +30,7 @@ import {
     MoneyCollectOutlined,
     PauseCircleOutlined,
     PlayCircleOutlined,
-    RedoOutlined,
-    UsbOutlined
+    RedoOutlined
 } from "@ant-design/icons-vue";
 import { Modal } from "ant-design-vue";
 import { computed, h, onUnmounted, ref } from "vue";
@@ -49,6 +48,7 @@ const props = defineProps<{
 const emit = defineEmits<{
     (e: "open-server-config", instanceId: string, daemonId: string, type: string): void;
     (e: "open-file-manager", instanceId: string, daemonId: string, instanceName: string): void;
+    (e: "open-mod-manager", instanceId: string, daemonId: string): void;
     (e: "open-schedule", instanceId: string, daemonId: string): void;
     (e: "open-event-config", instanceId: string, daemonId: string): void;
     (e: "open-term-config", instanceId: string, daemonId: string): void;
@@ -413,7 +413,8 @@ onUnmounted(() => {
         <DesktopManagerBtns :instance-id="instanceId" :daemon-id="daemonId"
             @open-server-config="(type: string) => emit('open-server-config', instanceId, daemonId, type)"
             @open-file-manager="emit('open-file-manager', instanceId, daemonId, getInstanceName || instanceId)"
-            @open-mod-manager="openDialog('mod-manager')" @open-schedule="emit('open-schedule', instanceId, daemonId)"
+            @open-mod-manager="emit('open-mod-manager', instanceId, daemonId)"
+            @open-schedule="emit('open-schedule', instanceId, daemonId)"
             @open-event-config="emit('open-event-config', instanceId, daemonId)"
             @open-term-config="emit('open-term-config', instanceId, daemonId)"
             @open-mc-ping="emit('open-mc-ping', instanceId, daemonId)" />
@@ -632,6 +633,12 @@ onUnmounted(() => {
         flex: 1;
         overflow: auto;
         padding: 16px;
+    }
+
+    &--full {
+        .dim-dialog__body {
+            padding: 0;
+        }
     }
 }
 
