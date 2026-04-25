@@ -635,6 +635,7 @@ const username = computed(() => appState.userInfo?.userName || "User");
     position: absolute;
     inset: 0;
     z-index: 0;
+    background-color: var(--background-color);
 }
 
 /* When body has background image, make wallpaper transparent to show it */
