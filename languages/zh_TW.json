@@ -1907,7 +1907,7 @@
   "TXT_CODE_MOD_DEFERRED_TASK_ADDED": "已加入稍後處理隊列",
   "TXT_CODE_MOD_EXECUTE_ALL": "全部執行",
   "TXT_CODE_MOD_LIST": "Mod 列表",
-  "TXT_CODE_MOD_MANAGER": "插件/模组管理 (Beta)",
+  "TXT_CODE_MOD_MANAGER": "插件/模组管理",
   "TXT_CODE_MOD_MANUAL_LATER": "稍後手動處理",
   "TXT_CODE_MOD_SELECT_SAVE_DIR": "偵測到混合環境，請選擇儲存位置",
   "TXT_CODE_MOD_TRY_IMMEDIATELY": "嘗試直接操作",
