@@ -124,7 +124,7 @@ const handleNext = async () => {
             <div class="window__titlebar" @mousedown="onMouseDown">
                 <div class="window__titlebar-left">
                     <span class="window__icon">
-                        <img src="/desktop-icon.svg" alt="logo" style="width: 14px; height: 14px;" />
+                        <img class="window__logo-img" src="/desktop-icon.svg" alt="logo" />
                     </span>
                     <span class="window__title">ElementsPanel</span>
                 </div>
@@ -242,6 +242,16 @@ const handleNext = async () => {
     display: flex;
     align-items: center;
     color: var(--desktop-window-text);
+}
+
+.window__logo-img {
+    width: 14px;
+    height: 14px;
+    content: url("/desktop-icon.svg");
+}
+
+body:not(.app-dark-theme) .window__logo-img {
+    content: url("/desktop-icon-b.svg");
 }
 
 .window__title {

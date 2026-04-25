@@ -129,7 +129,7 @@ const openConsole = (node: NodeStatus) => {
     left: 10px;
     top: 50%;
     transform: translateY(-50%);
-    color: rgba(255, 255, 255, 0.3);
+    color: var(--desktop-window-text-muted);
     font-size: 14px;
     pointer-events: none;
 }
@@ -137,30 +137,30 @@ const openConsole = (node: NodeStatus) => {
 .dts-search-input {
     width: 100%;
     padding: 7px 10px 7px 30px;
-    background: rgba(255, 255, 255, 0.06);
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: var(--desktop-window-titlebar-bg);
+    border: 1px solid var(--desktop-window-border);
     border-radius: 6px;
-    color: #fff;
+    color: var(--desktop-window-text);
     font-size: 13px;
     outline: none;
     transition: border-color 0.2s;
 
     &::placeholder {
-        color: rgba(255, 255, 255, 0.3);
+        color: var(--desktop-window-text-muted);
     }
 
     &:focus {
-        border-color: rgba(255, 255, 255, 0.2);
+        border-color: var(--desktop-window-border);
     }
 }
 
 .dts-list-wrap {
     flex: 1;
     overflow-y: auto;
-    border: 1px solid rgba(255, 255, 255, 0.06);
+    border: 1px solid var(--desktop-window-border);
     border-radius: 8px;
     padding: 16px;
-    background: rgba(0, 0, 0, 0.2);
+    background: var(--desktop-window-bg);
 }
 
 .dts-grid {
@@ -174,15 +174,15 @@ const openConsole = (node: NodeStatus) => {
     align-items: center;
     gap: 12px;
     padding: 16px;
-    background: rgba(255, 255, 255, 0.04);
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: var(--desktop-window-titlebar-bg);
+    border: 1px solid var(--desktop-window-border);
     border-radius: 8px;
     cursor: pointer;
     transition: all 0.2s;
 
     &:hover:not(.dts-card--disabled) {
-        background: rgba(255, 255, 255, 0.08);
-        border-color: rgba(255, 255, 255, 0.15);
+        background: var(--desktop-window-control-hover);
+        border-color: var(--desktop-window-border);
     }
 
     &--disabled {
@@ -196,10 +196,10 @@ const openConsole = (node: NodeStatus) => {
         display: flex;
         align-items: center;
         justify-content: center;
-        background: rgba(255, 255, 255, 0.1);
+        background: var(--desktop-window-control-hover);
         border-radius: 8px;
         font-size: 20px;
-        color: #fff;
+        color: var(--desktop-window-text);
     }
 
     &__info {
@@ -210,7 +210,7 @@ const openConsole = (node: NodeStatus) => {
     &__name {
         font-size: 14px;
         font-weight: 500;
-        color: #fff;
+        color: var(--desktop-window-text);
         margin-bottom: 4px;
         white-space: nowrap;
         overflow: hidden;
@@ -222,7 +222,7 @@ const openConsole = (node: NodeStatus) => {
         align-items: center;
         gap: 6px;
         font-size: 12px;
-        color: rgba(255, 255, 255, 0.6);
+        color: var(--desktop-window-text-muted);
     }
 }
 
@@ -245,7 +245,7 @@ const openConsole = (node: NodeStatus) => {
     align-items: center;
     justify-content: center;
     font-size: 14px;
-    color: rgba(255, 255, 255, 0.4);
+    color: var(--desktop-window-text-muted);
 }
 
 .dts-list-wrap::-webkit-scrollbar {
@@ -257,7 +257,7 @@ const openConsole = (node: NodeStatus) => {
 }
 
 .dts-list-wrap::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.1);
+    background: var(--desktop-window-border);
     border-radius: 3px;
 }
 </style>

@@ -635,7 +635,7 @@ const getInstanceStatusLabel = (status: number): string => {
                                         {{ t("TXT_CODE_DESKTOP_IM_PREV") }}
                                     </button>
                                     <span class="du-page-info">{{ assignForm.currentPage }} / {{ instances.maxPage
-                                        }}</span>
+                                    }}</span>
                                     <button class="du-page-btn" :disabled="assignForm.currentPage >= instances.maxPage"
                                         @click="assignForm.currentPage++; loadRemoteInstances()">
                                         {{ t("TXT_CODE_DESKTOP_IM_NEXT") }}
@@ -686,7 +686,7 @@ const getInstanceStatusLabel = (status: number): string => {
         left: 10px;
         top: 50%;
         transform: translateY(-50%);
-        color: rgba(255, 255, 255, 0.3);
+        color: var(--desktop-window-text-muted);
         font-size: 14px;
         pointer-events: none;
     }
@@ -694,20 +694,20 @@ const getInstanceStatusLabel = (status: number): string => {
     &__input {
         width: 100%;
         padding: 7px 10px 7px 30px;
-        background: rgba(255, 255, 255, 0.06);
-        border: 1px solid rgba(255, 255, 255, 0.08);
+        background: var(--desktop-window-titlebar-bg);
+        border: 1px solid var(--desktop-window-border);
         border-radius: 6px;
-        color: #fff;
+        color: var(--desktop-window-text);
         font-size: 13px;
         outline: none;
         transition: border-color 0.2s;
 
         &::placeholder {
-            color: rgba(255, 255, 255, 0.3);
+            color: var(--desktop-window-text-muted);
         }
 
         &:focus {
-            border-color: rgba(255, 255, 255, 0.2);
+            border-color: var(--desktop-window-border);
         }
     }
 }
@@ -722,7 +722,7 @@ const getInstanceStatusLabel = (status: number): string => {
     align-items: center;
     gap: 6px;
     transition: all 0.2s;
-    color: #fff;
+    color: var(--desktop-window-text);
     white-space: nowrap;
 
     &:disabled {
@@ -732,6 +732,7 @@ const getInstanceStatusLabel = (status: number): string => {
 
     &--primary {
         background: var(--color-blue-5, #1677ff);
+        color: #fff;
 
         &:hover:not(:disabled) {
             background: var(--color-blue-6, #4096ff);
@@ -739,15 +740,17 @@ const getInstanceStatusLabel = (status: number): string => {
     }
 
     &--default {
-        background: rgba(255, 255, 255, 0.08);
+        background: var(--desktop-window-titlebar-bg);
+        border: 1px solid var(--desktop-window-border);
 
         &:hover:not(:disabled) {
-            background: rgba(255, 255, 255, 0.12);
+            background: var(--desktop-window-control-hover);
         }
     }
 
     &--danger {
         background: var(--color-red-5, #ff4d4f);
+        color: #fff;
 
         &:hover:not(:disabled) {
             background: var(--color-red-6, #ff7875);
@@ -758,7 +761,7 @@ const getInstanceStatusLabel = (status: number): string => {
 .du-table-wrap {
     flex: 1;
     overflow-y: auto;
-    border: 1px solid rgba(255, 255, 255, 0.06);
+    border: 1px solid var(--desktop-window-border);
     border-radius: 8px;
 }
 
@@ -770,27 +773,27 @@ const getInstanceStatusLabel = (status: number): string => {
     th {
         text-align: left;
         padding: 10px 12px;
-        color: rgba(255, 255, 255, 0.5);
+        color: var(--desktop-window-text-secondary);
         font-weight: 500;
         font-size: 12px;
         text-transform: uppercase;
         letter-spacing: 0.3px;
-        background: rgba(255, 255, 255, 0.03);
-        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        background: var(--desktop-window-titlebar-bg);
+        border-bottom: 1px solid var(--desktop-window-border);
         white-space: nowrap;
     }
 
     td {
         padding: 10px 12px;
-        color: rgba(255, 255, 255, 0.8);
-        border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+        color: var(--desktop-window-text);
+        border-bottom: 1px solid var(--desktop-window-border);
     }
 
     &__row {
         transition: background 0.15s;
 
         &:hover {
-            background: rgba(255, 255, 255, 0.03);
+            background: var(--desktop-window-control-hover);
         }
     }
 
@@ -834,7 +837,7 @@ const getInstanceStatusLabel = (status: number): string => {
     gap: 6px;
 
     &__icon {
-        color: rgba(255, 255, 255, 0.4);
+        color: var(--desktop-window-text-muted);
         font-size: 14px;
     }
 }
@@ -865,7 +868,7 @@ const getInstanceStatusLabel = (status: number): string => {
     }
 
     &--no {
-        color: rgba(255, 255, 255, 0.25);
+        color: var(--desktop-window-text-muted);
     }
 }
 
@@ -886,12 +889,12 @@ const getInstanceStatusLabel = (status: number): string => {
     cursor: pointer;
     font-size: 13px;
     transition: all 0.15s;
-    color: rgba(255, 255, 255, 0.5);
+    color: var(--desktop-window-text-secondary);
     background: transparent;
 
     &:hover {
-        background: rgba(255, 255, 255, 0.08);
-        color: #fff;
+        background: var(--desktop-window-control-hover);
+        color: var(--desktop-window-text);
     }
 
     &--delete:hover {
@@ -916,17 +919,17 @@ const getInstanceStatusLabel = (status: number): string => {
 
 .du-page-btn {
     padding: 4px 12px;
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    border: 1px solid var(--desktop-window-border);
     border-radius: 4px;
     background: transparent;
-    color: rgba(255, 255, 255, 0.6);
+    color: var(--desktop-window-text-secondary);
     font-size: 12px;
     cursor: pointer;
     transition: all 0.15s;
 
     &:hover:not(:disabled) {
-        border-color: rgba(255, 255, 255, 0.2);
-        color: #fff;
+        border-color: var(--desktop-window-border);
+        color: var(--desktop-window-text);
     }
 
     &:disabled {
@@ -937,13 +940,13 @@ const getInstanceStatusLabel = (status: number): string => {
 
 .du-page-info {
     font-size: 12px;
-    color: rgba(255, 255, 255, 0.4);
+    color: var(--desktop-window-text-muted);
 }
 
 .du-loading,
 .du-empty {
     font-size: 13px;
-    color: rgba(255, 255, 255, 0.35);
+    color: var(--desktop-window-text-muted);
 }
 
 .du-dialog-overlay {
@@ -957,8 +960,8 @@ const getInstanceStatusLabel = (status: number): string => {
 }
 
 .du-dialog {
-    background: #1a1a2e;
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: var(--desktop-window-bg);
+    border: 1px solid var(--desktop-window-border);
     border-radius: 12px;
     width: 420px;
     max-width: 90vw;
@@ -975,7 +978,7 @@ const getInstanceStatusLabel = (status: number): string => {
         h3 {
             font-size: 16px;
             font-weight: 600;
-            color: #fff;
+            color: var(--desktop-window-text);
             margin: 0;
             display: flex;
             align-items: center;
@@ -992,7 +995,7 @@ const getInstanceStatusLabel = (status: number): string => {
         display: flex;
         justify-content: flex-end;
         gap: 8px;
-        border-top: 1px solid rgba(255, 255, 255, 0.06);
+        border-top: 1px solid var(--desktop-window-border);
     }
 }
 
@@ -1016,7 +1019,7 @@ const getInstanceStatusLabel = (status: number): string => {
     align-items: center;
     gap: 6px;
     font-size: 12px;
-    color: rgba(255, 255, 255, 0.6);
+    color: var(--desktop-window-text-secondary);
     margin-bottom: 6px;
     font-weight: 500;
 }
@@ -1024,21 +1027,21 @@ const getInstanceStatusLabel = (status: number): string => {
 .du-form-input {
     width: 100%;
     padding: 8px 10px;
-    background: rgba(255, 255, 255, 0.06);
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: var(--desktop-window-titlebar-bg);
+    border: 1px solid var(--desktop-window-border);
     border-radius: 6px;
-    color: #fff;
+    color: var(--desktop-window-text);
     font-size: 13px;
     outline: none;
     transition: border-color 0.2s;
     box-sizing: border-box;
 
     &::placeholder {
-        color: rgba(255, 255, 255, 0.25);
+        color: var(--desktop-window-text-muted);
     }
 
     &:focus {
-        border-color: rgba(255, 255, 255, 0.2);
+        border-color: var(--desktop-window-border);
     }
 
     &:disabled {
@@ -1049,7 +1052,7 @@ const getInstanceStatusLabel = (status: number): string => {
 .du-form-hint {
     display: block;
     font-size: 11px;
-    color: rgba(255, 255, 255, 0.3);
+    color: var(--desktop-window-text-muted);
     margin-top: 4px;
 }
 
@@ -1075,13 +1078,13 @@ const getInstanceStatusLabel = (status: number): string => {
     justify-content: center;
     gap: 6px;
     padding: 8px 12px;
-    background: rgba(255, 255, 255, 0.04);
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: var(--desktop-window-titlebar-bg);
+    border: 1px solid var(--desktop-window-border);
     border-radius: 6px;
     cursor: pointer;
     transition: all 0.15s;
     font-size: 13px;
-    color: rgba(255, 255, 255, 0.6);
+    color: var(--desktop-window-text-secondary);
 
     input {
         display: none;
@@ -1090,17 +1093,17 @@ const getInstanceStatusLabel = (status: number): string => {
     &--active {
         border-color: var(--color-blue-5, #1677ff);
         background: rgba(22, 119, 255, 0.1);
-        color: #fff;
+        color: var(--desktop-window-text);
     }
 
     &:hover {
-        border-color: rgba(255, 255, 255, 0.15);
+        border-color: var(--desktop-window-border);
     }
 }
 
 .du-delete-text {
     font-size: 13px;
-    color: rgba(255, 255, 255, 0.7);
+    color: var(--desktop-window-text);
     line-height: 1.6;
     margin: 0;
 }
@@ -1124,8 +1127,8 @@ const getInstanceStatusLabel = (status: number): string => {
     flex: 1;
     display: flex;
     flex-direction: column;
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid rgba(255, 255, 255, 0.06);
+    background: var(--desktop-window-titlebar-bg);
+    border: 1px solid var(--desktop-window-border);
     border-radius: 8px;
     overflow: hidden;
 
@@ -1145,9 +1148,9 @@ const getInstanceStatusLabel = (status: number): string => {
         padding: 10px 12px;
         font-size: 12px;
         font-weight: 600;
-        color: rgba(255, 255, 255, 0.7);
-        background: rgba(255, 255, 255, 0.03);
-        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        color: var(--desktop-window-text);
+        background: var(--desktop-window-titlebar-bg);
+        border-bottom: 1px solid var(--desktop-window-border);
         text-transform: uppercase;
         letter-spacing: 0.3px;
     }
@@ -1173,7 +1176,7 @@ const getInstanceStatusLabel = (status: number): string => {
     text-align: center;
     padding: 24px 12px;
     font-size: 13px;
-    color: rgba(255, 255, 255, 0.35);
+    color: var(--desktop-window-text-muted);
 }
 
 .du-assign-item {
@@ -1186,7 +1189,7 @@ const getInstanceStatusLabel = (status: number): string => {
     cursor: default;
 
     &:hover {
-        background: rgba(255, 255, 255, 0.04);
+        background: var(--desktop-window-control-hover);
     }
 
     &--selected {
@@ -1204,7 +1207,7 @@ const getInstanceStatusLabel = (status: number): string => {
 
     &__name {
         font-size: 13px;
-        color: rgba(255, 255, 255, 0.85);
+        color: var(--desktop-window-text);
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
@@ -1212,7 +1215,7 @@ const getInstanceStatusLabel = (status: number): string => {
 
     &__node {
         font-size: 11px;
-        color: rgba(255, 255, 255, 0.35);
+        color: var(--desktop-window-text-muted);
         font-family: monospace;
     }
 
@@ -1229,8 +1232,8 @@ const getInstanceStatusLabel = (status: number): string => {
         }
 
         &--0 {
-            background: rgba(255, 255, 255, 0.06);
-            color: rgba(255, 255, 255, 0.4);
+            background: var(--desktop-window-titlebar-bg);
+            color: var(--desktop-window-text-muted);
         }
 
         &--2 {
@@ -1263,7 +1266,7 @@ const getInstanceStatusLabel = (status: number): string => {
         transition: all 0.15s;
         flex-shrink: 0;
         background: transparent;
-        color: rgba(255, 255, 255, 0.4);
+        color: var(--desktop-window-text-muted);
     }
 
     &__remove:hover {
@@ -1287,7 +1290,7 @@ const getInstanceStatusLabel = (status: number): string => {
     display: flex;
     gap: 8px;
     padding: 8px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    border-bottom: 1px solid var(--desktop-window-border);
 }
 
 .du-assign-node-select {
@@ -1296,22 +1299,22 @@ const getInstanceStatusLabel = (status: number): string => {
 
 .du-assign-select {
     padding: 5px 8px;
-    background: rgba(255, 255, 255, 0.06);
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: var(--desktop-window-titlebar-bg);
+    border: 1px solid var(--desktop-window-border);
     border-radius: 4px;
-    color: #fff;
+    color: var(--desktop-window-text);
     font-size: 12px;
     outline: none;
     cursor: pointer;
     max-width: 180px;
 
     option {
-        background: #1a1a2e;
-        color: #fff;
+        background: var(--desktop-window-bg);
+        color: var(--desktop-window-text);
     }
 
     &:focus {
-        border-color: rgba(255, 255, 255, 0.2);
+        border-color: var(--desktop-window-border);
     }
 }
 
@@ -1321,20 +1324,20 @@ const getInstanceStatusLabel = (status: number): string => {
     &__input {
         width: 100%;
         padding: 5px 8px;
-        background: rgba(255, 255, 255, 0.06);
-        border: 1px solid rgba(255, 255, 255, 0.08);
+        background: var(--desktop-window-titlebar-bg);
+        border: 1px solid var(--desktop-window-border);
         border-radius: 4px;
-        color: #fff;
+        color: var(--desktop-window-text);
         font-size: 12px;
         outline: none;
         box-sizing: border-box;
 
         &::placeholder {
-            color: rgba(255, 255, 255, 0.3);
+            color: var(--desktop-window-text-muted);
         }
 
         &:focus {
-            border-color: rgba(255, 255, 255, 0.2);
+            border-color: var(--desktop-window-border);
         }
     }
 }
@@ -1345,7 +1348,7 @@ const getInstanceStatusLabel = (status: number): string => {
     justify-content: center;
     gap: 8px;
     padding: 8px;
-    border-top: 1px solid rgba(255, 255, 255, 0.06);
+    border-top: 1px solid var(--desktop-window-border);
 }
 
 .du-assign-footer {
@@ -1353,7 +1356,7 @@ const getInstanceStatusLabel = (status: number): string => {
     justify-content: flex-end;
     gap: 8px;
     padding: 12px 16px;
-    border-top: 1px solid rgba(255, 255, 255, 0.06);
+    border-top: 1px solid var(--desktop-window-border);
 }
 
 .du-dialog-fade-enter-active,
@@ -1376,7 +1379,7 @@ const getInstanceStatusLabel = (status: number): string => {
 }
 
 .du-table-wrap::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.1);
+    background: var(--desktop-window-border);
     border-radius: 2px;
 }
 
@@ -1389,7 +1392,7 @@ const getInstanceStatusLabel = (status: number): string => {
 }
 
 .du-assign-panel__body::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.1);
+    background: var(--desktop-window-border);
     border-radius: 2px;
 }
 </style>

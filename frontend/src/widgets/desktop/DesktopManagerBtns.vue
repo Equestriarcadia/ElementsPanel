@@ -258,12 +258,12 @@ watch(instanceInfo, (cfg, oldCfg) => {
 <style lang="scss" scoped>
 .dim-mgr-btns {
     padding: 8px 16px;
-    border-top: 1px solid rgba(255, 255, 255, 0.06);
+    border-top: 1px solid var(--desktop-window-border);
 
     &__title {
         font-size: 10px;
         font-weight: 500;
-        color: rgba(255, 255, 255, 0.35);
+        color: var(--desktop-window-text-muted);
         margin-bottom: 6px;
         text-transform: uppercase;
         letter-spacing: 0.5px;
@@ -283,17 +283,17 @@ watch(instanceInfo, (cfg, oldCfg) => {
     width: 32px;
     height: 32px;
     font-size: 16px;
-    color: rgba(255, 255, 255, 0.55);
-    background: rgba(255, 255, 255, 0.04);
-    border: 1px solid rgba(255, 255, 255, 0.06);
+    color: var(--desktop-window-text-secondary);
+    background: var(--desktop-window-titlebar-bg);
+    border: 1px solid var(--desktop-window-border);
     border-radius: 6px;
     cursor: pointer;
     transition: all 0.2s;
 
     &:hover {
-        color: rgba(255, 255, 255, 0.9);
-        background: rgba(255, 255, 255, 0.1);
-        border-color: rgba(255, 255, 255, 0.15);
+        color: var(--desktop-window-text);
+        background: var(--desktop-window-control-hover);
+        border-color: var(--desktop-window-border);
     }
 }
 </style>

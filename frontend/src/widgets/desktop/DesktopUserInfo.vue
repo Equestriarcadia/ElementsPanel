@@ -200,12 +200,12 @@ const disable2FACode = async () => {
     padding: 24px;
     height: 100%;
     overflow-y: auto;
-    color: rgba(255, 255, 255, 0.9);
+    color: var(--desktop-window-text);
 }
 
 .info-section {
-    background: rgba(255, 255, 255, 0.04);
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: var(--desktop-window-titlebar-bg);
+    border: 1px solid var(--desktop-window-border);
     border-radius: 8px;
     padding: 20px;
     margin-bottom: 20px;
@@ -220,8 +220,8 @@ const disable2FACode = async () => {
     font-weight: 600;
     margin-top: 0;
     margin-bottom: 16px;
-    color: #fff;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    color: var(--desktop-window-text);
+    border-bottom: 1px solid var(--desktop-window-border);
     padding-bottom: 12px;
 }
 
@@ -243,15 +243,15 @@ const disable2FACode = async () => {
 
 .info-label {
     font-size: 12px;
-    color: rgba(255, 255, 255, 0.6);
+    color: var(--desktop-window-text-secondary);
 }
 
 .info-value {
     font-size: 14px;
-    background: rgba(0, 0, 0, 0.2);
+    background: var(--desktop-window-titlebar-bg);
     padding: 6px 12px;
     border-radius: 4px;
-    border: 1px solid rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--desktop-window-border);
     word-break: break-all;
 }
 
@@ -273,15 +273,15 @@ const disable2FACode = async () => {
 }
 
 .two-fa-setup {
-    background: rgba(0, 0, 0, 0.2);
+    background: var(--desktop-window-titlebar-bg);
     padding: 16px;
     border-radius: 6px;
-    border: 1px solid rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--desktop-window-border);
 }
 
 .two-fa-instructions {
     font-size: 13px;
-    color: rgba(255, 255, 255, 0.7);
+    color: var(--desktop-window-text-secondary);
     line-height: 1.6;
     margin-top: 0;
     margin-bottom: 16px;
@@ -305,7 +305,7 @@ const disable2FACode = async () => {
 
 .api-key-desc {
     font-size: 13px;
-    color: rgba(255, 255, 255, 0.7);
+    color: var(--desktop-window-text-secondary);
     margin-top: 0;
     margin-bottom: 12px;
 }
@@ -314,15 +314,15 @@ const disable2FACode = async () => {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    background: rgba(0, 0, 0, 0.3);
+    background: var(--desktop-window-titlebar-bg);
     padding: 10px 12px;
     border-radius: 6px;
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    border: 1px solid var(--desktop-window-border);
     margin-bottom: 16px;
     font-family: monospace;
 
     &.empty {
-        color: rgba(255, 255, 255, 0.5);
+        color: var(--desktop-window-text-muted);
         justify-content: flex-start;
     }
 }

@@ -206,7 +206,7 @@ onMounted(async () => {
     height: 100%;
     display: flex;
     flex-direction: column;
-    color: rgba(255, 255, 255, 0.9);
+    color: var(--desktop-window-text);
     font-size: 13px;
 
     &__header {
@@ -214,14 +214,14 @@ onMounted(async () => {
         align-items: center;
         gap: 8px;
         padding: 10px 16px;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        border-bottom: 1px solid var(--desktop-window-border);
         flex-shrink: 0;
     }
 
     &__title {
         font-size: 14px;
         font-weight: 500;
-        color: rgba(255, 255, 255, 0.85);
+        color: var(--desktop-window-text);
         flex: 1;
     }
 
@@ -239,10 +239,10 @@ onMounted(async () => {
 }
 
 .dsc-btn {
-    background: rgba(255, 255, 255, 0.06);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: var(--desktop-window-titlebar-bg);
+    border: 1px solid var(--desktop-window-border);
     border-radius: 6px;
-    color: rgba(255, 255, 255, 0.8);
+    color: var(--desktop-window-text);
     padding: 6px 12px;
     font-size: 12px;
     cursor: pointer;
@@ -252,7 +252,7 @@ onMounted(async () => {
     gap: 4px;
 
     &:hover:not(:disabled) {
-        background: rgba(255, 255, 255, 0.1);
+        background: var(--desktop-window-control-hover);
     }
 
     &:disabled {
@@ -297,15 +297,15 @@ onMounted(async () => {
     align-items: center;
     justify-content: space-between;
     padding: 12px 16px;
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid rgba(255, 255, 255, 0.06);
+    background: var(--desktop-window-titlebar-bg);
+    border: 1px solid var(--desktop-window-border);
     border-radius: 8px;
     cursor: pointer;
     transition: all 0.2s;
 
     &:hover {
-        background: rgba(255, 255, 255, 0.06);
-        border-color: rgba(255, 255, 255, 0.12);
+        background: var(--desktop-window-control-hover);
+        border-color: var(--desktop-window-border);
     }
 
     &__info {
@@ -319,19 +319,19 @@ onMounted(async () => {
     &__name {
         font-size: 13px;
         font-weight: 500;
-        color: rgba(255, 255, 255, 0.85);
+        color: var(--desktop-window-text);
     }
 
     &__desc {
         font-size: 11px;
-        color: rgba(255, 255, 255, 0.45);
+        color: var(--desktop-window-text-muted);
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
     }
 
     &__action {
-        color: rgba(255, 255, 255, 0.35);
+        color: var(--desktop-window-text-muted);
         font-size: 14px;
         flex-shrink: 0;
         margin-left: 12px;
@@ -355,7 +355,7 @@ onMounted(async () => {
     justify-content: center;
     height: 100%;
     gap: 12px;
-    color: rgba(255, 255, 255, 0.3);
+    color: var(--desktop-window-text-muted);
 
     &__icon {
         font-size: 48px;

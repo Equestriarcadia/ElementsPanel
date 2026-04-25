@@ -558,7 +558,7 @@ onUnmounted(() => {
                         </span>
                         <span class="dim-instance__name">{{
                             instance.config.nickname || t("TXT_CODE_DESKTOP_IM_UNNAMED")
-                        }}</span><span class="dim-instance__badge" :class="getStatusClass(instance.status)">
+                            }}</span><span class="dim-instance__badge" :class="getStatusClass(instance.status)">
                             {{ getStatusText(instance.status) }}
                         </span>
                     </div>
@@ -626,7 +626,7 @@ onUnmounted(() => {
     height: 100%;
     display: flex;
     flex-direction: column;
-    color: rgba(255, 255, 255, 0.9);
+    color: var(--desktop-window-text);
     font-size: 13px;
 }
 
@@ -637,7 +637,7 @@ onUnmounted(() => {
     justify-content: space-between;
     gap: 12px;
     padding: 12px 16px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    border-bottom: 1px solid var(--desktop-window-border);
     flex-wrap: wrap;
 
     &__left,
@@ -654,16 +654,16 @@ onUnmounted(() => {
     gap: 6px;
 
     &__label {
-        color: rgba(255, 255, 255, 0.5);
+        color: var(--desktop-window-text-secondary);
         font-size: 12px;
         white-space: nowrap;
     }
 
     &__input {
-        background: rgba(255, 255, 255, 0.06);
-        border: 1px solid rgba(255, 255, 255, 0.1);
+        background: var(--desktop-window-titlebar-bg);
+        border: 1px solid var(--desktop-window-border);
         border-radius: 6px;
-        color: rgba(255, 255, 255, 0.9);
+        color: var(--desktop-window-text);
         padding: 6px 10px;
         font-size: 12px;
         outline: none;
@@ -675,8 +675,8 @@ onUnmounted(() => {
         }
 
         option {
-            background: #1a1a2e;
-            color: #fff;
+            background: var(--desktop-window-bg);
+            color: var(--desktop-window-text);
         }
     }
 }
@@ -685,10 +685,10 @@ onUnmounted(() => {
     position: relative;
 
     &__input {
-        background: rgba(255, 255, 255, 0.06);
-        border: 1px solid rgba(255, 255, 255, 0.1);
+        background: var(--desktop-window-titlebar-bg);
+        border: 1px solid var(--desktop-window-border);
         border-radius: 6px;
-        color: rgba(255, 255, 255, 0.9);
+        color: var(--desktop-window-text);
         padding: 6px 10px 6px 28px;
         font-size: 12px;
         outline: none;
@@ -696,7 +696,7 @@ onUnmounted(() => {
         transition: all 0.2s;
 
         &::placeholder {
-            color: rgba(255, 255, 255, 0.3);
+            color: var(--desktop-window-text-muted);
         }
 
         &:focus {
@@ -718,10 +718,10 @@ onUnmounted(() => {
 }
 
 .dim-btn {
-    background: rgba(255, 255, 255, 0.06);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: var(--desktop-window-titlebar-bg);
+    border: 1px solid var(--desktop-window-border);
     border-radius: 6px;
-    color: rgba(255, 255, 255, 0.8);
+    color: var(--desktop-window-text);
     padding: 6px 12px;
     font-size: 12px;
     cursor: pointer;
@@ -731,7 +731,7 @@ onUnmounted(() => {
     gap: 4px;
 
     &:hover:not(:disabled) {
-        background: rgba(255, 255, 255, 0.1);
+        background: var(--desktop-window-control-hover);
     }
 
     &:disabled {
@@ -788,9 +788,9 @@ onUnmounted(() => {
     align-items: center;
     gap: 16px;
     padding: 8px 16px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+    border-bottom: 1px solid var(--desktop-window-border);
     font-size: 12px;
-    color: rgba(255, 255, 255, 0.6);
+    color: var(--desktop-window-text-secondary);
     flex-wrap: wrap;
 
     &__item {
@@ -850,7 +850,7 @@ onUnmounted(() => {
     }
 
     &::-webkit-scrollbar-thumb {
-        background: rgba(255, 255, 255, 0.15);
+        background: var(--desktop-window-text-muted);
         border-radius: 3px;
     }
 
@@ -865,7 +865,7 @@ onUnmounted(() => {
     align-items: center;
     justify-content: center;
     padding: 48px 16px;
-    color: rgba(255, 255, 255, 0.4);
+    color: var(--desktop-window-text-muted);
 
     &__icon {
         font-size: 36px;
@@ -881,7 +881,7 @@ onUnmounted(() => {
 .dim-spinner {
     width: 28px;
     height: 28px;
-    border: 3px solid rgba(255, 255, 255, 0.1);
+    border: 3px solid var(--desktop-window-border);
     border-top-color: #1677ff;
     border-radius: 50%;
     animation: spin 0.8s linear infinite;
@@ -895,14 +895,14 @@ onUnmounted(() => {
     padding: 10px 14px;
     margin-bottom: 4px;
     border-radius: 8px;
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid rgba(255, 255, 255, 0.04);
+    background: var(--desktop-window-titlebar-bg);
+    border: 1px solid var(--desktop-window-border);
     transition: all 0.2s;
     cursor: default;
 
     &:hover {
-        background: rgba(255, 255, 255, 0.06);
-        border-color: rgba(255, 255, 255, 0.08);
+        background: var(--desktop-window-control-hover);
+        border-color: var(--desktop-window-border);
     }
 
     &--operating {
@@ -937,7 +937,7 @@ onUnmounted(() => {
     &__name {
         font-size: 13px;
         font-weight: 500;
-        color: rgba(255, 255, 255, 0.9);
+        color: var(--desktop-window-text);
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
@@ -978,7 +978,7 @@ onUnmounted(() => {
         align-items: center;
         gap: 12px;
         font-size: 11px;
-        color: rgba(255, 255, 255, 0.4);
+        color: var(--desktop-window-text-secondary);
     }
 
     &__uuid {
@@ -987,7 +987,7 @@ onUnmounted(() => {
     }
 
     &__type {
-        background: rgba(255, 255, 255, 0.06);
+        background: var(--desktop-window-titlebar-bg);
         padding: 1px 6px;
         border-radius: 4px;
         font-size: 10px;
@@ -995,7 +995,7 @@ onUnmounted(() => {
 
     &__players {
         font-size: 11px;
-        color: rgba(255, 255, 255, 0.6);
+        color: var(--desktop-window-text-secondary);
         display: flex;
         align-items: center;
         gap: 4px;
@@ -1022,7 +1022,7 @@ onUnmounted(() => {
     font-size: 14px;
     cursor: pointer;
     transition: all 0.2s;
-    background: rgba(255, 255, 255, 0.06);
+    background: var(--desktop-window-titlebar-bg);
     line-height: 1;
 
     &:hover:not(:disabled) {
@@ -1074,11 +1074,11 @@ onUnmounted(() => {
     justify-content: center;
     gap: 12px;
     padding: 10px 16px;
-    border-top: 1px solid rgba(255, 255, 255, 0.06);
+    border-top: 1px solid var(--desktop-window-border);
 
     &__info {
         font-size: 12px;
-        color: rgba(255, 255, 255, 0.5);
+        color: var(--desktop-window-text-secondary);
     }
 }
 </style>

@@ -159,7 +159,7 @@ watch(instanceInfo, (val) => {
     height: 100%;
     display: flex;
     flex-direction: column;
-    color: rgba(255, 255, 255, 0.9);
+    color: var(--desktop-window-text);
     font-size: 13px;
     overflow: hidden;
 
@@ -174,23 +174,23 @@ watch(instanceInfo, (val) => {
         align-items: center;
         justify-content: center;
         height: 100%;
-        color: rgba(255, 255, 255, 0.4);
+        color: var(--desktop-window-text-muted);
     }
 
     &__footer {
         display: flex;
         justify-content: flex-end;
         padding: 12px 16px;
-        border-top: 1px solid rgba(255, 255, 255, 0.06);
+        border-top: 1px solid var(--desktop-window-border);
         flex-shrink: 0;
     }
 }
 
 .dterm-btn {
-    background: rgba(255, 255, 255, 0.06);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: var(--desktop-window-titlebar-bg);
+    border: 1px solid var(--desktop-window-border);
     border-radius: 6px;
-    color: rgba(255, 255, 255, 0.8);
+    color: var(--desktop-window-text);
     padding: 6px 16px;
     font-size: 13px;
     cursor: pointer;
@@ -200,7 +200,7 @@ watch(instanceInfo, (val) => {
     gap: 4px;
 
     &:hover:not(:disabled) {
-        background: rgba(255, 255, 255, 0.1);
+        background: var(--desktop-window-control-hover);
     }
 
     &:disabled {

@@ -425,7 +425,7 @@ onUnmounted(() => {
     height: 100%;
     display: flex;
     flex-direction: column;
-    color: rgba(255, 255, 255, 0.9);
+    color: var(--desktop-window-text);
     font-size: 13px;
 }
 
@@ -436,7 +436,7 @@ onUnmounted(() => {
     justify-content: space-between;
     gap: 12px;
     padding: 12px 16px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    border-bottom: 1px solid var(--desktop-window-border);
     flex-wrap: wrap;
 
     &__left,
@@ -448,10 +448,10 @@ onUnmounted(() => {
 }
 
 .dim-btn {
-    background: rgba(255, 255, 255, 0.06);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: var(--desktop-window-titlebar-bg);
+    border: 1px solid var(--desktop-window-border);
     border-radius: 6px;
-    color: rgba(255, 255, 255, 0.8);
+    color: var(--desktop-window-text);
     padding: 6px 12px;
     font-size: 12px;
     cursor: pointer;
@@ -461,7 +461,7 @@ onUnmounted(() => {
     gap: 4px;
 
     &:hover:not(:disabled) {
-        background: rgba(255, 255, 255, 0.1);
+        background: var(--desktop-window-control-hover);
     }
 
     &:disabled {
@@ -529,7 +529,7 @@ onUnmounted(() => {
 .dim-instance__name {
     font-size: 14px;
     font-weight: 500;
-    color: rgba(255, 255, 255, 0.9);
+    color: var(--desktop-window-text);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -560,16 +560,16 @@ onUnmounted(() => {
 }
 
 .dim-instance__type {
-    background: rgba(255, 255, 255, 0.06);
+    background: var(--desktop-window-titlebar-bg);
     padding: 1px 6px;
     border-radius: 4px;
     font-size: 10px;
-    color: rgba(255, 255, 255, 0.6);
+    color: var(--desktop-window-text-secondary);
 }
 
 .dim-instance__players {
     font-size: 11px;
-    color: rgba(255, 255, 255, 0.6);
+    color: var(--desktop-window-text-secondary);
     display: flex;
     align-items: center;
     gap: 4px;
@@ -615,14 +615,14 @@ onUnmounted(() => {
         align-items: center;
         gap: 8px;
         padding: 8px 12px;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        border-bottom: 1px solid var(--desktop-window-border);
         flex-shrink: 0;
     }
 
     &__title {
         font-size: 13px;
         font-weight: 500;
-        color: rgba(255, 255, 255, 0.85);
+        color: var(--desktop-window-text);
         display: flex;
         align-items: center;
         gap: 6px;
@@ -643,7 +643,7 @@ onUnmounted(() => {
     justify-content: center;
     height: 100%;
     gap: 12px;
-    color: rgba(255, 255, 255, 0.3);
+    color: var(--desktop-window-text-muted);
 
     &__icon {
         font-size: 48px;

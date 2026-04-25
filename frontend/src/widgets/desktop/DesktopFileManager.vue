@@ -777,7 +777,7 @@ onUnmounted(() => {
     height: 100%;
     display: flex;
     flex-direction: column;
-    color: rgba(255, 255, 255, 0.9);
+    color: var(--desktop-window-text);
     font-size: 13px;
     overflow: hidden;
 }
@@ -806,7 +806,7 @@ onUnmounted(() => {
 
 .dfm-selected-count {
     font-size: 12px;
-    color: rgba(255, 255, 255, 0.6);
+    color: var(--desktop-window-text-secondary);
 }
 
 .dfm-upload-progress {
@@ -839,7 +839,7 @@ onUnmounted(() => {
 }
 
 .dfm-breadcrumbs {
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    border: 1px solid var(--desktop-window-border);
     border-radius: 6px;
     flex: 1;
     min-width: 0;
@@ -854,7 +854,7 @@ onUnmounted(() => {
         font-size: 12px;
 
         &:hover {
-            background: rgba(255, 255, 255, 0.06);
+            background: var(--desktop-window-control-hover);
         }
     }
 }
@@ -895,15 +895,15 @@ onUnmounted(() => {
 }
 
 .dfm-action-btn {
-    color: rgba(255, 255, 255, 0.5);
+    color: var(--desktop-window-text-muted);
     font-size: 11px;
     padding: 0 4px;
     min-width: 20px;
     height: 20px;
 
     &:hover {
-        color: rgba(255, 255, 255, 0.85);
-        background: rgba(255, 255, 255, 0.08);
+        color: var(--desktop-window-text);
+        background: var(--desktop-window-control-hover);
     }
 }
 
@@ -921,21 +921,21 @@ onUnmounted(() => {
 }
 
 :deep(.ant-table-thead > tr > th) {
-    background: rgba(255, 255, 255, 0.03) !important;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.06) !important;
-    color: rgba(255, 255, 255, 0.6) !important;
+    background: var(--desktop-window-titlebar-bg) !important;
+    border-bottom: 1px solid var(--desktop-window-border) !important;
+    color: var(--desktop-window-text-secondary) !important;
     font-size: 11px !important;
     padding: 6px 10px !important;
 }
 
 :deep(.ant-table-tbody > tr > td) {
-    border-bottom: 1px solid rgba(255, 255, 255, 0.04) !important;
+    border-bottom: 1px solid var(--desktop-window-border) !important;
     padding: 1px 6px !important;
     line-height: 1.1;
 }
 
 :deep(.ant-table-tbody > tr:hover > td) {
-    background: rgba(255, 255, 255, 0.03) !important;
+    background: var(--desktop-window-control-hover) !important;
 }
 
 :deep(.ant-pagination) {

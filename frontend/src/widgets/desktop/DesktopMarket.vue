@@ -254,7 +254,7 @@ const handleInstall = async () => {
                                     <div class="dm-template-info__tags">
                                         <span class="dm-tag">{{ selectedTemplate.platform }}</span>
                                         <span class="dm-tag">{{ selectedTemplateType === 'docker' ? 'Docker' : 'Normal'
-                                            }}</span>
+                                        }}</span>
                                     </div>
                                 </div>
                             </div>
@@ -284,7 +284,7 @@ const handleInstall = async () => {
     display: flex;
     flex-direction: column;
     height: 100%;
-    background: rgba(20, 20, 30, 0.6);
+    background: transparent;
     border-radius: 0 0 8px 8px;
     overflow: hidden;
     position: relative;
@@ -295,7 +295,7 @@ const handleInstall = async () => {
     display: flex;
     align-items: center;
     justify-content: center;
-    color: rgba(255, 255, 255, 0.5);
+    color: var(--desktop-window-text-muted);
     font-size: 14px;
 }
 
@@ -304,8 +304,8 @@ const handleInstall = async () => {
     justify-content: space-between;
     align-items: center;
     padding: 20px 24px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-    background: rgba(0, 0, 0, 0.2);
+    border-bottom: 1px solid var(--desktop-window-border);
+    background: var(--desktop-window-titlebar-bg);
 
     &__left {
         display: flex;
@@ -323,7 +323,7 @@ const handleInstall = async () => {
 .dm-title {
     font-size: 18px;
     font-weight: 600;
-    color: #fff;
+    color: var(--desktop-window-text);
     margin: 0;
 }
 
@@ -341,7 +341,7 @@ const handleInstall = async () => {
     }
 
     &::-webkit-scrollbar-thumb {
-        background: rgba(255, 255, 255, 0.1);
+        background: var(--desktop-window-border);
         border-radius: 3px;
     }
 }
@@ -353,22 +353,22 @@ const handleInstall = async () => {
 }
 
 .dm-card {
-    background: rgba(255, 255, 255, 0.04);
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: var(--desktop-window-titlebar-bg);
+    border: 1px solid var(--desktop-window-border);
     border-radius: 8px;
     overflow: hidden;
     cursor: pointer;
     transition: all 0.2s;
 
     &:hover {
-        background: rgba(255, 255, 255, 0.08);
-        border-color: rgba(255, 255, 255, 0.15);
+        background: var(--desktop-window-control-hover);
+        border-color: var(--desktop-window-border);
     }
 
     &__image-wrapper {
         height: 140px;
         overflow: hidden;
-        background: rgba(0, 0, 0, 0.3);
+        background: var(--desktop-window-titlebar-bg);
     }
 
     &__image {
@@ -385,7 +385,7 @@ const handleInstall = async () => {
         margin: 0;
         font-size: 15px;
         font-weight: 500;
-        color: #fff;
+        color: var(--desktop-window-text);
         text-align: center;
     }
 }
@@ -399,7 +399,7 @@ const handleInstall = async () => {
 .dm-empty {
     text-align: center;
     padding: 40px;
-    color: rgba(255, 255, 255, 0.4);
+    color: var(--desktop-window-text-muted);
     font-size: 14px;
 }
 
@@ -408,14 +408,14 @@ const handleInstall = async () => {
     justify-content: space-between;
     align-items: center;
     padding: 20px;
-    background: rgba(255, 255, 255, 0.04);
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: var(--desktop-window-titlebar-bg);
+    border: 1px solid var(--desktop-window-border);
     border-radius: 8px;
     transition: all 0.2s;
 
     &:hover {
-        background: rgba(255, 255, 255, 0.06);
-        border-color: rgba(255, 255, 255, 0.12);
+        background: var(--desktop-window-control-hover);
+        border-color: var(--desktop-window-border);
     }
 
     &__left {
@@ -427,13 +427,13 @@ const handleInstall = async () => {
         margin: 0 0 8px 0;
         font-size: 16px;
         font-weight: 600;
-        color: #fff;
+        color: var(--desktop-window-text);
     }
 
     &__desc {
         margin: 0 0 12px 0;
         font-size: 13px;
-        color: rgba(255, 255, 255, 0.6);
+        color: var(--desktop-window-text-secondary);
         line-height: 1.5;
     }
 
@@ -453,18 +453,19 @@ const handleInstall = async () => {
 
 .dm-tag {
     padding: 2px 8px;
-    background: rgba(255, 255, 255, 0.1);
+    background: var(--desktop-window-titlebar-bg);
+    border: 1px solid var(--desktop-window-border);
     border-radius: 4px;
     font-size: 12px;
-    color: rgba(255, 255, 255, 0.8);
+    color: var(--desktop-window-text-secondary);
 }
 
 .dm-select {
     appearance: none;
-    background-color: rgba(255, 255, 255, 0.06);
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    background-color: var(--desktop-window-titlebar-bg);
+    border: 1px solid var(--desktop-window-border);
     border-radius: 6px;
-    color: #fff;
+    color: var(--desktop-window-text);
     padding: 6px 30px 6px 12px;
     font-size: 13px;
     outline: none;
@@ -475,22 +476,22 @@ const handleInstall = async () => {
     background-size: 10px auto;
 
     option {
-        background: #1a1a2e;
-        color: #fff;
+        background: var(--desktop-window-bg);
+        color: var(--desktop-window-text);
     }
 }
 
 .dm-search {
     display: flex;
     align-items: center;
-    background: rgba(255, 255, 255, 0.06);
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: var(--desktop-window-titlebar-bg);
+    border: 1px solid var(--desktop-window-border);
     border-radius: 6px;
     padding: 0 12px;
     width: 200px;
 
     &__icon {
-        color: rgba(255, 255, 255, 0.4);
+        color: var(--desktop-window-text-muted);
         font-size: 14px;
     }
 
@@ -498,13 +499,13 @@ const handleInstall = async () => {
         flex: 1;
         background: transparent;
         border: none;
-        color: #fff;
+        color: var(--desktop-window-text);
         padding: 6px 8px;
         font-size: 13px;
         outline: none;
 
         &::placeholder {
-            color: rgba(255, 255, 255, 0.3);
+            color: var(--desktop-window-text-muted);
         }
     }
 }
@@ -520,7 +521,7 @@ const handleInstall = async () => {
     justify-content: center;
     gap: 6px;
     transition: all 0.2s;
-    color: #fff;
+    color: var(--desktop-window-text);
 
     &:disabled {
         opacity: 0.5;
@@ -529,6 +530,7 @@ const handleInstall = async () => {
 
     &--primary {
         background: var(--color-blue-5, #1677ff);
+        color: #fff;
 
         &:hover:not(:disabled) {
             background: var(--color-blue-6, #4096ff);
@@ -537,6 +539,7 @@ const handleInstall = async () => {
 
     &--docker {
         background: #0db7ed;
+        color: #fff;
 
         &:hover:not(:disabled) {
             background: #1ac6fc;
@@ -544,10 +547,11 @@ const handleInstall = async () => {
     }
 
     &--default {
-        background: rgba(255, 255, 255, 0.1);
+        background: var(--desktop-window-titlebar-bg);
+        border: 1px solid var(--desktop-window-border);
 
         &:hover:not(:disabled) {
-            background: rgba(255, 255, 255, 0.15);
+            background: var(--desktop-window-control-hover);
         }
     }
 
@@ -555,11 +559,11 @@ const handleInstall = async () => {
         padding: 8px;
         background: transparent;
         font-size: 16px;
-        color: rgba(255, 255, 255, 0.7);
+        color: var(--desktop-window-text-secondary);
 
         &:hover:not(:disabled) {
-            background: rgba(255, 255, 255, 0.1);
-            color: #fff;
+            background: var(--desktop-window-control-hover);
+            color: var(--desktop-window-text);
         }
     }
 }
@@ -582,8 +586,8 @@ const handleInstall = async () => {
     justify-content: flex-end;
     gap: 12px;
     padding: 16px 24px;
-    border-top: 1px solid rgba(255, 255, 255, 0.06);
-    background: rgba(0, 0, 0, 0.2);
+    border-top: 1px solid var(--desktop-window-border);
+    background: var(--desktop-window-titlebar-bg);
 }
 
 .dm-template-info {
@@ -591,9 +595,9 @@ const handleInstall = async () => {
     gap: 16px;
     margin-bottom: 24px;
     padding: 16px;
-    background: rgba(255, 255, 255, 0.04);
+    background: var(--desktop-window-titlebar-bg);
     border-radius: 8px;
-    border: 1px solid rgba(255, 255, 255, 0.06);
+    border: 1px solid var(--desktop-window-border);
 
     &__img {
         width: 64px;
@@ -608,13 +612,13 @@ const handleInstall = async () => {
         h4 {
             margin: 0 0 8px 0;
             font-size: 15px;
-            color: #fff;
+            color: var(--desktop-window-text);
         }
 
         p {
             margin: 0 0 12px 0;
             font-size: 13px;
-            color: rgba(255, 255, 255, 0.6);
+            color: var(--desktop-window-text-secondary);
             line-height: 1.4;
         }
     }
@@ -630,17 +634,17 @@ const handleInstall = async () => {
         display: block;
         margin-bottom: 8px;
         font-size: 13px;
-        color: rgba(255, 255, 255, 0.8);
+        color: var(--desktop-window-text);
     }
 }
 
 .dm-input {
     width: 100%;
     padding: 10px 12px;
-    background: rgba(255, 255, 255, 0.06);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: var(--desktop-window-titlebar-bg);
+    border: 1px solid var(--desktop-window-border);
     border-radius: 6px;
-    color: #fff;
+    color: var(--desktop-window-text);
     font-size: 14px;
     outline: none;
     transition: border-color 0.2s;
@@ -651,7 +655,7 @@ const handleInstall = async () => {
     }
 
     &::placeholder {
-        color: rgba(255, 255, 255, 0.3);
+        color: var(--desktop-window-text-muted);
     }
 }
 

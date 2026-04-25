@@ -192,7 +192,7 @@ const memColor = computed(() => {
                     <div class="ov-info-row">
                         <span class="ov-info-row__label">{{ t("TXT_CODE_uptime") }}</span>
                         <span class="ov-info-row__value">{{ systemInfo?.uptime ? formatUptime(systemInfo.uptime) : "--"
-                            }}</span>
+                        }}</span>
                     </div>
                 </div>
             </div>
@@ -209,7 +209,7 @@ const memColor = computed(() => {
                     <div class="ov-info-row">
                         <span class="ov-info-row__label">{{ t("TXT_CODE_871fb0d6") }}</span>
                         <span class="ov-info-row__value">{{ record?.loginFailed ?? 0 }} / {{ record?.illegalAccess ?? 0
-                            }}</span>
+                        }}</span>
                     </div>
                     <div class="ov-info-row">
                         <span class="ov-info-row__label">{{ t("TXT_CODE_856bd2f3") }}</span>
@@ -274,8 +274,8 @@ const memColor = computed(() => {
 }
 
 .ov-stat-card {
-    background: rgba(255, 255, 255, 0.04);
-    border: 1px solid rgba(255, 255, 255, 0.06);
+    background: var(--desktop-window-titlebar-bg);
+    border: 1px solid var(--desktop-window-border);
     border-radius: 10px;
     padding: 14px 16px;
     display: flex;
@@ -284,12 +284,12 @@ const memColor = computed(() => {
     transition: background 0.2s;
 
     &:hover {
-        background: rgba(255, 255, 255, 0.07);
+        background: var(--desktop-window-control-hover);
     }
 
     &__icon {
         font-size: 18px;
-        color: rgba(255, 255, 255, 0.4);
+        color: var(--desktop-window-text-secondary);
     }
 
     &__body {
@@ -301,13 +301,13 @@ const memColor = computed(() => {
     &__value {
         font-size: 22px;
         font-weight: 700;
-        color: #fff;
+        color: var(--desktop-window-text);
         line-height: 1;
     }
 
     &__label {
         font-size: 12px;
-        color: rgba(255, 255, 255, 0.45);
+        color: var(--desktop-window-text-muted);
         text-transform: uppercase;
         letter-spacing: 0.5px;
     }
@@ -331,12 +331,12 @@ const memColor = computed(() => {
 
     &__stopped,
     &__offline {
-        color: rgba(255, 255, 255, 0.4);
+        color: var(--desktop-window-text-muted);
     }
 
     &__bar {
         height: 4px;
-        background: rgba(255, 255, 255, 0.08);
+        background: var(--desktop-window-border);
         border-radius: 2px;
         overflow: hidden;
         margin-top: 2px;
@@ -358,8 +358,8 @@ const memColor = computed(() => {
 }
 
 .ov-panel {
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid rgba(255, 255, 255, 0.06);
+    background: var(--desktop-window-titlebar-bg);
+    border: 1px solid var(--desktop-window-border);
     border-radius: 10px;
     display: flex;
     flex-direction: column;
@@ -367,14 +367,14 @@ const memColor = computed(() => {
 
     &__header {
         padding: 10px 14px;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        border-bottom: 1px solid var(--desktop-window-border);
         flex-shrink: 0;
     }
 
     &__title {
         font-size: 13px;
         font-weight: 600;
-        color: rgba(255, 255, 255, 0.8);
+        color: var(--desktop-window-text);
     }
 
     &__body {
@@ -393,7 +393,7 @@ const memColor = computed(() => {
     justify-content: space-between;
     align-items: center;
     padding: 6px 0;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+    border-bottom: 1px solid var(--desktop-window-border);
 
     &:last-child {
         border-bottom: none;
@@ -401,12 +401,12 @@ const memColor = computed(() => {
 
     &__label {
         font-size: 12px;
-        color: rgba(255, 255, 255, 0.5);
+        color: var(--desktop-window-text-secondary);
     }
 
     &__value {
         font-size: 12px;
-        color: rgba(255, 255, 255, 0.85);
+        color: var(--desktop-window-text);
         font-weight: 500;
         text-align: right;
     }
@@ -422,7 +422,7 @@ const memColor = computed(() => {
     cursor: default;
 
     &:hover {
-        background: rgba(255, 255, 255, 0.04);
+        background: var(--desktop-window-control-hover);
     }
 
     &__status {
@@ -437,7 +437,7 @@ const memColor = computed(() => {
     &__name {
         font-size: 13px;
         font-weight: 500;
-        color: rgba(255, 255, 255, 0.85);
+        color: var(--desktop-window-text);
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
@@ -445,14 +445,14 @@ const memColor = computed(() => {
 
     &__meta {
         font-size: 11px;
-        color: rgba(255, 255, 255, 0.4);
+        color: var(--desktop-window-text-muted);
         display: flex;
         gap: 8px;
         margin-top: 2px;
     }
 
     &__instances {
-        color: rgba(255, 255, 255, 0.5);
+        color: var(--desktop-window-text-secondary);
     }
 
     &__stats {
@@ -463,7 +463,7 @@ const memColor = computed(() => {
 
     &__stat {
         font-size: 11px;
-        color: rgba(255, 255, 255, 0.5);
+        color: var(--desktop-window-text-secondary);
         display: flex;
         align-items: center;
         gap: 2px;
@@ -482,13 +482,13 @@ const memColor = computed(() => {
     }
 
     &--offline {
-        background: rgba(255, 255, 255, 0.2);
+        background: var(--desktop-window-text-muted);
     }
 }
 
 .ov-empty {
     font-size: 12px;
-    color: rgba(255, 255, 255, 0.35);
+    color: var(--desktop-window-text-muted);
     text-align: center;
     padding: 20px 0;
 }
@@ -502,7 +502,7 @@ const memColor = computed(() => {
 }
 
 .desktop-overview::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.1);
+    background: var(--desktop-window-border);
     border-radius: 2px;
 }
 </style>

@@ -522,7 +522,7 @@ limitations under the License.`;
                                 <select v-model="(formData as any).ssoOnlyMode" class="ds-select">
                                     <option v-for="item in allYesNo" :key="String(item.value)" :value="item.value">{{
                                         item.label
-                                        }}</option>
+                                    }}</option>
                                 </select>
                             </div>
 
@@ -532,7 +532,7 @@ limitations under the License.`;
                                 <select v-model="(formData as any).ssoAutoRedirect" class="ds-select">
                                     <option v-for="item in allYesNo" :key="String(item.value)" :value="item.value">{{
                                         item.label
-                                        }}</option>
+                                    }}</option>
                                 </select>
                             </div>
                         </template>
@@ -576,7 +576,7 @@ limitations under the License.`;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: rgba(255, 255, 255, 0.5);
+    color: var(--desktop-window-text-muted);
     font-size: 14px;
 }
 
@@ -596,22 +596,22 @@ limitations under the License.`;
     display: flex;
     align-items: center;
     gap: 10px;
-    color: rgba(255, 255, 255, 0.6);
+    color: var(--desktop-window-text-secondary);
     cursor: pointer;
     transition: all 0.2s;
     font-size: 13px;
     border-radius: 8px;
 
     &:hover {
-        background: rgba(255, 255, 255, 0.08);
-        color: rgba(255, 255, 255, 0.9);
+        background: var(--desktop-window-control-hover);
+        color: var(--desktop-window-text);
     }
 
     &--active {
-        background: rgba(255, 255, 255, 0.1);
+        background: var(--desktop-window-titlebar-bg);
 
         &:hover {
-            background: rgba(255, 255, 255, 0.15);
+            background: var(--desktop-window-control-hover);
         }
     }
 
@@ -641,7 +641,7 @@ limitations under the License.`;
     }
 
     &::-webkit-scrollbar-thumb {
-        background: rgba(255, 255, 255, 0.1);
+        background: var(--desktop-window-border);
         border-radius: 3px;
     }
 }
@@ -653,7 +653,7 @@ limitations under the License.`;
 .ds-title {
     font-size: 18px;
     font-weight: 600;
-    color: #fff;
+    color: var(--desktop-window-text);
     margin: 0 0 24px 0;
 }
 
@@ -665,13 +665,13 @@ limitations under the License.`;
     display: block;
     font-size: 14px;
     font-weight: 500;
-    color: rgba(255, 255, 255, 0.9);
+    color: var(--desktop-window-text);
     margin-bottom: 6px;
 }
 
 .ds-desc {
     font-size: 12px;
-    color: rgba(255, 255, 255, 0.45);
+    color: var(--desktop-window-text-muted);
     margin: 0 0 8px 0;
     line-height: 1.5;
 }
@@ -686,21 +686,21 @@ limitations under the License.`;
     width: 100%;
     max-width: 400px;
     padding: 8px 12px;
-    background: rgba(255, 255, 255, 0.06);
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: var(--desktop-window-titlebar-bg);
+    border: 1px solid var(--desktop-window-border);
     border-radius: 6px;
-    color: #fff;
+    color: var(--desktop-window-text);
     font-size: 13px;
     outline: none;
     transition: border-color 0.2s;
     font-family: inherit;
 
     &::placeholder {
-        color: rgba(255, 255, 255, 0.25);
+        color: var(--desktop-window-text-muted);
     }
 
     &:focus {
-        border-color: rgba(255, 255, 255, 0.2);
+        border-color: var(--desktop-window-border);
     }
 }
 
@@ -718,8 +718,8 @@ limitations under the License.`;
     padding-right: 30px;
 
     option {
-        background: #1a1a2e;
-        color: #fff;
+        background: var(--desktop-window-bg);
+        color: var(--desktop-window-text);
     }
 }
 
@@ -744,7 +744,7 @@ limitations under the License.`;
     align-items: center;
     gap: 6px;
     transition: all 0.2s;
-    color: #fff;
+    color: var(--desktop-window-text);
     white-space: nowrap;
 
     &:disabled {
@@ -754,6 +754,7 @@ limitations under the License.`;
 
     &--primary {
         background: var(--color-blue-5, #1677ff);
+        color: #fff;
 
         &:hover:not(:disabled) {
             background: var(--color-blue-6, #4096ff);
@@ -761,10 +762,11 @@ limitations under the License.`;
     }
 
     &--default {
-        background: rgba(255, 255, 255, 0.08);
+        background: var(--desktop-window-titlebar-bg);
+        border: 1px solid var(--desktop-window-border);
 
         &:hover:not(:disabled) {
-            background: rgba(255, 255, 255, 0.12);
+            background: var(--desktop-window-control-hover);
         }
     }
 }
@@ -789,7 +791,7 @@ limitations under the License.`;
 }
 
 .ds-about-content {
-    color: rgba(255, 255, 255, 0.7);
+    color: var(--desktop-window-text-secondary);
     font-size: 13px;
     line-height: 1.6;
 
@@ -799,14 +801,14 @@ limitations under the License.`;
 }
 
 .ds-license {
-    background: rgba(0, 0, 0, 0.2);
+    background: var(--desktop-window-titlebar-bg);
     padding: 16px;
     border-radius: 6px;
-    border: 1px solid rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--desktop-window-border);
     font-family: "Cascadia Code", "Fira Code", monospace;
     font-size: 12px;
     white-space: pre-wrap;
-    color: rgba(255, 255, 255, 0.5);
+    color: var(--desktop-window-text-muted);
     margin-top: 20px;
 }
 </style>

@@ -349,7 +349,7 @@ onMounted(async () => {
     height: 100%;
     display: flex;
     flex-direction: column;
-    color: rgba(255, 255, 255, 0.9);
+    color: var(--desktop-window-text);
     font-size: 13px;
     overflow: hidden;
 }
@@ -359,7 +359,7 @@ onMounted(async () => {
     align-items: center;
     justify-content: space-between;
     padding: 10px 14px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    border-bottom: 1px solid var(--desktop-window-border);
     flex-shrink: 0;
 
     &__left {
@@ -378,10 +378,10 @@ onMounted(async () => {
 }
 
 .ds-btn {
-    background: rgba(255, 255, 255, 0.06);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: var(--desktop-window-titlebar-bg);
+    border: 1px solid var(--desktop-window-border);
     border-radius: 6px;
-    color: rgba(255, 255, 255, 0.8);
+    color: var(--desktop-window-text);
     padding: 4px 12px;
     font-size: 12px;
     cursor: pointer;
@@ -391,7 +391,7 @@ onMounted(async () => {
     gap: 4px;
 
     &:hover {
-        background: rgba(255, 255, 255, 0.1);
+        background: var(--desktop-window-control-hover);
     }
 
     &--primary {
@@ -408,7 +408,7 @@ onMounted(async () => {
 .ds-btn-icon {
     background: transparent;
     border: none;
-    color: rgba(255, 255, 255, 0.6);
+    color: var(--desktop-window-text-muted);
     padding: 4px 6px;
     cursor: pointer;
     border-radius: 4px;
@@ -416,8 +416,8 @@ onMounted(async () => {
     font-size: 14px;
 
     &:hover {
-        background: rgba(255, 255, 255, 0.08);
-        color: rgba(255, 255, 255, 0.9);
+        background: var(--desktop-window-control-hover);
+        color: var(--desktop-window-text);
     }
 
     &--danger:hover {
@@ -435,7 +435,7 @@ onMounted(async () => {
 .dschedule-empty {
     text-align: center;
     padding: 40px 16px;
-    color: rgba(255, 255, 255, 0.4);
+    color: var(--desktop-window-text-muted);
     font-size: 13px;
 }
 
@@ -449,7 +449,7 @@ onMounted(async () => {
     gap: 12px;
 
     &:hover {
-        background: rgba(255, 255, 255, 0.04);
+        background: var(--desktop-window-control-hover);
     }
 
     &__info {
@@ -460,7 +460,7 @@ onMounted(async () => {
     &__name {
         font-size: 13px;
         font-weight: 500;
-        color: rgba(255, 255, 255, 0.9);
+        color: var(--desktop-window-text);
         margin-bottom: 4px;
     }
 
@@ -479,17 +479,17 @@ onMounted(async () => {
 
     &__time {
         font-size: 11px;
-        color: rgba(255, 255, 255, 0.5);
+        color: var(--desktop-window-text-muted);
     }
 
     &__count {
         font-size: 11px;
-        color: rgba(255, 255, 255, 0.5);
+        color: var(--desktop-window-text-muted);
     }
 
     &__payload {
         font-size: 11px;
-        color: rgba(255, 255, 255, 0.4);
+        color: var(--desktop-window-text-muted);
         margin-top: 2px;
         overflow: hidden;
         text-overflow: ellipsis;
@@ -515,7 +515,7 @@ onMounted(async () => {
 }
 
 .ds-count--unlimited {
-    color: rgba(255, 255, 255, 0.3);
+    color: var(--desktop-window-text-muted);
 }
 
 .ds-actions-header {

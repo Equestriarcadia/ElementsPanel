@@ -79,7 +79,7 @@ const handleInstallAction = async (createMethod: QUICKSTART_METHOD) => {
     height: 100%;
     display: flex;
     flex-direction: column;
-    color: rgba(255, 255, 255, 0.9);
+    color: var(--desktop-window-text);
 }
 
 .dni-header {
@@ -88,13 +88,13 @@ const handleInstallAction = async (createMethod: QUICKSTART_METHOD) => {
     h3 {
         font-size: 20px;
         font-weight: 600;
-        color: #fff;
+        color: var(--desktop-window-text);
         margin: 0 0 8px 0;
     }
 
     p {
         font-size: 13px;
-        color: rgba(255, 255, 255, 0.6);
+        color: var(--desktop-window-text-secondary);
         margin: 0;
     }
 }
@@ -110,15 +110,15 @@ const handleInstallAction = async (createMethod: QUICKSTART_METHOD) => {
     align-items: center;
     gap: 16px;
     padding: 20px;
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid rgba(255, 255, 255, 0.06);
+    background: var(--desktop-window-titlebar-bg);
+    border: 1px solid var(--desktop-window-border);
     border-radius: 12px;
     cursor: pointer;
     transition: all 0.2s ease;
 
     &:hover {
-        background: rgba(255, 255, 255, 0.06);
-        border-color: rgba(255, 255, 255, 0.15);
+        background: var(--desktop-window-control-hover);
+        border-color: var(--desktop-window-border);
     }
 
     &__icon {
@@ -148,13 +148,13 @@ const handleInstallAction = async (createMethod: QUICKSTART_METHOD) => {
         h4 {
             font-size: 16px;
             font-weight: 500;
-            color: #fff;
+            color: var(--desktop-window-text);
             margin: 0 0 4px 0;
         }
 
         p {
             font-size: 13px;
-            color: rgba(255, 255, 255, 0.5);
+            color: var(--desktop-window-text-secondary);
             margin: 0;
             line-height: 1.4;
         }
