@@ -27,6 +27,7 @@ const emit = defineEmits<{
     (e: "exit-desktop"): void;
     (e: "open-user-info"): void;
     (e: "reorder-windows", newOrder: string[]): void;
+    (e: "contextmenu-window", event: MouseEvent, id: string): void;
 }>();
 
 const draggedIndex = ref<number | null>(null);
@@ -113,6 +114,10 @@ const handleToggleTheme = () => {
 };
 
 const isComponentIcon = (icon: Component | string): boolean => typeof icon !== "string";
+
+const handleContextMenu = (event: MouseEvent, win: TaskbarWindow) => {
+    emit("contextmenu-window", event, win.id);
+};
 </script>
 
 <template>
@@ -165,7 +170,8 @@ const isComponentIcon = (icon: Component | string): boolean => typeof icon !== "
                     'taskbar__window-btn--drag-over-left': dragOverIndex === index && draggedIndex !== null && draggedIndex > index,
                     'taskbar__window-btn--drag-over-right': dragOverIndex === index && draggedIndex !== null && draggedIndex < index
                 }" draggable="true" @dragstart="onDragStart(index, $event)" @dragover="onDragOver(index, $event)"
-                    @drop="onDrop(index, $event)" @dragend="onDragEnd" @click="emit('toggle-window', win.id)">
+                    @drop="onDrop(index, $event)" @dragend="onDragEnd" @click="emit('toggle-window', win.id)"
+                    @contextmenu.stop.prevent="handleContextMenu($event, win)">
                     <span class="taskbar__window-icon">
                         <component :is="win.icon" v-if="isComponentIcon(win.icon)" />
                         <img v-else-if="typeof win.icon === 'string' && win.icon.endsWith('.svg')" :src="win.icon"

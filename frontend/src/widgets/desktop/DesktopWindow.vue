@@ -43,6 +43,7 @@ const emit = defineEmits<{
     (e: "focus", id: string): void;
     (e: "moved", id: string, x: number, y: number): void;
     (e: "resized", id: string, x: number, y: number, width: number, height: number): void;
+    (e: "contextmenu-titlebar", event: MouseEvent, id: string): void;
 }>();
 
 const x = ref(props.initialX);
@@ -173,6 +174,10 @@ const handleFocus = () => {
     emit("focus", props.id);
 };
 
+const onContextMenuTitlebar = (e: MouseEvent) => {
+    emit("contextmenu-titlebar", e, props.id);
+};
+
 onMounted(() => {
     document.addEventListener("mousemove", onMouseMove);
     document.addEventListener("mouseup", onMouseUp);
@@ -192,7 +197,8 @@ onUnmounted(() => {
         'desktop-window--resizing': isResizing
     }" :style="windowStyle" @mousedown="handleFocus">
         <!-- Title Bar -->
-        <div class="window__titlebar" @mousedown="onMouseDownTitlebar" @dblclick="handleMaximize">
+        <div class="window__titlebar" @mousedown="onMouseDownTitlebar" @dblclick="handleMaximize"
+            @contextmenu.stop.prevent="onContextMenuTitlebar">
             <div class="window__titlebar-left">
                 <span class="window__icon">
                     <component :is="icon" v-if="isComponentIcon" />

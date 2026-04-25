@@ -34,6 +34,7 @@ import DesktopWindow from "@/widgets/desktop/DesktopWindow.vue";
 import {
     AppstoreOutlined,
     CloseOutlined,
+    CloseSquareOutlined,
     ClusterOutlined,
     CodeOutlined,
     ControlOutlined,
@@ -42,6 +43,9 @@ import {
     EditOutlined,
     FieldTimeOutlined,
     FolderOpenOutlined,
+    FullscreenExitOutlined,
+    FullscreenOutlined,
+    MinusOutlined,
     SettingOutlined,
     ShoppingOutlined,
     TeamOutlined,
@@ -830,25 +834,89 @@ const navigateToRoute = (appId: string) => {
 const ctxMenu = reactive({
     visible: false,
     x: 0,
-    y: 0
+    y: 0,
+    targetWindowId: null as string | null,
+    isTitlebar: false
 });
 
-const ctxMenuItems = computed<ContextMenuItem[]>(() => [
-    {
+const ctxMenuItems = computed<ContextMenuItem[]>(() => {
+    const items: ContextMenuItem[] = [];
+
+    if (ctxMenu.targetWindowId) {
+        if (ctxMenu.isTitlebar) {
+            const win = windows.get(ctxMenu.targetWindowId);
+            if (win) {
+                items.push({
+                    label: t("TXT_CODE_DESKTOP_MINIMIZE"),
+                    icon: markRaw(MinusOutlined),
+                    action: () => {
+                        if (ctxMenu.targetWindowId) {
+                            minimizeWindow(ctxMenu.targetWindowId);
+                        }
+                    }
+                });
+                items.push({
+                    label: win.maximized ? (t("TXT_CODE_DESKTOP_RESTORE")) : (t("TXT_CODE_DESKTOP_MAXIMIZE")),
+                    icon: markRaw(win.maximized ? FullscreenExitOutlined : FullscreenOutlined),
+                    action: () => {
+                        if (ctxMenu.targetWindowId) {
+                            maximizeWindow(ctxMenu.targetWindowId);
+                        }
+                    }
+                });
+                items.push({ divider: true } as any);
+            }
+        }
+
+        items.push({
+            label: t("TXT_CODE_DESKTOP_CLOSE"),
+            icon: markRaw(CloseOutlined),
+            action: () => {
+                if (ctxMenu.targetWindowId) {
+                    closeWindow(ctxMenu.targetWindowId);
+                }
+            }
+        });
+        items.push({ divider: true } as any);
+    }
+
+    items.push({
         label: t("TXT_CODE_DESKTOP_CLOSE_ALL"),
-        icon: markRaw(CloseOutlined),
+        icon: markRaw(CloseSquareOutlined),
         action: () => {
             windows.clear();
             saveDesktopLayout();
         }
-    }
-]);
+    });
+
+    return items;
+});
 
 const onDesktopContextMenu = (e: MouseEvent) => {
     if (showLoginOverlay.value) return;
     e.preventDefault();
     ctxMenu.x = e.clientX;
     ctxMenu.y = e.clientY;
+    ctxMenu.targetWindowId = null;
+    ctxMenu.isTitlebar = false;
+    ctxMenu.visible = true;
+};
+
+const onTaskbarContextMenu = (e: MouseEvent, id: string) => {
+    e.preventDefault();
+    ctxMenu.x = e.clientX;
+    ctxMenu.y = e.clientY;
+    ctxMenu.targetWindowId = id;
+    ctxMenu.isTitlebar = false;
+    ctxMenu.visible = true;
+};
+
+const onTitlebarContextMenu = (e: MouseEvent, id: string) => {
+    e.preventDefault();
+    ctxMenu.x = e.clientX;
+    ctxMenu.y = e.clientY;
+    ctxMenu.targetWindowId = id;
+    ctxMenu.isTitlebar = true;
     ctxMenu.visible = true;
 };
 
@@ -889,7 +957,8 @@ const username = computed(() => appState.userInfo?.userName || "User");
                             :initial-y="win.initialY" :initial-width="win.initialWidth"
                             :initial-height="win.initialHeight" :z-index="win.zIndex" @close="closeWindow"
                             @minimize="minimizeWindow" @maximize="maximizeWindow" @focus="focusWindow"
-                            @moved="handleWindowMoved" @resized="handleWindowResized">
+                            @moved="handleWindowMoved" @resized="handleWindowResized"
+                            @contextmenu-titlebar="onTitlebarContextMenu">
                             <div class="window-inner-content">
                                 <DesktopMyApps v-if="win.content === 'my-apps'" @open-console="openInstanceConsole" />
 
@@ -968,7 +1037,7 @@ const username = computed(() => appState.userInfo?.userName || "User");
                     </TransitionGroup>
                     <DesktopTaskbar :windows="taskbarWindows" :username="username" @toggle-window="toggleWindow"
                         @exit-desktop="exitDesktop" @open-user-info="openUserInfoWindow"
-                        @reorder-windows="handleReorderWindows" />
+                        @reorder-windows="handleReorderWindows" @contextmenu-window="onTaskbarContextMenu" />
                     <DesktopContextMenu :visible="ctxMenu.visible" :x="ctxMenu.x" :y="ctxMenu.y" :items="ctxMenuItems"
                         @close="closeContextMenu" />
                 </div>
