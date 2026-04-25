@@ -4,6 +4,7 @@ import { logoutUser } from "@/services/apis/index";
 import { useAppStateStore } from "@/stores/useAppStateStore";
 import type { ContextMenuItem } from "@/widgets/desktop/DesktopContextMenu.vue";
 import DesktopContextMenu from "@/widgets/desktop/DesktopContextMenu.vue";
+import DesktopFileEditor from "@/widgets/desktop/DesktopFileEditor.vue";
 import DesktopFileManager from "@/widgets/desktop/DesktopFileManager.vue";
 import DesktopIcon from "@/widgets/desktop/DesktopIcon.vue";
 import DesktopInstanceConsole from "@/widgets/desktop/DesktopInstanceConsole.vue";
@@ -27,6 +28,7 @@ import {
     ControlOutlined,
     DashboardOutlined,
     DesktopOutlined,
+    EditOutlined,
     FolderOpenOutlined,
     SettingOutlined,
     ShoppingOutlined,
@@ -145,6 +147,8 @@ interface WindowState {
     instanceId?: string;
     daemonId?: string;
     type?: string;
+    filePath?: string;
+    fileName?: string;
 }
 
 const windows = reactive<Map<string, WindowState>>(new Map());
@@ -238,6 +242,33 @@ const openFileManagerWindow = (instanceId: string, daemonId: string, instanceNam
         initialHeight: 600,
         instanceId: instanceId,
         daemonId: daemonId
+    });
+};
+
+const openFileEditorWindow = (instanceId: string, daemonId: string, filePath: string, fileName: string) => {
+    const windowId = `file-editor-${instanceId}-${Date.now()}`;
+
+    windowOffset = (windowOffset + 1) % 8;
+    const offsetX = 140 + windowOffset * 30;
+    const offsetY = 100 + windowOffset * 30;
+
+    windows.set(windowId, {
+        id: windowId,
+        title: fileName,
+        icon: markRaw(EditOutlined),
+        visible: true,
+        minimized: false,
+        maximized: false,
+        zIndex: ++nextZIndex,
+        content: "file-editor",
+        initialX: offsetX,
+        initialY: offsetY,
+        initialWidth: 900,
+        initialHeight: 600,
+        instanceId: instanceId,
+        daemonId: daemonId,
+        filePath: filePath,
+        fileName: fileName
     });
 };
 
@@ -507,7 +538,13 @@ const username = computed(() => appState.userInfo?.userName || "User");
 
                                 <DesktopFileManager
                                     v-else-if="win.content === 'file-manager' && win.instanceId && win.daemonId"
-                                    :instance-id="win.instanceId" :daemon-id="win.daemonId" :session-id="win.id" />
+                                    :instance-id="win.instanceId" :daemon-id="win.daemonId" :session-id="win.id"
+                                    @open-file-editor="(filePath: string, fileName: string) => openFileEditorWindow(win.instanceId!, win.daemonId!, filePath, fileName)" />
+
+                                <DesktopFileEditor
+                                    v-else-if="win.content === 'file-editor' && win.instanceId && win.daemonId && win.filePath && win.fileName"
+                                    :instance-id="win.instanceId" :daemon-id="win.daemonId" :file-path="win.filePath"
+                                    :file-name="win.fileName" @close="closeWindow(win.id)" />
 
                                 <DesktopOverview v-else-if="win.content === 'overview'" />
 

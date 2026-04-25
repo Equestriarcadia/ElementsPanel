@@ -32,12 +32,15 @@ import {
 import { Modal, type ItemType, type UploadChangeParam, type UploadProps } from "ant-design-vue";
 import dayjs from "dayjs";
 import { computed, h, onMounted, onUnmounted, ref, watch, type CSSProperties } from "vue";
-import FileEditor from "../instance/dialogs/FileEditor.vue";
 
 const props = defineProps<{
     instanceId: string;
     daemonId: string;
     sessionId?: string;
+}>();
+
+const emit = defineEmits<{
+    (e: "open-file-editor", filePath: string, fileName: string): void;
 }>();
 
 const { isPhone } = useScreen();
@@ -189,8 +192,6 @@ task = setInterval(async () => {
     await getFileStatus();
 }, 3000);
 
-const FileEditorDialog = ref<InstanceType<typeof FileEditor>>();
-
 const opacity = ref(false);
 const handleDragover = (e: DragEvent) => {
     e.preventDefault();
@@ -244,7 +245,7 @@ const onFileSelect = (info: UploadChangeParam) => {
 
 const editFile = (fileName: string) => {
     const path = currentPath.value + fileName;
-    FileEditorDialog.value?.openDialog(path, fileName);
+    emit("open-file-editor", path, fileName);
 };
 
 const handleClickFile = async (file: DataType) => {
@@ -631,8 +632,6 @@ onUnmounted(() => {
             </a-space>
         </a-modal>
 
-        <FileEditor v-if="daemonId && instanceId" ref="FileEditorDialog" :daemon-id="daemonId" :instance-id="instanceId"
-            @save="getFileList" />
     </div>
 </template>
 
