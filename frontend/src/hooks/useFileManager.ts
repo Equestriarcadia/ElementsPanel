@@ -62,7 +62,7 @@ interface TabsMap {
 
 const TAB_LIST_KEY = "FileManagerTabMap";
 
-export const useFileManager = (instanceId: string = "", daemonId: string = "") => {
+export const useFileManager = (instanceId: string = "", daemonId: string = "", sessionId: string = "") => {
   const tabList = useLocalStorage<TabsMap>(TAB_LIST_KEY, {});
   const dataSource = ref<DataType[]>();
   const fileStatus = ref<FileStatus>();
@@ -86,7 +86,7 @@ export const useFileManager = (instanceId: string = "", daemonId: string = "") =
     () => removeTrail(breadcrumbs[breadcrumbs.length - 1].path, "/") + "/"
   );
 
-  const currentTabKey = instanceId + daemonId;
+  const currentTabKey = instanceId + daemonId + sessionId;
   const currentTabs = computed(() => tabList.value[currentTabKey] ?? []);
   const activeTab = ref<string>("");
 
@@ -247,7 +247,7 @@ export const useFileManager = (instanceId: string = "", daemonId: string = "") =
     unzipmode: "0",
     code: "utf-8",
     ref: ref<VNodeRef>(),
-    ok: () => {},
+    ok: () => { },
     cancel: () => {
       dialog.value.value = "";
     },
@@ -286,7 +286,7 @@ export const useFileManager = (instanceId: string = "", daemonId: string = "") =
         dialog.value.info = "";
         dialog.value.mode = "";
         dialog.value.style = {};
-        dialog.value.ok = () => {};
+        dialog.value.ok = () => { };
       };
     });
   };

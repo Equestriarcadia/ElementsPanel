@@ -4,6 +4,7 @@ import { logoutUser } from "@/services/apis/index";
 import { useAppStateStore } from "@/stores/useAppStateStore";
 import type { ContextMenuItem } from "@/widgets/desktop/DesktopContextMenu.vue";
 import DesktopContextMenu from "@/widgets/desktop/DesktopContextMenu.vue";
+import DesktopFileManager from "@/widgets/desktop/DesktopFileManager.vue";
 import DesktopIcon from "@/widgets/desktop/DesktopIcon.vue";
 import DesktopInstanceConsole from "@/widgets/desktop/DesktopInstanceConsole.vue";
 import DesktopInstanceManager from "@/widgets/desktop/DesktopInstanceManager.vue";
@@ -26,6 +27,7 @@ import {
     ControlOutlined,
     DashboardOutlined,
     DesktopOutlined,
+    FolderOpenOutlined,
     SettingOutlined,
     ShoppingOutlined,
     SyncOutlined,
@@ -210,6 +212,31 @@ const openInstanceConsole = (instance: any, daemonId: string) => {
         initialWidth: 1000,
         initialHeight: 650,
         instanceId: instance.instanceUuid,
+        daemonId: daemonId
+    });
+};
+
+const openFileManagerWindow = (instanceId: string, daemonId: string, instanceName: string) => {
+    const windowId = `file-manager-${instanceId}-${Date.now()}`;
+
+    windowOffset = (windowOffset + 1) % 8;
+    const offsetX = 120 + windowOffset * 30;
+    const offsetY = 80 + windowOffset * 30;
+
+    windows.set(windowId, {
+        id: windowId,
+        title: `${instanceName} - ${t("TXT_CODE_ae533703")}`,
+        icon: markRaw(FolderOpenOutlined),
+        visible: true,
+        minimized: false,
+        maximized: false,
+        zIndex: ++nextZIndex,
+        content: "file-manager",
+        initialX: offsetX,
+        initialY: offsetY,
+        initialWidth: 900,
+        initialHeight: 600,
+        instanceId: instanceId,
         daemonId: daemonId
     });
 };
@@ -471,11 +498,16 @@ const username = computed(() => appState.userInfo?.userName || "User");
                                 <DesktopInstanceConsole
                                     v-else-if="win.content === 'instance-console' && win.instanceId && win.daemonId"
                                     :instance-id="win.instanceId" :daemon-id="win.daemonId"
-                                    @open-server-config="openServerConfigWindow" />
+                                    @open-server-config="openServerConfigWindow"
+                                    @open-file-manager="openFileManagerWindow" />
 
                                 <DesktopServerConfig
                                     v-else-if="win.content === 'server-config' && win.instanceId && win.daemonId && win.type"
                                     :instance-id="win.instanceId" :daemon-id="win.daemonId" :type="win.type" />
+
+                                <DesktopFileManager
+                                    v-else-if="win.content === 'file-manager' && win.instanceId && win.daemonId"
+                                    :instance-id="win.instanceId" :daemon-id="win.daemonId" :session-id="win.id" />
 
                                 <DesktopOverview v-else-if="win.content === 'overview'" />
 

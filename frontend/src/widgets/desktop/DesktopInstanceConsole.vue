@@ -48,6 +48,7 @@ const props = defineProps<{
 
 const emit = defineEmits<{
     (e: "open-server-config", instanceId: string, daemonId: string, type: string): void;
+    (e: "open-file-manager", instanceId: string, daemonId: string, instanceName: string): void;
 }>();
 
 const { state, isAdmin } = useAppStateStore();
@@ -407,8 +408,8 @@ onUnmounted(() => {
         <!-- Management Buttons -->
         <DesktopManagerBtns :instance-id="instanceId" :daemon-id="daemonId"
             @open-server-config="(type: string) => emit('open-server-config', instanceId, daemonId, type)"
-            @open-file-manager="openDialog('file-manager')" @open-mod-manager="openDialog('mod-manager')"
-            @open-schedule="openDialog('schedule')" />
+            @open-file-manager="emit('open-file-manager', instanceId, daemonId, getInstanceName || instanceId)"
+            @open-mod-manager="openDialog('mod-manager')" @open-schedule="openDialog('schedule')" />
     </div>
 </template>
 
