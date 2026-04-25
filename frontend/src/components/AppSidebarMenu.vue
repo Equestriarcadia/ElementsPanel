@@ -73,12 +73,9 @@ const onAppDropdownClick = (item: SidebarAppDropdownEntry, info: { key: Key }) =
         <div v-if="entry.type === 'divider'" class="sidebar-divider" />
 
         <!-- Route link -->
-        <a
-          v-else-if="entry.type === 'route'"
-          class="sidebar-item"
+        <a v-else-if="entry.type === 'route'" class="sidebar-item"
           :class="[entry.customClass, { 'sidebar-item-active': isRouteActive(entry.path) }]"
-          @click.prevent="handleToPage(entry.path)"
-        >
+          @click.prevent="handleToPage(entry.path)">
           <component :is="getRouteIcon(entry.path)" class="sidebar-item-icon" />
           <span class="sidebar-item-text">{{ entry.name }}</span>
         </a>
@@ -90,7 +87,7 @@ const onAppDropdownClick = (item: SidebarAppDropdownEntry, info: { key: Key }) =
             <span class="sidebar-item-text">{{ entry.title }}</span>
           </a>
           <template #overlay>
-            <a-menu @click="(info) => onAppDropdownClick(entry, info)">
+            <a-menu @click="onAppDropdownClick(entry, $event)">
               <a-menu-item v-for="m in entry.menus" :key="String(m.value)">
                 {{ m.title }}
               </a-menu-item>
@@ -99,12 +96,8 @@ const onAppDropdownClick = (item: SidebarAppDropdownEntry, info: { key: Key }) =
         </a-dropdown>
 
         <!-- App menu (single click) -->
-        <a
-          v-else-if="entry.type === 'app'"
-          class="sidebar-item"
-          :class="entry.customClass"
-          @click.prevent="entry.click()"
-        >
+        <a v-else-if="entry.type === 'app'" class="sidebar-item" :class="entry.customClass"
+          @click.prevent="entry.click()">
           <component :is="entry.icon" v-if="entry.icon" class="sidebar-item-icon" />
           <span class="sidebar-item-text">{{ entry.title }}</span>
         </a>
@@ -119,6 +112,7 @@ const onAppDropdownClick = (item: SidebarAppDropdownEntry, info: { key: Key }) =
   text-align: center;
   padding-top: 10px;
   padding-bottom: 18px;
+
   img {
     height: 20px;
     animation: MasterLogoWobble 10s ease infinite;
@@ -127,7 +121,6 @@ const onAppDropdownClick = (item: SidebarAppDropdownEntry, info: { key: Key }) =
 
 .left-sidebar:hover {
   width: 246px;
-  background-position-x: -20px;
 }
 
 .left-sidebar {
@@ -136,10 +129,8 @@ const onAppDropdownClick = (item: SidebarAppDropdownEntry, info: { key: Key }) =
   flex: 0 0 240px;
   text-align: left;
   border-right: 1px solid var(--color-gray-5);
-  background-image: url("@/assets/side.png");
   padding: 20px 12px;
   transition: all 0.3s ease;
-  background-position-x: -80px;
 }
 
 .sidebar-menu {
@@ -212,12 +203,15 @@ const onAppDropdownClick = (item: SidebarAppDropdownEntry, info: { key: Key }) =
   62% {
     transform: rotate(0deg);
   }
+
   75% {
     transform: rotate(4deg);
   }
+
   88% {
     transform: rotate(-4deg);
   }
+
   100% {
     transform: rotate(0deg);
   }
