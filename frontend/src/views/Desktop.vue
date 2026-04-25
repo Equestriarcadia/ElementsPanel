@@ -44,6 +44,7 @@ import {
     SettingOutlined,
     ShoppingOutlined,
     TeamOutlined,
+    UsergroupDeleteOutlined,
     UserOutlined
 } from "@ant-design/icons-vue";
 import { computed, markRaw, onMounted, reactive, ref, watch, type Component, type CSSProperties } from "vue";
@@ -269,7 +270,7 @@ const ICON_MAP: Record<string, Component> = {
     "term-config": markRaw(CodeOutlined),
     "new-instance": markRaw(DesktopOutlined),
     "user-info": markRaw(UserOutlined),
-    "mc-ping": markRaw(CodeOutlined)
+    "mc-ping": markRaw(UsergroupDeleteOutlined)
 };
 
 const loadDesktopLayout = async () => {
@@ -593,7 +594,7 @@ const openMcPingWindow = (instanceId: string, daemonId: string) => {
     windows.set(windowId, {
         id: windowId,
         title: t("TXT_CODE_40241d8e"),
-        icon: markRaw(CodeOutlined),
+        icon: markRaw(UsergroupDeleteOutlined),
         visible: true,
         minimized: false,
         maximized: false,

@@ -254,7 +254,7 @@ const handleInstall = async () => {
                                     <div class="dm-template-info__tags">
                                         <span class="dm-tag">{{ selectedTemplate.platform }}</span>
                                         <span class="dm-tag">{{ selectedTemplateType === 'docker' ? 'Docker' : 'Normal'
-                                        }}</span>
+                                            }}</span>
                                     </div>
                                 </div>
                             </div>
@@ -362,7 +362,6 @@ const handleInstall = async () => {
 
     &:hover {
         background: rgba(255, 255, 255, 0.08);
-        transform: translateY(-2px);
         border-color: rgba(255, 255, 255, 0.15);
     }
 
