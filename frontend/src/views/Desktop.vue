@@ -173,8 +173,8 @@ const openWindow = (appId: string) => {
         content: app.windowContent || "default",
         initialX: offsetX,
         initialY: offsetY,
-        initialWidth: 850,
-        initialHeight: 520
+        initialWidth: 980,
+        initialHeight: 580
     });
 };
 
