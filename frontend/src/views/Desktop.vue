@@ -23,6 +23,7 @@ import DesktopServerConfig from "@/widgets/desktop/DesktopServerConfig.vue";
 import DesktopSettings from "@/widgets/desktop/DesktopSettings.vue";
 import type { TaskbarWindow } from "@/widgets/desktop/DesktopTaskbar.vue";
 import DesktopTaskbar from "@/widgets/desktop/DesktopTaskbar.vue";
+import DesktopTermConfig from "@/widgets/desktop/DesktopTermConfig.vue";
 import DesktopTerminalSelector from "@/widgets/desktop/DesktopTerminalSelector.vue";
 import DesktopUserInfo from "@/widgets/desktop/DesktopUserInfo.vue";
 import DesktopUsers from "@/widgets/desktop/DesktopUsers.vue";
@@ -418,6 +419,39 @@ const openEventConfigWindow = (instanceId: string, daemonId: string) => {
     });
 };
 
+const openTermConfigWindow = (instanceId: string, daemonId: string) => {
+    const windowId = `term-config-${instanceId}`;
+    const existing = windows.get(windowId);
+
+    if (existing) {
+        existing.minimized = false;
+        existing.visible = true;
+        focusWindow(windowId);
+        return;
+    }
+
+    windowOffset = (windowOffset + 1) % 8;
+    const offsetX = 120 + windowOffset * 30;
+    const offsetY = 80 + windowOffset * 30;
+
+    windows.set(windowId, {
+        id: windowId,
+        title: t("TXT_CODE_d23631cb"),
+        icon: markRaw(CodeOutlined),
+        visible: true,
+        minimized: false,
+        maximized: false,
+        zIndex: ++nextZIndex,
+        content: "term-config",
+        initialX: offsetX,
+        initialY: offsetY,
+        initialWidth: 700,
+        initialHeight: 500,
+        instanceId: instanceId,
+        daemonId: daemonId
+    });
+};
+
 const openNewInstanceWindow = () => {
     const windowId = "new-instance";
     const existing = windows.get(windowId);
@@ -645,7 +679,8 @@ const username = computed(() => appState.userInfo?.userName || "User");
                                     :instance-id="win.instanceId" :daemon-id="win.daemonId"
                                     @open-server-config="openServerConfigWindow"
                                     @open-file-manager="openFileManagerWindow" @open-schedule="openScheduleWindow"
-                                    @open-event-config="openEventConfigWindow" />
+                                    @open-event-config="openEventConfigWindow"
+                                    @open-term-config="openTermConfigWindow" />
 
                                 <DesktopServerConfig
                                     v-else-if="win.content === 'server-config' && win.instanceId && win.daemonId && win.type"
@@ -657,6 +692,11 @@ const username = computed(() => appState.userInfo?.userName || "User");
 
                                 <DesktopEventConfig
                                     v-else-if="win.content === 'event-config' && win.instanceId && win.daemonId"
+                                    :instance-id="win.instanceId" :daemon-id="win.daemonId"
+                                    @close="closeWindow(win.id)" />
+
+                                <DesktopTermConfig
+                                    v-else-if="win.content === 'term-config' && win.instanceId && win.daemonId"
                                     :instance-id="win.instanceId" :daemon-id="win.daemonId"
                                     @close="closeWindow(win.id)" />
 

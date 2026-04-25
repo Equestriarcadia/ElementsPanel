@@ -29,7 +29,6 @@ import JavaManager from "../instance/dialogs/JavaManager.vue";
 import McPingSettings from "../instance/dialogs/McPingSettings.vue";
 import PingConfig from "../instance/dialogs/PingConfig.vue";
 import RconSettings from "../instance/dialogs/RconSettings.vue";
-import TermConfig from "../instance/dialogs/TermConfig.vue";
 
 const props = defineProps<{
     instanceId: string;
@@ -42,12 +41,12 @@ const emit = defineEmits<{
     (e: "open-mod-manager"): void;
     (e: "open-schedule"): void;
     (e: "open-event-config"): void;
+    (e: "open-term-config"): void;
 }>();
 
 const { isAdmin, state } = useAppStateStore();
 const { toPage: toOtherPager } = useAppRouters();
 
-const terminalConfigDialog = ref<InstanceType<typeof TermConfig>>();
 const rconSettingsDialog = ref<InstanceType<typeof RconSettings>>();
 const mcSettingsDialog = ref<InstanceType<typeof McPingSettings>>();
 const javaManagerDialog = ref<InstanceType<typeof JavaManager>>();
@@ -183,7 +182,7 @@ const btns = computed(() => {
             title: t("TXT_CODE_d23631cb"),
             icon: CodeOutlined,
             click: () => {
-                terminalConfigDialog.value?.openDialog();
+                emit("open-term-config");
             }
         },
         {
@@ -232,9 +231,6 @@ watch(instanceInfo, (cfg, oldCfg) => {
             </div>
         </div>
     </div>
-
-    <TermConfig ref="terminalConfigDialog" :instance-info="instanceInfo" :instance-id="props.instanceId"
-        :daemon-id="props.daemonId" @update="refreshInstanceInfo" />
 
     <EventConfig ref="eventConfigDialog" :instance-info="instanceInfo" :instance-id="props.instanceId"
         :daemon-id="props.daemonId" @update="refreshInstanceInfo" />
