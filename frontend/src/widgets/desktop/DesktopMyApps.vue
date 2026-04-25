@@ -308,7 +308,7 @@ onUnmounted(() => {
                         </span>
                         <span class="ma-instance__name">{{
                             instance.nickname || t("TXT_CODE_DESKTOP_IM_UNNAMED")
-                            }}</span>
+                        }}</span>
                         <span class="ma-instance__badge" :class="getStatusClass(instance.status)">
                             {{ getStatusText(instance.status) }}
                         </span>
@@ -593,6 +593,7 @@ onUnmounted(() => {
     border: 1px solid var(--desktop-window-border);
     transition: all 0.2s;
     cursor: default;
+    user-select: none;
 
     &:hover {
         background: var(--desktop-window-control-hover);
