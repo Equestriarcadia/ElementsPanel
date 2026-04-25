@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import { t } from "@/lang/i18n";
 import { logoutUser } from "@/services/apis/index";
+import { useAppConfigStore } from "@/stores/useAppConfigStore";
 import { useAppStateStore } from "@/stores/useAppStateStore";
+import { useLayoutConfigStore } from "@/stores/useLayoutConfig";
 import type { ContextMenuItem } from "@/widgets/desktop/DesktopContextMenu.vue";
 import DesktopContextMenu from "@/widgets/desktop/DesktopContextMenu.vue";
 import DesktopFileEditor from "@/widgets/desktop/DesktopFileEditor.vue";
@@ -38,12 +40,43 @@ import {
     TeamOutlined,
     UserOutlined
 } from "@ant-design/icons-vue";
-import { computed, markRaw, reactive, ref, type Component } from "vue";
+import { computed, markRaw, onMounted, reactive, ref, type Component, type CSSProperties } from "vue";
 import { useRouter } from "vue-router";
 
 const router = useRouter();
 const { state: appState, isAdmin, isLogged } = useAppStateStore();
 const { execute: executeLogout } = logoutUser();
+const { getSettingsConfig } = useLayoutConfigStore();
+const { isDarkTheme } = useAppConfigStore();
+
+//─── Wallpaper Background ───
+const backgroundImageUrl = ref<string>("");
+
+const wallpaperStyle = computed<CSSProperties>(() => {
+    if (!backgroundImageUrl.value) {
+        return { backgroundColor: "#232429" };
+    }
+    const overlay = isDarkTheme.value
+        ? "linear-gradient(135deg, rgba(0,0,0,0.65), rgba(0,0,0,0.65) 100%)"
+        : "linear-gradient(135deg, rgba(0,0,0,0.4), rgba(0,0,0,0.4) 100%)";
+    return {
+        backgroundImage: `${overlay}, url(${backgroundImageUrl.value})`,
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        backgroundRepeat: "no-repeat"
+    };
+});
+
+onMounted(async () => {
+    try {
+        const settings = await getSettingsConfig();
+        if (settings?.theme?.backgroundImage) {
+            backgroundImageUrl.value = settings.theme.backgroundImage;
+        }
+    } catch (e) {
+        // Silently ignore – fallback to solid color
+    }
+});
 
 //─── Login Overlay ───
 const showLoginOverlay = computed(() => !isLogged.value);
@@ -536,7 +569,7 @@ const username = computed(() => appState.userInfo?.userName || "User");
 
 <template>
     <div class="desktop-container" @click="onDesktopClick" @contextmenu="onDesktopContextMenu">
-        <div class="desktop-wallpaper"></div>
+        <div class="desktop-wallpaper" :style="wallpaperStyle"></div>
 
         <Transition name="desktop-fade">
             <template v-if="!showLoginOverlay">
@@ -635,13 +668,6 @@ const username = computed(() => appState.userInfo?.userName || "User");
     position: absolute;
     inset: 0;
     z-index: 0;
-    background-color: var(--background-color);
-}
-
-/* When body has background image, make wallpaper transparent to show it */
-:global(body.app-light-extend-theme) .desktop-wallpaper,
-:global(body.app-dark-extend-theme) .desktop-wallpaper {
-    background-color: transparent;
 }
 
 .desktop-icons {
