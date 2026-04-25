@@ -1,8 +1,11 @@
 <script setup lang="ts">
 import { router } from "@/config/router";
 import { t } from "@/lang/i18n";
+import { useAppConfigStore } from "@/stores/useAppConfigStore";
 import { AppstoreOutlined, LogoutOutlined, UserOutlined } from "@ant-design/icons-vue";
 import { ref, type Component } from "vue";
+
+const { isDarkTheme } = useAppConfigStore();
 
 export interface TaskbarWindow {
     id: string;
@@ -111,7 +114,7 @@ const isComponentIcon = (icon: Component | string): boolean => typeof icon !== "
         <!-- Start Button -->
         <div class="taskbar__start" :class="{ 'taskbar__start--active': startMenuOpen }" @click="toggleStartMenu">
             <span class="taskbar__start-icon">
-                <img src="/desktop-icon.svg" alt="Start" />
+                <img :src="isDarkTheme ? '/desktop-icon.svg' : '/desktop-icon-b.svg'" alt="Start" />
             </span>
         </div>
 
@@ -181,12 +184,12 @@ const isComponentIcon = (icon: Component | string): boolean => typeof icon !== "
     left: 0;
     right: 0;
     height: 48px;
-    background: rgba(24, 24, 32, 0.88);
+    background: var(--desktop-taskbar-bg);
     backdrop-filter: saturate(180%) blur(20px);
     display: flex;
     align-items: center;
     z-index: 1000;
-    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    border-top: 1px solid var(--desktop-taskbar-border);
     padding: 0 4px;
     user-select: none;
 }
@@ -200,16 +203,16 @@ const isComponentIcon = (icon: Component | string): boolean => typeof icon !== "
     border-radius: 6px;
     cursor: pointer;
     transition: background-color 0.15s;
-    color: #fff;
+    color: var(--desktop-taskbar-text-active);
     margin-left: 2px;
     margin-right: 4px;
 
     &:hover {
-        background-color: rgba(255, 255, 255, 0.1);
+        background-color: var(--desktop-taskbar-btn-hover);
     }
 
     &--active {
-        background-color: rgba(255, 255, 255, 0.15) !important;
+        background-color: var(--desktop-taskbar-btn-active) !important;
     }
 
     &-icon {
@@ -228,14 +231,14 @@ const isComponentIcon = (icon: Component | string): boolean => typeof icon !== "
     bottom: 56px;
     left: 8px;
     width: 280px;
-    background: rgba(32, 32, 40, 0.95);
+    background: var(--desktop-menu-bg);
     backdrop-filter: saturate(180%) blur(24px);
     border-radius: 12px;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+    border: 1px solid var(--desktop-menu-border);
+    box-shadow: 0 8px 32px var(--desktop-menu-shadow);
     z-index: 1001;
     overflow: hidden;
-    color: #fff;
+    color: var(--desktop-menu-text);
 
     .start-menu__header {
         display: flex;
@@ -245,7 +248,7 @@ const isComponentIcon = (icon: Component | string): boolean => typeof icon !== "
         transition: background-color 0.15s;
 
         &:hover {
-            background-color: rgba(255, 255, 255, 0.08);
+            background-color: var(--desktop-menu-hover);
         }
     }
 
@@ -262,7 +265,7 @@ const isComponentIcon = (icon: Component | string): boolean => typeof icon !== "
 
     .start-menu__divider {
         height: 1px;
-        background: rgba(255, 255, 255, 0.1);
+        background: var(--desktop-menu-divider);
         margin: 0 12px;
     }
 
@@ -276,7 +279,7 @@ const isComponentIcon = (icon: Component | string): boolean => typeof icon !== "
         transition: background-color 0.15s;
 
         &:hover {
-            background-color: rgba(255, 255, 255, 0.08);
+            background-color: var(--desktop-menu-hover);
         }
 
         &-icon {
@@ -333,19 +336,19 @@ const isComponentIcon = (icon: Component | string): boolean => typeof icon !== "
     border-radius: 6px;
     cursor: pointer;
     transition: background-color 0.15s;
-    color: rgba(255, 255, 255, 0.7);
+    color: var(--desktop-taskbar-text);
     white-space: nowrap;
     max-width: 180px;
     font-size: 12px;
 
     &:hover {
-        background-color: rgba(255, 255, 255, 0.08);
-        color: #fff;
+        background-color: var(--desktop-taskbar-btn-hover);
+        color: var(--desktop-taskbar-text-active);
     }
 
     &--active {
-        background-color: rgba(255, 255, 255, 0.12);
-        color: #fff;
+        background-color: var(--desktop-taskbar-btn-active);
+        color: var(--desktop-taskbar-text-active);
     }
 
     &--dragging {
@@ -353,11 +356,11 @@ const isComponentIcon = (icon: Component | string): boolean => typeof icon !== "
     }
 
     &--drag-over-left {
-        box-shadow: -2px 0 0 0 rgba(255, 255, 255, 0.8);
+        box-shadow: -2px 0 0 0 var(--desktop-taskbar-drag-indicator);
     }
 
     &--drag-over-right {
-        box-shadow: 2px 0 0 0 rgba(255, 255, 255, 0.8);
+        box-shadow: 2px 0 0 0 var(--desktop-taskbar-drag-indicator);
     }
 }
 
@@ -389,7 +392,7 @@ const isComponentIcon = (icon: Component | string): boolean => typeof icon !== "
 
 .taskbar__time {
     text-align: right;
-    color: #fff;
+    color: var(--desktop-taskbar-text-active);
 
     &-text {
         font-size: 12px;

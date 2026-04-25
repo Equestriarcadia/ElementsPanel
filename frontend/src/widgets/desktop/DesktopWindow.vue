@@ -233,10 +233,10 @@ onUnmounted(() => {
 <style lang="scss" scoped>
 .desktop-window {
     position: fixed;
-    background: rgba(32, 32, 40, 0.92);
+    background: var(--desktop-window-bg);
     backdrop-filter: saturate(180%) blur(20px);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    border: 1px solid var(--desktop-window-border);
+    box-shadow: 0 8px 32px var(--desktop-window-shadow);
     display: flex;
     flex-direction: column;
     overflow: hidden;
@@ -248,8 +248,8 @@ onUnmounted(() => {
         box-shadow 0.25s ease;
 
     &--active {
-        border-color: rgba(255, 255, 255, 0.12);
-        box-shadow: 0 12px 48px rgba(0, 0, 0, 0.45);
+        border-color: var(--desktop-window-border);
+        box-shadow: 0 12px 48px var(--desktop-window-shadow);
     }
 
     &--dragging,
@@ -268,7 +268,7 @@ onUnmounted(() => {
     justify-content: space-between;
     height: 38px;
     padding: 0 8px 0 12px;
-    background: rgba(0, 0, 0, 0.2);
+    background: var(--desktop-window-titlebar-bg);
     cursor: default;
     user-select: none;
     flex-shrink: 0;
@@ -286,7 +286,7 @@ onUnmounted(() => {
     flex-shrink: 0;
     display: flex;
     align-items: center;
-    color: rgba(255, 255, 255, 0.85);
+    color: var(--desktop-window-text);
 
     img {
         width: 14px;
@@ -296,7 +296,7 @@ onUnmounted(() => {
 
 .window__title {
     font-size: 12px;
-    color: rgba(255, 255, 255, 0.85);
+    color: var(--desktop-window-text);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -317,25 +317,25 @@ onUnmounted(() => {
     justify-content: center;
     border-radius: 4px;
     cursor: pointer;
-    color: rgba(255, 255, 255, 0.7);
+    color: var(--desktop-window-text-secondary);
     font-size: 12px;
     transition: background-color 0.12s;
 
     &:hover {
-        background-color: rgba(255, 255, 255, 0.1);
-        color: #fff;
+        background-color: var(--desktop-window-control-hover);
+        color: var(--desktop-window-text);
     }
 
     &--close:hover {
-        background-color: #e81123;
-        color: #fff;
+        background-color: var(--desktop-window-control-close-hover-bg);
+        color: var(--desktop-window-control-close-hover-text);
     }
 }
 
 .window__content {
     flex: 1;
     overflow: auto;
-    color: rgba(255, 255, 255, 0.9);
+    color: var(--desktop-window-text);
 }
 
 .window__resize-handle {
@@ -374,8 +374,8 @@ onUnmounted(() => {
             right: 3px;
             width: 8px;
             height: 8px;
-            border-right: 2px solid rgba(255, 255, 255, 0.2);
-            border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+            border-right: 2px solid var(--desktop-resize-handle-color);
+            border-bottom: 2px solid var(--desktop-resize-handle-color);
         }
     }
 }

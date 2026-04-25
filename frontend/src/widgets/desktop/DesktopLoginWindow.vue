@@ -183,18 +183,18 @@ const handleNext = async () => {
     position: absolute;
     inset: 0;
     z-index: 500;
-    background: rgba(0, 0, 0, 0.2);
+    background: var(--desktop-login-overlay);
     backdrop-filter: blur(2px);
 }
 
 .desktop-login-window {
     position: absolute;
     width: 380px;
-    background: rgba(32, 32, 40, 0.92);
+    background: var(--desktop-window-bg);
     backdrop-filter: saturate(180%) blur(20px);
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    border: 1px solid var(--desktop-window-border);
     border-radius: 10px;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 8px 32px var(--desktop-window-shadow);
     overflow: hidden;
     animation: loginWindowAppear 0.5s cubic-bezier(0.16, 1, 0.3, 1);
     display: flex;
@@ -223,7 +223,7 @@ const handleNext = async () => {
     justify-content: space-between;
     height: 38px;
     padding: 0 8px 0 12px;
-    background: rgba(0, 0, 0, 0.2);
+    background: var(--desktop-window-titlebar-bg);
     cursor: default;
     user-select: none;
     flex-shrink: 0;
@@ -241,12 +241,12 @@ const handleNext = async () => {
     flex-shrink: 0;
     display: flex;
     align-items: center;
-    color: rgba(255, 255, 255, 0.85);
+    color: var(--desktop-window-text);
 }
 
 .window__title {
     font-size: 12px;
-    color: rgba(255, 255, 255, 0.85);
+    color: var(--desktop-window-text);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -267,18 +267,18 @@ const handleNext = async () => {
     justify-content: center;
     border-radius: 4px;
     cursor: pointer;
-    color: rgba(255, 255, 255, 0.7);
+    color: var(--desktop-window-text-secondary);
     font-size: 12px;
     transition: background-color 0.12s;
 
     &:hover {
-        background-color: rgba(255, 255, 255, 0.1);
-        color: #fff;
+        background-color: var(--desktop-window-control-hover);
+        color: var(--desktop-window-text);
     }
 
     &--close:hover {
-        background-color: #e81123;
-        color: #fff;
+        background-color: var(--desktop-window-control-close-hover-bg);
+        color: var(--desktop-window-control-close-hover-text);
     }
 
     &--disabled {
@@ -287,7 +287,7 @@ const handleNext = async () => {
 
         &:hover {
             background-color: transparent;
-            color: rgba(255, 255, 255, 0.7);
+            color: var(--desktop-window-text-secondary);
         }
     }
 }
@@ -298,7 +298,7 @@ const handleNext = async () => {
 
 .desktop-login-subtitle {
     text-align: center;
-    color: rgba(255, 255, 255, 0.45);
+    color: var(--desktop-window-text-muted);
     font-size: 13px;
     margin: 0 0 20px;
 }
@@ -318,19 +318,19 @@ const handleNext = async () => {
 .desktop-login-field {
     display: flex;
     align-items: center;
-    background: rgba(255, 255, 255, 0.06);
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: var(--desktop-login-input-bg);
+    border: 1px solid var(--desktop-login-input-border);
     border-radius: 8px;
     padding: 0 12px;
     transition: all 0.2s;
 
     &:focus-within {
-        border-color: rgba(22, 119, 255, 0.6);
-        background: rgba(255, 255, 255, 0.08);
+        border-color: var(--desktop-login-input-border-focus);
+        background: var(--desktop-login-input-bg);
     }
 
     .field-icon {
-        color: rgba(255, 255, 255, 0.35);
+        color: var(--desktop-window-text-muted);
         font-size: 15px;
         flex-shrink: 0;
     }
@@ -341,15 +341,15 @@ const handleNext = async () => {
         border: none;
         outline: none;
         padding: 11px 10px;
-        color: #fff;
+        color: var(--desktop-login-input-text);
         font-size: 14px;
 
         &::placeholder {
-            color: rgba(255, 255, 255, 0.3);
+            color: var(--desktop-login-input-placeholder);
         }
 
         &:-webkit-autofill {
-            -webkit-text-fill-color: #fff !important;
+            -webkit-text-fill-color: var(--desktop-login-input-text) !important;
             -webkit-box-shadow: 0 0 0 1000px transparent inset !important;
             background-color: transparent !important;
             transition: background-color 99999s ease-in-out 0s;
@@ -391,14 +391,14 @@ const handleNext = async () => {
     text-align: center;
     margin-top: 16px;
     font-size: 12px;
-    color: rgba(255, 255, 255, 0.25);
+    color: var(--desktop-login-footer-text);
 
     a {
-        color: rgba(255, 255, 255, 0.4);
+        color: var(--desktop-login-footer-link);
         text-decoration: underline;
 
         &:hover {
-            color: rgba(255, 255, 255, 0.6);
+            color: var(--desktop-login-footer-link-hover);
         }
     }
 }
@@ -412,7 +412,7 @@ const handleNext = async () => {
     gap: 16px;
 
     p {
-        color: rgba(255, 255, 255, 0.6);
+        color: var(--desktop-window-text-secondary);
         font-size: 14px;
         margin: 0;
     }

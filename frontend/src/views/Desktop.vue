@@ -61,11 +61,11 @@ const backgroundImageUrl = ref<string>("");
 
 const wallpaperStyle = computed<CSSProperties>(() => {
     if (!backgroundImageUrl.value) {
-        return { backgroundColor: "#232429" };
+        return { backgroundColor: "var(--desktop-bg-color, #232429)" };
     }
     const overlay = isDarkTheme.value
-        ? "linear-gradient(135deg, rgba(0,0,0,0.65), rgba(0,0,0,0.65) 100%)"
-        : "linear-gradient(135deg, rgba(0,0,0,0.4), rgba(0,0,0,0.4) 100%)";
+        ? "rgba(0,0,0,0.65)"
+        : "rgba(255,255,255,0.2)";
     return {
         backgroundImage: `${overlay}, url(${backgroundImageUrl.value})`,
         backgroundSize: "cover",

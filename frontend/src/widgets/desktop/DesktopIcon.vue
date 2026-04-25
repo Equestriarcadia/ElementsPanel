@@ -1,5 +1,8 @@
 <script setup lang="ts">
+import { useAppConfigStore } from "@/stores/useAppConfigStore";
 import { computed, type Component } from "vue";
+
+const { isDarkTheme } = useAppConfigStore();
 
 export interface DesktopIconProps {
     id: string;
@@ -20,7 +23,7 @@ const emit = defineEmits<{
 }>();
 
 const iconStyle = computed(() => ({
-    color: "#fff"
+    color: isDarkTheme.value ? "#fff" : "#1a1a1a"
 }));
 
 const isComponent = computed(() => typeof props.icon !== "string");
@@ -61,12 +64,12 @@ const handleClick = () => {
     user-select: none;
 
     &:hover {
-        background-color: rgba(255, 255, 255, 0.1);
+        background-color: var(--desktop-icon-hover);
     }
 
     &--selected {
-        background-color: rgba(255, 255, 255, 0.18) !important;
-        outline: 1px solid rgba(255, 255, 255, 0.35);
+        background-color: var(--desktop-icon-selected) !important;
+        outline: 1px solid var(--desktop-icon-selected-border);
     }
 
     &__graphic {
@@ -78,7 +81,7 @@ const handleClick = () => {
         font-size: 42px;
         margin-bottom: 6px;
         transition: transform 0.2s ease;
-        filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+        filter: drop-shadow(0 2px 4px var(--desktop-icon-shadow));
     }
 
     &__anticon {
@@ -98,9 +101,9 @@ const handleClick = () => {
 
     &__label {
         font-size: 11px;
-        color: #fff;
+        color: var(--desktop-icon-text);
         text-align: center;
-        text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
+        text-shadow: 0 1px 3px var(--desktop-icon-shadow);
         line-height: 1.3;
         max-width: 84px;
         overflow: hidden;

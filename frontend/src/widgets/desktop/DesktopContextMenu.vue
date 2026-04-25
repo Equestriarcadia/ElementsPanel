@@ -105,11 +105,11 @@ onUnmounted(() => {
 .desktop-context-menu {
     position: fixed;
     min-width: 180px;
-    background: rgba(32, 32, 40, 0.95);
+    background: var(--desktop-menu-bg);
     backdrop-filter: saturate(180%) blur(24px);
     border-radius: 8px;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+    border: 1px solid var(--desktop-menu-border);
+    box-shadow: 0 8px 32px var(--desktop-menu-shadow);
     z-index: 2000;
     padding: 4px 0;
     overflow: hidden;
@@ -121,12 +121,12 @@ onUnmounted(() => {
     gap: 8px;
     padding: 8px 16px;
     cursor: pointer;
-    color: rgba(255, 255, 255, 0.85);
+    color: var(--desktop-menu-text);
     font-size: 13px;
     transition: background-color 0.12s;
 
     &:hover {
-        background-color: rgba(255, 255, 255, 0.08);
+        background-color: var(--desktop-menu-hover);
     }
 }
 
@@ -141,7 +141,7 @@ onUnmounted(() => {
 
 .ctx-menu__divider {
     height: 1px;
-    background: rgba(255, 255, 255, 0.08);
+    background: var(--desktop-menu-divider);
     margin: 4px 12px;
 }
 
