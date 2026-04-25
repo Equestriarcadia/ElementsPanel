@@ -16,9 +16,13 @@ import { sleep } from "@/tools/common";
 import { reportErrorMsg } from "@/tools/validator";
 import { INSTANCE_CRASH_TIMEOUT, INSTANCE_STATUS } from "@/types/const";
 import {
+    ArrowLeftOutlined,
     CheckCircleOutlined,
     CloseOutlined,
     CloudDownloadOutlined,
+    ControlOutlined,
+    FieldTimeOutlined,
+    FolderOpenOutlined,
     InfoCircleOutlined,
     InteractionOutlined,
     LaptopOutlined,
@@ -26,17 +30,24 @@ import {
     MoneyCollectOutlined,
     PauseCircleOutlined,
     PlayCircleOutlined,
-    RedoOutlined
+    RedoOutlined,
+    UsbOutlined
 } from "@ant-design/icons-vue";
 import { Modal } from "ant-design-vue";
-import { computed, h, onUnmounted } from "vue";
+import { computed, h, onUnmounted, ref } from "vue";
 import { GLOBAL_INSTANCE_NAME } from "../../config/const";
 import { arrayFilter } from "../../tools/array";
 import DesktopManagerBtns from "./DesktopManagerBtns.vue";
 
+type DialogPanel = "none" | "file-manager" | "mod-manager" | "schedule" | "server-config";
+
 const props = defineProps<{
     instanceId: string;
     daemonId: string;
+}>();
+
+const emit = defineEmits<{
+    (e: "open-server-config", instanceId: string, daemonId: string, type: string): void;
 }>();
 
 const { state, isAdmin } = useAppStateStore();
@@ -51,6 +62,16 @@ const {
     isDockerMode,
     clearTerminal
 } = terminalHook;
+
+const activeDialog = ref<DialogPanel>("none");
+
+const openDialog = (panel: DialogPanel) => {
+    activeDialog.value = panel;
+};
+
+const closeDialog = () => {
+    activeDialog.value = "none";
+};
 
 const instanceTypeText = computed(
     () => INSTANCE_TYPE_TRANSLATION[instanceInfo.value?.config.type ?? -1]
@@ -249,6 +270,7 @@ onUnmounted(() => {
 
 <template>
     <div class="dim">
+        <!-- Toolbar -->
         <div class="dim-toolbar">
             <div class="dim-toolbar__left">
                 <div class="dim-instance__header">
@@ -296,11 +318,97 @@ onUnmounted(() => {
                 </template>
             </div>
         </div>
-        <div class="dim-list">
-            <TerminalCore :use-terminal-hook="terminalHook" :instance-id="instanceId" :daemon-id="daemonId"
-                height="100%" />
+
+        <!-- Main Content Area -->
+        <div class="dim-body">
+            <!-- Terminal View (default) -->
+            <div v-if="activeDialog === 'none'" class="dim-list">
+                <TerminalCore :use-terminal-hook="terminalHook" :instance-id="instanceId" :daemon-id="daemonId"
+                    height="100%" />
+            </div>
+
+            <!-- File Manager Dialog -->
+            <div v-else-if="activeDialog === 'file-manager'" class="dim-dialog">
+                <div class="dim-dialog__header">
+                    <button class="dim-btn dim-btn--icon" @click="closeDialog" :title="t('TXT_CODE_6c5985ca')">
+                        <ArrowLeftOutlined />
+                    </button>
+                    <span class="dim-dialog__title">
+                        <FolderOpenOutlined /> {{ t("TXT_CODE_ae533703") }}
+                    </span>
+                </div>
+                <div class="dim-dialog__body">
+                    <div class="dim-placeholder">
+                        <FolderOpenOutlined class="dim-placeholder__icon" />
+                        <p class="dim-placeholder__text">{{ t("TXT_CODE_ae533703") }}</p>
+                        <p class="dim-placeholder__hint">{{ t("TXT_CODE_6c5985ca") }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Mod Manager Dialog -->
+            <div v-else-if="activeDialog === 'mod-manager'" class="dim-dialog">
+                <div class="dim-dialog__header">
+                    <button class="dim-btn dim-btn--icon" @click="closeDialog" :title="t('TXT_CODE_6c5985ca')">
+                        <ArrowLeftOutlined />
+                    </button>
+                    <span class="dim-dialog__title">
+                        <UsbOutlined /> {{ t("TXT_CODE_MOD_MANAGER") }}
+                    </span>
+                </div>
+                <div class="dim-dialog__body">
+                    <div class="dim-placeholder">
+                        <UsbOutlined class="dim-placeholder__icon" />
+                        <p class="dim-placeholder__text">{{ t("TXT_CODE_MOD_MANAGER") }}</p>
+                        <p class="dim-placeholder__hint">{{ t("TXT_CODE_6c5985ca") }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Schedule Dialog -->
+            <div v-else-if="activeDialog === 'schedule'" class="dim-dialog">
+                <div class="dim-dialog__header">
+                    <button class="dim-btn dim-btn--icon" @click="closeDialog" :title="t('TXT_CODE_6c5985ca')">
+                        <ArrowLeftOutlined />
+                    </button>
+                    <span class="dim-dialog__title">
+                        <FieldTimeOutlined /> {{ t("TXT_CODE_b7d026f8") }}
+                    </span>
+                </div>
+                <div class="dim-dialog__body">
+                    <div class="dim-placeholder">
+                        <FieldTimeOutlined class="dim-placeholder__icon" />
+                        <p class="dim-placeholder__text">{{ t("TXT_CODE_b7d026f8") }}</p>
+                        <p class="dim-placeholder__hint">{{ t("TXT_CODE_6c5985ca") }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Server Config Dialog -->
+            <div v-else-if="activeDialog === 'server-config'" class="dim-dialog">
+                <div class="dim-dialog__header">
+                    <button class="dim-btn dim-btn--icon" @click="closeDialog" :title="t('TXT_CODE_6c5985ca')">
+                        <ArrowLeftOutlined />
+                    </button>
+                    <span class="dim-dialog__title">
+                        <ControlOutlined /> {{ t("TXT_CODE_d07742fe") }}
+                    </span>
+                </div>
+                <div class="dim-dialog__body">
+                    <div class="dim-placeholder">
+                        <ControlOutlined class="dim-placeholder__icon" />
+                        <p class="dim-placeholder__text">{{ t("TXT_CODE_d07742fe") }}</p>
+                        <p class="dim-placeholder__hint">{{ t("TXT_CODE_6c5985ca") }}</p>
+                    </div>
+                </div>
+            </div>
         </div>
-        <DesktopManagerBtns :instance-id="instanceId" :daemon-id="daemonId" />
+
+        <!-- Management Buttons -->
+        <DesktopManagerBtns :instance-id="instanceId" :daemon-id="daemonId"
+            @open-server-config="(type: string) => emit('open-server-config', instanceId, daemonId, type)"
+            @open-file-manager="openDialog('file-manager')" @open-mod-manager="openDialog('mod-manager')"
+            @open-schedule="openDialog('schedule')" />
     </div>
 </template>
 
@@ -356,6 +464,11 @@ onUnmounted(() => {
     &--sm {
         padding: 4px 10px;
         font-size: 11px;
+    }
+
+    &--icon {
+        padding: 4px 8px;
+        font-size: 14px;
     }
 
     &--primary {
@@ -454,9 +567,15 @@ onUnmounted(() => {
     gap: 4px;
 }
 
-// ─── Content Area ───
-.dim-list {
+// ─── Body Area ───
+.dim-body {
     flex: 1;
+    overflow: hidden;
+    position: relative;
+}
+
+.dim-list {
+    height: 100%;
     padding: 8px;
     overflow: hidden;
     position: relative;
@@ -475,5 +594,64 @@ onUnmounted(() => {
 
 :deep(.command-input) {
     flex-shrink: 0;
+}
+
+// ─── Dialog Panel ───
+.dim-dialog {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+
+    &__header {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 12px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        flex-shrink: 0;
+    }
+
+    &__title {
+        font-size: 13px;
+        font-weight: 500;
+        color: rgba(255, 255, 255, 0.85);
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    &__body {
+        flex: 1;
+        overflow: auto;
+        padding: 16px;
+    }
+}
+
+// ─── Placeholder ───
+.dim-placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    gap: 12px;
+    color: rgba(255, 255, 255, 0.3);
+
+    &__icon {
+        font-size: 48px;
+        opacity: 0.4;
+    }
+
+    &__text {
+        font-size: 16px;
+        font-weight: 500;
+        margin: 0;
+    }
+
+    &__hint {
+        font-size: 12px;
+        margin: 0;
+        opacity: 0.6;
+    }
 }
 </style>

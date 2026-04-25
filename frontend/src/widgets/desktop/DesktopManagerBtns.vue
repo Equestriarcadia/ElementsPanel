@@ -21,7 +21,6 @@ import {
     UsergroupDeleteOutlined
 } from "@ant-design/icons-vue";
 import { computed, ref, watch } from "vue";
-import type { RouteLocationPathRaw } from "vue-router";
 import { arrayFilter } from "../../tools/array";
 import EventConfig from "../instance/dialogs/EventConfig.vue";
 import InstanceDetail from "../instance/dialogs/InstanceDetail.vue";
@@ -35,6 +34,13 @@ import TermConfig from "../instance/dialogs/TermConfig.vue";
 const props = defineProps<{
     instanceId: string;
     daemonId: string;
+}>();
+
+const emit = defineEmits<{
+    (e: "open-server-config", type: string): void;
+    (e: "open-file-manager"): void;
+    (e: "open-mod-manager"): void;
+    (e: "open-schedule"): void;
 }>();
 
 const { isAdmin, state } = useAppStateStore();
@@ -86,16 +92,6 @@ watch(
     { immediate: true }
 );
 
-const toPage = (params: RouteLocationPathRaw) => {
-    if (!params.query) params.query = {};
-    params.query = {
-        ...params.query,
-        instanceId: props.instanceId,
-        daemonId: props.daemonId
-    };
-    toOtherPager(params);
-};
-
 const refreshInstanceInfo = async () => {
     await execute({
         params: {
@@ -120,19 +116,14 @@ const btns = computed(() => {
                 );
             },
             click: (): void => {
-                toPage({
-                    path: "/instances/terminal/serverConfig",
-                    query: {
-                        type: instanceInfo.value?.config.type
-                    }
-                });
+                emit("open-server-config", instanceInfo.value?.config.type ?? "");
             }
         },
         {
             title: t("TXT_CODE_ae533703"),
             icon: FolderOpenOutlined,
             click: () => {
-                toPage({ path: "/instances/terminal/files" });
+                emit("open-file-manager");
             },
             condition: () => state.settings.canFileManager || isAdmin.value
         },
@@ -140,7 +131,7 @@ const btns = computed(() => {
             title: t("TXT_CODE_MOD_MANAGER"),
             icon: UsbOutlined,
             click: () => {
-                toPage({ path: "/instances/terminal/mods" });
+                emit("open-mod-manager");
             },
             condition: () => {
                 const type = instanceInfo.value?.config.type || "";
@@ -177,13 +168,7 @@ const btns = computed(() => {
             icon: FieldTimeOutlined,
             condition: () => !isGlobalTerminal.value,
             click: () => {
-                toPage({
-                    path: "/instances/schedule",
-                    query: {
-                        instanceId: props.instanceId,
-                        daemonId: props.daemonId
-                    }
-                });
+                emit("open-schedule");
             }
         },
         {

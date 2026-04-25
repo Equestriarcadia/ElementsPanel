@@ -12,6 +12,7 @@ import DesktopMarket from "@/widgets/desktop/DesktopMarket.vue";
 import DesktopNewInstance from "@/widgets/desktop/DesktopNewInstance.vue";
 import DesktopNodeManager from "@/widgets/desktop/DesktopNodeManager.vue";
 import DesktopOverview from "@/widgets/desktop/DesktopOverview.vue";
+import DesktopServerConfig from "@/widgets/desktop/DesktopServerConfig.vue";
 import DesktopSettings from "@/widgets/desktop/DesktopSettings.vue";
 import type { TaskbarWindow } from "@/widgets/desktop/DesktopTaskbar.vue";
 import DesktopTaskbar from "@/widgets/desktop/DesktopTaskbar.vue";
@@ -22,6 +23,7 @@ import DesktopWindow from "@/widgets/desktop/DesktopWindow.vue";
 import {
     ClusterOutlined,
     CodeOutlined,
+    ControlOutlined,
     DashboardOutlined,
     DesktopOutlined,
     SettingOutlined,
@@ -140,6 +142,7 @@ interface WindowState {
     initialHeight: number;
     instanceId?: string;
     daemonId?: string;
+    type?: string;
 }
 
 const windows = reactive<Map<string, WindowState>>(new Map());
@@ -208,6 +211,40 @@ const openInstanceConsole = (instance: any, daemonId: string) => {
         initialHeight: 650,
         instanceId: instance.instanceUuid,
         daemonId: daemonId
+    });
+};
+
+const openServerConfigWindow = (instanceId: string, daemonId: string, type: string) => {
+    const windowId = `server-config-${instanceId}`;
+    const existing = windows.get(windowId);
+
+    if (existing) {
+        existing.minimized = false;
+        existing.visible = true;
+        focusWindow(windowId);
+        return;
+    }
+
+    windowOffset = (windowOffset + 1) % 8;
+    const offsetX = 120 + windowOffset * 30;
+    const offsetY = 80 + windowOffset * 30;
+
+    windows.set(windowId, {
+        id: windowId,
+        title: t("TXT_CODE_d07742fe"),
+        icon: markRaw(ControlOutlined),
+        visible: true,
+        minimized: false,
+        maximized: false,
+        zIndex: ++nextZIndex,
+        content: "server-config",
+        initialX: offsetX,
+        initialY: offsetY,
+        initialWidth: 800,
+        initialHeight: 600,
+        instanceId: instanceId,
+        daemonId: daemonId,
+        type: type
     });
 };
 
@@ -433,7 +470,12 @@ const username = computed(() => appState.userInfo?.userName || "User");
 
                                 <DesktopInstanceConsole
                                     v-else-if="win.content === 'instance-console' && win.instanceId && win.daemonId"
-                                    :instance-id="win.instanceId" :daemon-id="win.daemonId" />
+                                    :instance-id="win.instanceId" :daemon-id="win.daemonId"
+                                    @open-server-config="openServerConfigWindow" />
+
+                                <DesktopServerConfig
+                                    v-else-if="win.content === 'server-config' && win.instanceId && win.daemonId && win.type"
+                                    :instance-id="win.instanceId" :daemon-id="win.daemonId" :type="win.type" />
 
                                 <DesktopOverview v-else-if="win.content === 'overview'" />
 
