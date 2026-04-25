@@ -362,8 +362,11 @@ const handleTabChange = (newKey: string | number) => {
 };
 
 onMounted(async () => {
-    loadMods(getCurrentFolder());
     loadMcVersions();
+    await loadMods(getCurrentFolder());
+    setTimeout(() => {
+        loadMods(getCurrentFolder());
+    }, 500);
 });
 </script>
 
