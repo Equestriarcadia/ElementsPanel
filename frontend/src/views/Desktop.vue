@@ -14,6 +14,7 @@ import DesktopMarket from "@/widgets/desktop/DesktopMarket.vue";
 import DesktopNewInstance from "@/widgets/desktop/DesktopNewInstance.vue";
 import DesktopNodeManager from "@/widgets/desktop/DesktopNodeManager.vue";
 import DesktopOverview from "@/widgets/desktop/DesktopOverview.vue";
+import DesktopSchedule from "@/widgets/desktop/DesktopSchedule.vue";
 import DesktopServerConfig from "@/widgets/desktop/DesktopServerConfig.vue";
 import DesktopSettings from "@/widgets/desktop/DesktopSettings.vue";
 import type { TaskbarWindow } from "@/widgets/desktop/DesktopTaskbar.vue";
@@ -29,6 +30,7 @@ import {
     DashboardOutlined,
     DesktopOutlined,
     EditOutlined,
+    FieldTimeOutlined,
     FolderOpenOutlined,
     SettingOutlined,
     ShoppingOutlined,
@@ -306,6 +308,39 @@ const openServerConfigWindow = (instanceId: string, daemonId: string, type: stri
     });
 };
 
+const openScheduleWindow = (instanceId: string, daemonId: string) => {
+    const windowId = `schedule-${instanceId}`;
+    const existing = windows.get(windowId);
+
+    if (existing) {
+        existing.minimized = false;
+        existing.visible = true;
+        focusWindow(windowId);
+        return;
+    }
+
+    windowOffset = (windowOffset + 1) % 8;
+    const offsetX = 120 + windowOffset * 30;
+    const offsetY = 80 + windowOffset * 30;
+
+    windows.set(windowId, {
+        id: windowId,
+        title: t("TXT_CODE_b7d026f8"),
+        icon: markRaw(FieldTimeOutlined),
+        visible: true,
+        minimized: false,
+        maximized: false,
+        zIndex: ++nextZIndex,
+        content: "schedule",
+        initialX: offsetX,
+        initialY: offsetY,
+        initialWidth: 700,
+        initialHeight: 500,
+        instanceId: instanceId,
+        daemonId: daemonId
+    });
+};
+
 const openNewInstanceWindow = () => {
     const windowId = "new-instance";
     const existing = windows.get(windowId);
@@ -530,11 +565,15 @@ const username = computed(() => appState.userInfo?.userName || "User");
                                     v-else-if="win.content === 'instance-console' && win.instanceId && win.daemonId"
                                     :instance-id="win.instanceId" :daemon-id="win.daemonId"
                                     @open-server-config="openServerConfigWindow"
-                                    @open-file-manager="openFileManagerWindow" />
+                                    @open-file-manager="openFileManagerWindow" @open-schedule="openScheduleWindow" />
 
                                 <DesktopServerConfig
                                     v-else-if="win.content === 'server-config' && win.instanceId && win.daemonId && win.type"
                                     :instance-id="win.instanceId" :daemon-id="win.daemonId" :type="win.type" />
+
+                                <DesktopSchedule
+                                    v-else-if="win.content === 'schedule' && win.instanceId && win.daemonId"
+                                    :instance-id="win.instanceId" :daemon-id="win.daemonId" />
 
                                 <DesktopFileManager
                                     v-else-if="win.content === 'file-manager' && win.instanceId && win.daemonId"
