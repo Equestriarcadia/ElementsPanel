@@ -207,7 +207,7 @@ const handleContextMenu = (event: MouseEvent, win: TaskbarWindow) => {
     backdrop-filter: saturate(180%) blur(20px);
     display: flex;
     align-items: center;
-    z-index: 1000;
+    z-index: 99999;
     border-top: 1px solid var(--desktop-taskbar-border);
     padding: 0 4px;
     user-select: none;
@@ -255,7 +255,7 @@ const handleContextMenu = (event: MouseEvent, win: TaskbarWindow) => {
     border-radius: 12px;
     border: 1px solid var(--desktop-menu-border);
     box-shadow: 0 8px 32px var(--desktop-menu-shadow);
-    z-index: 1001;
+    z-index: 100000;
     overflow: hidden;
     color: var(--desktop-menu-text);
 
@@ -330,7 +330,7 @@ const handleContextMenu = (event: MouseEvent, win: TaskbarWindow) => {
 .start-menu-overlay {
     position: fixed;
     inset: 0;
-    z-index: 999;
+    z-index: 99998;
 }
 
 .taskbar__windows {
