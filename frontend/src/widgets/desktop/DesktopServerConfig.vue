@@ -155,7 +155,9 @@ onMounted(async () => {
                     <button class="dsc-btn dsc-btn--sm dsc-btn--primary" @click="saveFile" :disabled="isSaving">
                         <SaveOutlined /> {{ t("TXT_CODE_abfe9512") }}
                     </button>
-                    <button class="dsc-btn dsc-btn--sm" @click="loadConfigFiles" :disabled="isFileLoading">
+                    <button class="dsc-btn dsc-btn--sm"
+                        @click="async () => { if (selectedFile) { await selectFile(selectedFile); message.success(t('TXT_CODE_7863f28d')); } }"
+                        :disabled="isFileLoading">
                         <ReloadOutlined /> {{ t("TXT_CODE_b76d94e0") }}
                     </button>
                 </template>
@@ -187,7 +189,8 @@ onMounted(async () => {
             <!-- File Editor View -->
             <div v-else class="dsc-editor desktop-mode">
                 <div v-if="configFileState" class="dsc-editor__content">
-                    <InstanceConfigEditor :config="configFileState" :config-name="selectedFile.redirect" />
+                    <InstanceConfigEditor :key="selectedFile.path + Date.now()" :config="configFileState"
+                        :config-name="selectedFile.redirect" />
                 </div>
                 <div v-else class="dsc-empty">
                     <p class="dsc-empty__text">{{ t("TXT_CODE_b197be11") }}</p>
