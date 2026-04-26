@@ -564,7 +564,12 @@ export const useFileManager = (instanceId: string = "", daemonId: string = "", s
 
   const spinning = ref(false);
 
-  const selectedFiles = async (files: File[], overridePath?: string) => {
+  const selectedFiles = async (files: File[], overridePath?: string, overwriteDialogHandler?: (params: {
+    count: number;
+    fileName: string;
+    all: { value: boolean };
+    overwrite: { value: boolean };
+  }) => Promise<boolean>) => {
     const { state: missionCfg, execute: getUploadMissionCfg } = uploadAddress();
     const fileSet = new Set(files.map((f) => ({ file: f, overwrite: false })));
     const existingFiles: typeof fileSet = new Set();
@@ -579,30 +584,39 @@ export const useFileManager = (instanceId: string = "", daemonId: string = "", s
       const all = ref(false);
       const overwrite = ref(false);
       const confirmPromise = new Promise<boolean>((onComplete) => {
-        Modal.confirm({
-          title: t("TXT_CODE_99ca8563"),
-          icon: createVNode(ExclamationCircleOutlined),
-          content: createVNode(
-            OverwriteFilesPopUpContent,
-            {
-              count: existingFiles.size,
-              fileName: f.file.name,
-              all: all,
-              overwrite: overwrite,
-              "onUpdate:all": (val: boolean) => (all.value = val),
-              "onUpdate:overwrite": (val: boolean) => (overwrite.value = val)
+        if (overwriteDialogHandler) {
+          overwriteDialogHandler({
+            count: existingFiles.size,
+            fileName: f.file.name,
+            all,
+            overwrite
+          }).then(onComplete);
+        } else {
+          Modal.confirm({
+            title: t("TXT_CODE_99ca8563"),
+            icon: createVNode(ExclamationCircleOutlined),
+            content: createVNode(
+              OverwriteFilesPopUpContent,
+              {
+                count: existingFiles.size,
+                fileName: f.file.name,
+                all: all,
+                overwrite: overwrite,
+                "onUpdate:all": (val: boolean) => (all.value = val),
+                "onUpdate:overwrite": (val: boolean) => (overwrite.value = val)
+              },
+              null
+            ),
+            okText: t("TXT_CODE_ae09d79d"),
+            cancelText: t("TXT_CODE_518528d0"),
+            onOk() {
+              onComplete(true);
             },
-            null
-          ),
-          okText: t("TXT_CODE_ae09d79d"),
-          cancelText: t("TXT_CODE_518528d0"),
-          onOk() {
-            onComplete(true);
-          },
-          onCancel() {
-            onComplete(false);
-          }
-        });
+            onCancel() {
+              onComplete(false);
+            }
+          });
+        }
       });
       if (await confirmPromise) {
         if (all.value) {

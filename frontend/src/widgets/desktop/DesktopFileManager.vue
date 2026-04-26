@@ -242,9 +242,29 @@ const handleDrop = (e: DragEvent) => {
     };
 };
 
+const overwriteDialog = ref({
+    show: false,
+    count: 0,
+    fileName: "",
+    all: { value: false },
+    overwrite: { value: false },
+    resolve: null as ((value: boolean) => void) | null
+});
+
 const handleUploadConfirmOk = () => {
     if (uploadConfirmDialog.value.files) {
-        selectedFiles([...uploadConfirmDialog.value.files]);
+        selectedFiles([...uploadConfirmDialog.value.files], undefined, (params) => {
+            return new Promise<boolean>((resolve) => {
+                overwriteDialog.value = {
+                    show: true,
+                    count: params.count,
+                    fileName: params.fileName,
+                    all: params.all,
+                    overwrite: params.overwrite,
+                    resolve
+                };
+            });
+        });
     }
     uploadConfirmDialog.value.show = false;
 };
@@ -252,6 +272,21 @@ const handleUploadConfirmOk = () => {
 const handleUploadConfirmCancel = () => {
     uploadConfirmDialog.value.show = false;
 };
+
+const handleOverwriteOk = () => {
+    if (overwriteDialog.value.resolve) {
+        overwriteDialog.value.resolve(true);
+    }
+    overwriteDialog.value.show = false;
+};
+
+const handleOverwriteCancel = () => {
+    if (overwriteDialog.value.resolve) {
+        overwriteDialog.value.resolve(false);
+    }
+    overwriteDialog.value.show = false;
+};
+
 const fileList = ref<UploadProps["fileList"]>([]);
 const onFileSelect = (info: UploadChangeParam) => {
     if (!info.fileList) return;
@@ -259,7 +294,18 @@ const onFileSelect = (info: UploadChangeParam) => {
     if (!fileList.value) return;
     const files = [...fileList.value].map((v) => v.originFileObj as File);
     fileList.value = [];
-    selectedFiles(files);
+    selectedFiles(files, undefined, (params) => {
+        return new Promise<boolean>((resolve) => {
+            overwriteDialog.value = {
+                show: true,
+                count: params.count,
+                fileName: params.fileName,
+                all: params.all,
+                overwrite: params.overwrite,
+                resolve
+            };
+        });
+    });
 };
 
 const editFile = (fileName: string) => {
@@ -954,6 +1000,42 @@ onUnmounted(() => {
             </Transition>
         </Teleport>
 
+        <!-- Overwrite Confirm Dialog -->
+        <Teleport to="body">
+            <Transition name="dfm-dialog-fade">
+                <DesktopWindow v-if="overwriteDialog.show" id="file-manager-overwrite-dialog"
+                    :title="t('TXT_CODE_99ca8563')" :icon="ExclamationCircleOutlined" :visible="overwriteDialog.show"
+                    :minimized="false" :maximized="false" :active="true" :initial-width="400" :initial-height="240"
+                    :initial-x="windowWidth / 2 - 200" :initial-y="windowHeight / 2 - 120" :z-index="10005"
+                    :show-minimize="false" :show-maximize="false" :resizable="false" @close="handleOverwriteCancel">
+                    <div class="dfm-dialog-content">
+                        <div class="dfm-dialog__body dfm-dialog__body--column">
+                            <ExclamationCircleOutlined class="dfm-dialog__warn-icon" />
+                            <p class="dfm-dialog__desc">{{ t("TXT_CODE_58a55f17", { name: overwriteDialog.fileName }) }}
+                            </p>
+                            <div class="dfm-overwrite-options">
+                                <a-checkbox v-model:checked="overwriteDialog.overwrite.value">
+                                    {{ t("TXT_CODE_5bf41818") }}
+                                </a-checkbox>
+                                <a-checkbox v-if="overwriteDialog.count > 1" v-model:checked="overwriteDialog.all.value"
+                                    style="margin-left: 5px">
+                                    {{ t("TXT_CODE_5445f34b", { num: overwriteDialog.count - 1 }) }}
+                                </a-checkbox>
+                            </div>
+                        </div>
+                        <div class="dfm-dialog__footer">
+                            <button class="dfm-btn dfm-btn--default" @click="handleOverwriteCancel">
+                                {{ t("TXT_CODE_518528d0") }}
+                            </button>
+                            <button class="dfm-btn dfm-btn--primary" @click="handleOverwriteOk">
+                                {{ t("TXT_CODE_ae09d79d") }}
+                            </button>
+                        </div>
+                    </div>
+                </DesktopWindow>
+            </Transition>
+        </Teleport>
+
     </div>
 </template>
 
@@ -1174,6 +1256,13 @@ onUnmounted(() => {
     font-size: 14px;
     text-align: center;
     line-height: 1.6;
+}
+
+.dfm-overwrite-options {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 4px;
 }
 
 .dfm-dialog__footer {
