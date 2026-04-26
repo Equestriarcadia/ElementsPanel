@@ -1,10 +1,9 @@
 <script setup lang="ts">
-import { t } from "@/lang/i18n";
 import LineOption from "@/components/LineOption.vue";
-import { getDescriptionByTitle } from "@/tools/common";
-import { jsonToMap } from "@/tools/common";
-import isEmpty from "lodash/isEmpty";
 import { configData } from "@/config/instanceConfigMap";
+import { t } from "@/lang/i18n";
+import { getDescriptionByTitle, jsonToMap } from "@/tools/common";
+import isEmpty from "lodash/isEmpty";
 
 const props = defineProps<{
   config: Record<string, any>;
@@ -13,17 +12,19 @@ const props = defineProps<{
 
 const data:
   | {
-      desc: string;
-      config: Record<string, any>;
-    }
+    desc: string;
+    config: Record<string, any>;
+  }
   | undefined = configData[props.configName];
 
-const parsedConfig = jsonToMap(props.config);
+import { computed } from "vue";
+
+const parsedConfig = computed(() => jsonToMap(props.config));
 </script>
 
 <template>
   <a-col :span="24">
-    <CardPanel style="height: 100%">
+    <CardPanel style="height: 100%" class="config-editor-panel">
       <template #body>
         <a-typography>
           <a-typography-title :level="5">
@@ -40,13 +41,13 @@ const parsedConfig = jsonToMap(props.config);
     </CardPanel>
   </a-col>
   <a-col v-if="data" :span="24">
-    <CardPanel style="height: 100%">
+    <CardPanel style="height: 100%" class="config-editor-panel">
       <template #body>
         <div v-if="!isEmpty(props.config)">
           <div v-for="(item, index) in parsedConfig" :key="index" class="p-1">
-            <LineOption :option-value="parsedConfig" :option-key="index">
+            <LineOption :option-value="parsedConfig" :option-key="String(index)">
               <template #title>{{ index }}</template>
-              <template #info>{{ getDescriptionByTitle(data?.config, index) }}</template>
+              <template #info>{{ getDescriptionByTitle(data?.config, String(index)) }}</template>
             </LineOption>
           </div>
         </div>
@@ -57,3 +58,49 @@ const parsedConfig = jsonToMap(props.config);
     </CardPanel>
   </a-col>
 </template>
+
+<style lang="scss" scoped>
+:deep(.desktop-mode) {
+  .config-editor-panel {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+
+    .ant-card-body {
+      padding: 0 !important;
+    }
+  }
+
+  .line-option-card {
+    background: transparent !important;
+    border: 1px solid var(--desktop-window-border) !important;
+    box-shadow: none !important;
+
+    &:hover {
+      background: var(--desktop-window-control-hover) !important;
+    }
+  }
+}
+
+.desktop-mode {
+  .config-editor-panel {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+
+    :deep(.ant-card-body) {
+      padding: 0 !important;
+    }
+  }
+
+  :deep(.line-option-card) {
+    background: transparent !important;
+    border: 1px solid var(--desktop-window-border) !important;
+    box-shadow: none !important;
+
+    &:hover {
+      background: var(--desktop-window-control-hover) !important;
+    }
+  }
+}
+</style>

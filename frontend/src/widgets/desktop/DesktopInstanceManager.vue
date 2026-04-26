@@ -245,8 +245,9 @@ const selectInstance = (item: InstanceDetail) => {
     }
 };
 
-const handleInstanceClick = (instance: InstanceDetail) => {
+const handleInstanceClick = (e: MouseEvent, instance: InstanceDetail) => {
     if (multipleMode.value) {
+        e.preventDefault();
         selectInstance(instance);
     }
 };
@@ -551,7 +552,7 @@ onUnmounted(() => {
 
             <div v-for="instance in filteredInstances" :key="instance.instanceUuid" class="dim-instance"
                 :class="{ 'dim-instance--operating': isOperating(instance.instanceUuid), 'dim-instance--selected': findInstance(instance) }"
-                @click="handleInstanceClick(instance)" @dblclick="handleInstanceDblClick(instance)">
+                @click="handleInstanceClick($event, instance)" @dblclick="handleInstanceDblClick(instance)">
                 <div class="dim-instance__info">
                     <div class="dim-instance__header">
                         <span class="dim-instance__status" :class="getStatusClass(instance.status)">

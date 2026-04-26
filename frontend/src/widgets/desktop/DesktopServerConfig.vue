@@ -23,7 +23,6 @@ const emit = defineEmits<{
 const configFiles = ref<InstanceConfigs[]>([]);
 const isLoading = ref(false);
 const selectedFile = ref<InstanceConfigs | null>(null);
-const configData = ref<any>(null);
 const isSaving = ref(false);
 const isEditing = ref(false);
 
@@ -80,7 +79,7 @@ const selectFile = async (file: InstanceConfigs) => {
     selectedFile.value = file;
     isEditing.value = false;
     try {
-        const result = await requestConfigFile({
+        await requestConfigFile({
             params: {
                 uuid: props.instanceId ?? "",
                 daemonId: props.daemonId ?? "",
@@ -88,16 +87,13 @@ const selectFile = async (file: InstanceConfigs) => {
                 type: file.type ?? ""
             }
         });
-        configData.value = result ? { ...result } : null;
     } catch (err: any) {
         reportErrorMsg(err.message);
-        configData.value = null;
     }
 };
 
 const goBack = () => {
     selectedFile.value = null;
-    configData.value = null;
     isEditing.value = false;
 };
 
@@ -105,10 +101,10 @@ const goBack = () => {
 const { execute: execUpdateConfigFile } = updateConfigFile();
 
 const saveFile = async () => {
-    if (!selectedFile.value || !configData.value) return;
+    if (!selectedFile.value || !configFileState.value) return;
     isSaving.value = true;
     try {
-        const config = { ...configData.value };
+        const config = { ...configFileState.value };
         if (selectedFile.value.path === "server.properties" && props.type?.startsWith("minecraft/java")) {
             for (const key in config) {
                 const value = config[key];
@@ -189,9 +185,9 @@ onMounted(async () => {
             </div>
 
             <!-- File Editor View -->
-            <div v-else class="dsc-editor">
-                <div v-if="configData" class="dsc-editor__content">
-                    <InstanceConfigEditor :config="configData" :config-name="selectedFile.fileName" />
+            <div v-else class="dsc-editor desktop-mode">
+                <div v-if="configFileState" class="dsc-editor__content">
+                    <InstanceConfigEditor :config="configFileState" :config-name="selectedFile.redirect" />
                 </div>
                 <div v-else class="dsc-empty">
                     <p class="dsc-empty__text">{{ t("TXT_CODE_f859eac") }}</p>
@@ -344,6 +340,30 @@ onMounted(async () => {
 
     &__content {
         height: 100%;
+    }
+
+    &.desktop-mode {
+        :deep(.config-editor-panel) {
+            background: transparent !important;
+            border: none !important;
+            box-shadow: none !important;
+
+            .ant-card-body {
+                padding: 0 !important;
+            }
+        }
+
+        :deep(.line-option-card) {
+            background: transparent !important;
+            border: none !important;
+            box-shadow: none !important;
+
+            &:hover {
+                background: transparent !important;
+                border: none !important;
+                box-shadow: none !important;
+            }
+        }
     }
 }
 
