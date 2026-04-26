@@ -30,6 +30,7 @@ import {
     UploadOutlined
 } from "@ant-design/icons-vue";
 import { type ItemType, type UploadChangeParam, type UploadProps } from "ant-design-vue";
+import type { Key } from "ant-design-vue/es/table/interface";
 import dayjs from "dayjs";
 import { computed, h, onMounted, onUnmounted, ref, watch, type CSSProperties } from "vue";
 import DesktopWindow from "./DesktopWindow.vue";
@@ -472,6 +473,68 @@ const cancelDownloadDialog = () => {
     downloadDialog.value.show = false;
 };
 
+const lastClickedIndex = ref(-1);
+
+const handleRowClick = (e: MouseEvent, record: DataType) => {
+    const target = e.target as HTMLElement;
+    if (target.closest('.ant-checkbox') ||
+        target.closest('.ant-btn') ||
+        target.closest('.ant-dropdown-trigger') ||
+        target.closest('.ant-input') ||
+        target.closest('.ant-select')) {
+        return;
+    }
+
+    const key = record.name;
+    const index = dataSource.value?.findIndex(d => d.name === key) ?? -1;
+
+    if (e.ctrlKey || e.metaKey) {
+        const existingIdx = selectedRowKeys.value.indexOf(key);
+        if (existingIdx > -1) {
+            selectedRowKeys.value = selectedRowKeys.value.filter(k => k !== key);
+            if (selectionData.value) {
+                selectionData.value = selectionData.value.filter(d => d.name !== key);
+            }
+        } else {
+            selectedRowKeys.value = [...selectedRowKeys.value, key];
+            if (selectionData.value) {
+                selectionData.value = [...selectionData.value, record];
+            } else {
+                selectionData.value = [record];
+            }
+        }
+        lastClickedIndex.value = index;
+        return;
+    }
+
+    if (e.shiftKey) {
+        if (lastClickedIndex.value > -1 && dataSource.value) {
+            const start = Math.min(lastClickedIndex.value, index);
+            const end = Math.max(lastClickedIndex.value, index);
+            const rangeKeys: Key[] = [];
+            const rangeRows: DataType[] = [];
+            for (let i = start; i <= end; i++) {
+                const row = dataSource.value[i];
+                if (row) {
+                    rangeKeys.push(row.name);
+                    rangeRows.push(row);
+                }
+            }
+            selectedRowKeys.value = rangeKeys;
+            selectionData.value = rangeRows;
+        } else {
+            selectedRowKeys.value = [key];
+            selectionData.value = [record];
+            lastClickedIndex.value = index;
+        }
+        return;
+    }
+
+    selectedRowKeys.value = [key];
+    selectionData.value = [record];
+    lastClickedIndex.value = index;
+};
+
 const tableBodyRef = ref<HTMLElement | null>(null);
 const isDragSelecting = ref(false);
 const dragSelectStart = ref({ x: 0, y: 0 });
@@ -496,6 +559,7 @@ const getTableWrapperEl = (): HTMLElement | null => {
 
 const onTableMouseDown = (e: MouseEvent) => {
     if (e.button !== 0) return;
+    if (e.ctrlKey || e.shiftKey || e.metaKey) return;
     const target = e.target as HTMLElement;
     if (target.closest('.ant-table-cell-fix-right') ||
         target.closest('.ant-checkbox') ||
@@ -686,9 +750,6 @@ onUnmounted(() => {
                         <SearchOutlined />
                     </template>
                 </a-input>
-                <a-typography-text v-if="selectedRowKeys.length" class="dfm-selected-count">
-                    {{ `${t("TXT_CODE_7b2c5414")} ${String(selectedRowKeys.length)} ${t("TXT_CODE_5cd3b4bd")}` }}
-                </a-typography-text>
             </div>
             <div class="dfm-toolbar__right">
                 <a-button type="dashed" size="small" @click="downloadFromURLFile">
@@ -827,13 +888,12 @@ onUnmounted(() => {
                             showSizeChanger: true
                         }" :custom-row="(record: DataType) => {
                             return {
+                                onclick: (e: MouseEvent) => handleRowClick(e, record as DataType),
                                 onContextmenu: (e: MouseEvent) => handleRightClickRow(e, record as DataType),
                                 ondblclick: () => handleClickFile(record as DataType)
                             };
-                        }" @change="
-                            (e: any) =>
-                                handleTableChange({ current: e.current || 0, pageSize: e.pageSize || 0 })
-                        ">
+                        }"
+                        @change="(pagination: any) => handleTableChange({ current: pagination.current || 0, pageSize: pagination.pageSize || 0 })">
                         <template #bodyCell="{ column, record }">
                             <template v-if="column.key === 'name'">
                                 <a-button type="link" class="dfm-file-name"
@@ -1139,11 +1199,6 @@ onUnmounted(() => {
         flex: 1;
         min-width: 0;
     }
-}
-
-.dfm-selected-count {
-    font-size: 12px;
-    color: var(--desktop-window-text-secondary);
 }
 
 .dfm-upload-progress {
