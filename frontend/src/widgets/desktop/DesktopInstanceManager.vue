@@ -569,8 +569,10 @@ onUnmounted(() => {
                         </span>
                     </div>
                     <div class="dim-instance__meta">
-                        <span class="dim-instance__uuid" :title="instance.instanceUuid">
-                            {{ instance.instanceUuid.substring(0, 12) }}...
+                        <span class="dim-instance__expire"
+                            :title="instance.config.endTime ? new Date(instance.config.endTime).toLocaleString() : t('TXT_CODE_DESKTOP_IM_PERMANENT')">
+                            {{ instance.config.endTime ? new Date(instance.config.endTime).toLocaleString() :
+                                t('TXT_CODE_DESKTOP_IM_PERMANENT') }}
                         </span>
                         <span v-if="instance.config.type" class="dim-instance__type">
                             {{ instance.config.type }}
@@ -988,9 +990,9 @@ onUnmounted(() => {
         color: var(--desktop-window-text-secondary);
     }
 
-    &__uuid {
-        font-family: "Cascadia Code", "Fira Code", monospace;
+    &__expire {
         font-size: 11px;
+        color: var(--desktop-window-text-secondary);
     }
 
     &__type {

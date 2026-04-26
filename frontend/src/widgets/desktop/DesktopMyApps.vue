@@ -30,6 +30,7 @@ import { computed, onMounted, onUnmounted, ref, type Component } from "vue";
 interface MyAppInstance extends UserInstance {
     info?: Record<string, any>;
     config?: IGlobalInstanceConfig;
+    endTime?: number;
 }
 
 //─── State ───
@@ -123,7 +124,8 @@ const fetchInstances = async (silent = false) => {
                 status: inst.status ?? 0,
                 hostIp: inst.hostIp || "",
                 config: inst.config || undefined,
-                info: inst.info || {}
+                info: inst.info || {},
+                endTime: inst.endTime
             }));
             instances.value = userInstances;
         }
@@ -308,14 +310,16 @@ onUnmounted(() => {
                         </span>
                         <span class="ma-instance__name">{{
                             instance.nickname || t("TXT_CODE_DESKTOP_IM_UNNAMED")
-                            }}</span>
+                        }}</span>
                         <span class="ma-instance__badge" :class="getStatusClass(instance.status)">
                             {{ getStatusText(instance.status) }}
                         </span>
                     </div>
                     <div class="ma-instance__meta">
-                        <span class="ma-instance__uuid" :title="instance.instanceUuid">
-                            {{ instance.instanceUuid.substring(0, 12) }}...
+                        <span class="ma-instance__expire"
+                            :title="instance.endTime ? new Date(instance.endTime).toLocaleString() : t('TXT_CODE_DESKTOP_IM_PERMANENT')">
+                            {{ instance.endTime ? new Date(instance.endTime).toLocaleString() :
+                                t('TXT_CODE_DESKTOP_IM_PERMANENT') }}
                         </span>
                         <span v-if="instance.config?.type" class="ma-instance__type">
                             {{ instance.config.type }}
@@ -671,9 +675,9 @@ onUnmounted(() => {
         color: var(--desktop-window-text-muted);
     }
 
-    &__uuid {
-        font-family: "Cascadia Code", "Fira Code", monospace;
+    &__expire {
         font-size: 11px;
+        color: var(--desktop-window-text-muted);
     }
 
     &__type {
