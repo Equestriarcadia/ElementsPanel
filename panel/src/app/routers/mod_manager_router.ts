@@ -17,16 +17,16 @@ const router = new Router({ prefix: "/mod" });
 // Permission check middleware
 router.use(async (ctx, next) => {
   if (
-    ctx.path === "/mod/mc_versions" ||
-    ctx.path === "/mod/search" ||
-    ctx.path === "/mod/info" ||
-    ctx.path === "/mod/batch_info"
+    ctx.path === "/mc_versions" ||
+    ctx.path === "/search" ||
+    ctx.path === "/info" ||
+    ctx.path === "/batch_info"
   ) {
     return await next();
   }
 
-  const instanceUuid = String(ctx.query.uuid || ctx.request.body?.uuid);
-  const daemonId = String(ctx.query.daemonId || ctx.request.body?.daemonId);
+  const instanceUuid = ctx.query.uuid || ctx.request.body?.uuid;
+  const daemonId = ctx.query.daemonId || ctx.request.body?.daemonId;
   const userUuid = getUserUuid(ctx);
 
   // Check global file manager setting
@@ -38,7 +38,7 @@ router.use(async (ctx, next) => {
 
   // Check instance access
   if (instanceUuid && daemonId) {
-    if (isHaveInstanceByUuid(userUuid, daemonId, instanceUuid)) {
+    if (isHaveInstanceByUuid(userUuid, String(daemonId), String(instanceUuid))) {
       await next();
     } else {
       ctx.status = 403;
@@ -60,7 +60,6 @@ router.get("/mc_versions", speedLimit(0.5), permission({ level: ROLE.USER }), as
 
 router.get(
   "/list",
-  speedLimit(0.5),
   permission({ level: ROLE.USER }),
   validator({
     query: { daemonId: String, uuid: String }
