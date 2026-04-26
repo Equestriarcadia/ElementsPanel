@@ -254,7 +254,7 @@ watch(instanceInfo, (cfg, oldCfg) => {
 
 <style lang="scss" scoped>
 .dim-mgr-btns {
-    padding: 8px 16px;
+    padding: 8px;
     border-top: 1px solid var(--desktop-window-border);
 
     &__title {
