@@ -19,7 +19,7 @@ const router = new Router({ prefix: "/overview" });
 
 // [Top-level Permission]
 // Control panel home page information overview routing
-router.get("/", permission({ level: ROLE.ADMIN, token: false }), async (ctx) => {
+router.get("/", permission({ level: ROLE.USER, token: false }), async (ctx) => {
   // Get the information of the remote service concurrently
   const requestTasks = Array.from(RemoteServiceSubsystem.services.entries()).map(
     async ([_, remoteService]) => {
