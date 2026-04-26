@@ -245,8 +245,10 @@ watch(
 
         if (hasMods) {
             activeKey.value = TAB_KEY_MODS;
+            loadMods("mods");
         } else if (hasPlugins) {
             activeKey.value = TAB_KEY_PLUGINS;
+            loadMods("plugins");
         } else {
             activeKey.value = TAB_KEY_DOWNLOAD;
         }
@@ -367,9 +369,6 @@ const handleTabChange = (newKey: string | number) => {
 onMounted(async () => {
     loadMcVersions();
     await loadMods(getCurrentFolder());
-    setTimeout(() => {
-        loadMods(getCurrentFolder());
-    }, 500);
 });
 </script>
 

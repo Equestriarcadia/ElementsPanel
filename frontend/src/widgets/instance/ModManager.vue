@@ -258,8 +258,10 @@ watch(
     // Only perform initial jump if the current tab is invalid (e.g., just entered the page or folder status changed)
     if (hasMods) {
       activeKey.value = TAB_KEY_MODS;
+      loadMods("mods");
     } else if (hasPlugins) {
       activeKey.value = TAB_KEY_PLUGINS;
+      loadMods("plugins");
     } else {
       activeKey.value = TAB_KEY_DOWNLOAD;
     }
@@ -418,16 +420,9 @@ onMounted(async () => {
             <div v-else style="width: 40px"></div>
           </template>
           <template #center>
-            <div
-              v-if="activeKey === TAB_KEY_MODS || activeKey === TAB_KEY_PLUGINS"
-              class="search-input"
-            >
-              <a-input
-                v-model:value="headerSearchQuery"
-                :placeholder="t('TXT_CODE_SEARCH_PLACEHOLDER')"
-                allow-clear
-                :style="isPhone ? 'width: 180px' : 'width: 300px'"
-              >
+            <div v-if="activeKey === TAB_KEY_MODS || activeKey === TAB_KEY_PLUGINS" class="search-input">
+              <a-input v-model:value="headerSearchQuery" :placeholder="t('TXT_CODE_SEARCH_PLACEHOLDER')" allow-clear
+                :style="isPhone ? 'width: 180px' : 'width: 300px'">
                 <template #suffix>
                   <search-outlined />
                 </template>
@@ -436,21 +431,14 @@ onMounted(async () => {
           </template>
           <template #right>
             <a-space>
-              <a-button
-                v-if="activeKey === TAB_KEY_MODS || activeKey === TAB_KEY_PLUGINS"
-                @click="onUploadClick"
-              >
+              <a-button v-if="activeKey === TAB_KEY_MODS || activeKey === TAB_KEY_PLUGINS" @click="onUploadClick">
                 <template #icon>
                   <upload-outlined />
                 </template>
                 {{ t("TXT_CODE_ae09d79d") }}
               </a-button>
-              <a-button
-                v-if="activeKey !== TAB_KEY_DOWNLOAD"
-                type="primary"
-                :loading="loading"
-                @click="() => loadMods()"
-              >
+              <a-button v-if="activeKey !== TAB_KEY_DOWNLOAD" type="primary" :loading="loading"
+                @click="() => loadMods()">
                 <template #icon>
                   <reload-outlined />
                 </template>
@@ -464,17 +452,9 @@ onMounted(async () => {
       <a-col :span="24">
         <CardPanel class="containerWrapper" :padding="false">
           <template #body>
-            <div
-              :class="isPhone ? 'p-2' : 'p-4'"
-              style="position: relative"
-              @dragover.prevent="handleDragover"
-              @dragleave.prevent="handleDragleave"
-              @drop.prevent="handleDrop"
-            >
-              <div
-                v-if="opacity"
-                class="drag-upload-mask"
-                style="
+            <div :class="isPhone ? 'p-2' : 'p-4'" style="position: relative" @dragover.prevent="handleDragover"
+              @dragleave.prevent="handleDragleave" @drop.prevent="handleDrop">
+              <div v-if="opacity" class="drag-upload-mask" style="
                   position: absolute;
                   top: 0;
                   left: 0;
@@ -491,8 +471,7 @@ onMounted(async () => {
                   border: 2px dashed var(--ant-primary-color);
                   border-radius: 8px;
                   pointer-events: none;
-                "
-              >
+                ">
                 <div class="text-center">
                   <upload-outlined style="font-size: 48px; color: var(--ant-primary-color)" />
                   <div class="mt-2 text-lg font-bold" style="color: var(--ant-primary-color)">
@@ -501,12 +480,7 @@ onMounted(async () => {
                 </div>
               </div>
 
-              <a-alert
-                v-if="isWindows && isRunning"
-                type="warning"
-                show-icon
-                class="mb-4 mt-2 mod-manager-alert"
-              >
+              <a-alert v-if="isWindows && isRunning" type="warning" show-icon class="mb-4 mt-2 mod-manager-alert">
                 <template #message>
                   <div class="text-left">
                     <div class="font-bold">{{ t("TXT_CODE_MOD_WIN_FILE_LOCK_TITLE") }}</div>
@@ -517,48 +491,25 @@ onMounted(async () => {
                 </template>
               </a-alert>
 
-              <a-tabs
-                v-model:activeKey="activeKey"
-                class="mod-manager-tabs"
-                destroy-inactive-tab-pane
-                @change="handleTabChange"
-              >
+              <a-tabs v-model:activeKey="activeKey" class="mod-manager-tabs" destroy-inactive-tab-pane
+                @change="handleTabChange">
                 <a-tab-pane v-if="hasModsFolder" :key="TAB_KEY_MODS">
                   <template #tab>
                     <Flex align="center" :gap="6">
                       {{ t("TXT_CODE_MOD_LIST") }}
-                      <a-badge
-                        v-if="!loading && activeKey === TAB_KEY_MODS"
-                        :count="filteredMods.length"
-                        :show-zero="true"
-                        :overflow-count="999"
-                        :number-style="{
+                      <a-badge v-if="!loading && activeKey === TAB_KEY_MODS" :count="filteredMods.length"
+                        :show-zero="true" :overflow-count="999" :number-style="{
                           backgroundColor: '#f0f0f0',
                           color: '#555',
                           boxShadow: 'none'
-                        }"
-                        size="small"
-                      />
-                      <loading-outlined
-                        v-if="loading || loadingExtra"
-                        style="font-size: 12px; color: #1890ff"
-                      />
+                        }" size="small" />
+                      <loading-outlined v-if="loading || loadingExtra" style="font-size: 12px; color: #1890ff" />
                     </Flex>
                   </template>
                   <div :class="isPhone ? 'p-2' : 'p-10'">
-                    <LocalModTable
-                      :key="TAB_KEY_MODS"
-                      :loading="loading"
-                      :data-source="filteredMods"
-                      :columns="columns"
-                      :pagination="tablePagination"
-                      @change="handleTableChange"
-                      @toggle="onToggle"
-                      @delete="onDelete"
-                      @config="openConfig"
-                      @open-external="openExternal"
-                      @refresh="loadMods"
-                    />
+                    <LocalModTable :key="TAB_KEY_MODS" :loading="loading" :data-source="filteredMods" :columns="columns"
+                      :pagination="tablePagination" @change="handleTableChange" @toggle="onToggle" @delete="onDelete"
+                      @config="openConfig" @open-external="openExternal" @refresh="loadMods" />
                   </div>
                 </a-tab-pane>
 
@@ -566,59 +517,32 @@ onMounted(async () => {
                   <template #tab>
                     <Flex align="center" :gap="6">
                       {{ t("TXT_CODE_PLUGIN_LIST") }}
-                      <a-badge
-                        v-if="!loading && activeKey === TAB_KEY_PLUGINS"
-                        :count="filteredPlugins.length"
-                        :show-zero="true"
-                        :overflow-count="999"
-                        :number-style="{
+                      <a-badge v-if="!loading && activeKey === TAB_KEY_PLUGINS" :count="filteredPlugins.length"
+                        :show-zero="true" :overflow-count="999" :number-style="{
                           backgroundColor: '#f0f0f0',
                           color: '#555',
                           boxShadow: 'none'
-                        }"
-                        size="small"
-                      />
-                      <loading-outlined
-                        v-if="loading || loadingExtra"
-                        style="font-size: 12px; color: #1890ff"
-                      />
+                        }" size="small" />
+                      <loading-outlined v-if="loading || loadingExtra" style="font-size: 12px; color: #1890ff" />
                     </Flex>
                   </template>
                   <div :class="isPhone ? 'p-2' : 'p-10'">
-                    <LocalModTable
-                      :key="TAB_KEY_PLUGINS"
-                      :loading="loading"
-                      :data-source="filteredPlugins"
-                      :columns="columns"
-                      :pagination="tablePagination"
-                      @change="handleTableChange"
-                      @toggle="onToggle"
-                      @delete="onDelete"
-                      @config="openConfig"
-                      @open-external="openExternal"
-                      @refresh="loadMods"
-                    />
+                    <LocalModTable :key="TAB_KEY_PLUGINS" :loading="loading" :data-source="filteredPlugins"
+                      :columns="columns" :pagination="tablePagination" @change="handleTableChange" @toggle="onToggle"
+                      @delete="onDelete" @config="openConfig" @open-external="openExternal" @refresh="loadMods" />
                   </div>
                 </a-tab-pane>
 
                 <a-tab-pane :key="TAB_KEY_DOWNLOAD" :tab="t('TXT_CODE_25bf0004')">
                   <div :class="isPhone ? 'p-2' : 'p-10'">
                     <div>
-                      <a-form
-                        layout="horizontal"
-                        :model="searchFilters"
-                        class="search-form"
-                        label-width="120px"
-                        label-align="left"
-                      >
+                      <a-form layout="horizontal" :model="searchFilters" class="search-form" label-width="120px"
+                        label-align="left">
                         <a-row :gutter="isPhone ? [8, 8] : [24, 0]" style="margin-top: 10px">
                           <a-col :span="isPhone ? 24 : 4">
                             <a-form-item>
-                              <a-input
-                                v-model:value="searchFilters.query"
-                                :placeholder="t('TXT_CODE_SEARCH_PLACEHOLDER')"
-                                @press-enter="onSearch"
-                              />
+                              <a-input v-model:value="searchFilters.query"
+                                :placeholder="t('TXT_CODE_SEARCH_PLACEHOLDER')" @press-enter="onSearch" />
                             </a-form-item>
                           </a-col>
                           <a-col :span="isPhone ? 12 : 4">
@@ -635,12 +559,8 @@ onMounted(async () => {
                           </a-col>
                           <a-col :span="isPhone ? 12 : 4">
                             <a-form-item>
-                              <a-select
-                                v-model:value="searchFilters.version"
-                                show-search
-                                allow-clear
-                                :placeholder="t('TXT_CODE_743b4fe7')"
-                              >
+                              <a-select v-model:value="searchFilters.version" show-search allow-clear
+                                :placeholder="t('TXT_CODE_743b4fe7')">
                                 <a-select-option value="">
                                   {{ t("TXT_CODE_2af87548") }}
                                 </a-select-option>
@@ -682,15 +602,9 @@ onMounted(async () => {
                           </a-col>
                           <a-col :span="isPhone ? 12 : 4">
                             <a-form-item>
-                              <a-select
-                                v-model:value="searchFilters.loader"
-                                show-search
-                                allow-clear
-                                :options="loaderOptions"
-                                option-filter-prop="label"
-                                style="width: 100%"
-                                :placeholder="t('TXT_CODE_SELECT_LOADER')"
-                              />
+                              <a-select v-model:value="searchFilters.loader" show-search allow-clear
+                                :options="loaderOptions" option-filter-prop="label" style="width: 100%"
+                                :placeholder="t('TXT_CODE_SELECT_LOADER')" />
                             </a-form-item>
                           </a-col>
                         </a-row>
@@ -703,78 +617,40 @@ onMounted(async () => {
                         </div>
                       </a-form>
                     </div>
-                    <SearchModTable
-                      :loading="searchLoading"
-                      :data-source="searchResults"
-                      :columns="searchColumns"
-                      :mods="mods"
-                      :pagination="{
+                    <SearchModTable :loading="searchLoading" :data-source="searchResults" :columns="searchColumns"
+                      :mods="mods" :pagination="{
                         current: searchPage,
                         pageSize: searchLimit,
                         total: searchTotal,
                         showSizeChanger: true,
                         pageSizeOptions: ['10', '20', '50'],
                         showTotal: (total: number) => t('TXT_CODE_TOTAL_ITEMS', { total })
-                      }"
-                      @change="(p: any) => onSearch(p.current, p.pageSize)"
-                      @show-versions="showVersions"
-                      @open-external="openExternal"
-                      @download="handleDownload"
-                    />
+                      }" @change="(p: any) => onSearch(p.current, p.pageSize)" @show-versions="showVersions"
+                      @open-external="openExternal" @download="handleDownload" />
                   </div>
                 </a-tab-pane>
               </a-tabs>
 
-              <ModVersionModal
-                v-model:visible="showVersionModal"
-                :selected-mod="selectedMod"
-                :versions="versions"
-                :versions-loading="versionsLoading"
-                :search-filters="searchFilters"
-                :mods="mods"
-                @download="handleDownload"
-              />
+              <ModVersionModal v-model:visible="showVersionModal" :selected-mod="selectedMod" :versions="versions"
+                :versions-loading="versionsLoading" :search-filters="searchFilters" :mods="mods"
+                @download="handleDownload" />
 
-              <ModConfigModal
-                v-model:visible="showConfigModal"
-                :current-mod="currentMod"
-                :config-files="configFiles"
-                :config-loading="configLoading"
-                @edit="editFile"
-              />
+              <ModConfigModal v-model:visible="showConfigModal" :current-mod="currentMod" :config-files="configFiles"
+                :config-loading="configLoading" @edit="editFile" />
 
-              <FileEditor
-                ref="FileEditorDialog"
-                :daemon-id="daemonId!"
-                :instance-id="instanceId!"
-              />
+              <FileEditor ref="FileEditorDialog" :daemon-id="daemonId!" :instance-id="instanceId!" />
             </div>
           </template>
         </CardPanel>
       </a-col>
     </a-row>
 
-    <ModFloatingTools
-      v-model:deferred-tasks="deferredTasks"
-      v-model:auto-execute="autoExecute"
-      :instance-id="instanceId!"
-      :daemon-id="daemonId!"
-      :file-status="fileStatus"
-      :is-executing="isExecuting"
-      @execute-task="executeDeferredTask"
-      @execute-all="executeAllDeferredTasks"
-      @remove-task="removeDeferredTask"
-      @refresh="loadMods"
-    />
+    <ModFloatingTools v-model:deferred-tasks="deferredTasks" v-model:auto-execute="autoExecute"
+      :instance-id="instanceId!" :daemon-id="daemonId!" :file-status="fileStatus" :is-executing="isExecuting"
+      @execute-task="executeDeferredTask" @execute-all="executeAllDeferredTasks" @remove-task="removeDeferredTask"
+      @refresh="loadMods" />
 
-    <input
-      ref="fileInput"
-      type="file"
-      multiple
-      style="display: none"
-      accept=".jar,.zip"
-      @change="onFileChange"
-    />
+    <input ref="fileInput" type="file" multiple style="display: none" accept=".jar,.zip" @change="onFileChange" />
   </div>
 </template>
 
@@ -794,6 +670,7 @@ onMounted(async () => {
     flex: 1 !important;
     justify-content: center !important;
   }
+
   :deep(.menus-item-left),
   :deep(.menus-item-right) {
     display: flex !important;
@@ -804,6 +681,7 @@ onMounted(async () => {
 .search-form {
   margin-bottom: 20px;
 }
+
 .search-form :deep(.ant-form-item) {
   margin-bottom: 12px;
 }
