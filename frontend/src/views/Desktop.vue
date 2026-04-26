@@ -1026,7 +1026,8 @@ const username = computed(() => appState.userInfo?.userName || "User");
 
                             <DesktopModManager
                                 v-else-if="win.content === 'mod-manager' && win.instanceId && win.daemonId"
-                                :instance-id="win.instanceId" :daemon-id="win.daemonId" @close="closeWindow(win.id)" />
+                                :instance-id="win.instanceId" :daemon-id="win.daemonId" @close="closeWindow(win.id)"
+                                @open-file-editor="(filePath: string, fileName: string) => openFileEditorWindow(win.instanceId!, win.daemonId!, filePath, fileName)" />
 
                             <DesktopFileManager
                                 v-else-if="win.content === 'file-manager' && win.instanceId && win.daemonId"

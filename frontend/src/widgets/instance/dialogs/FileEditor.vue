@@ -128,18 +128,9 @@ defineExpose({
 </script>
 
 <template>
-  <a-modal
-    v-model:open="open"
-    centered
-    :wrap-class-name="fullScreen ? 'full-modal' : ''"
-    :cancel-text="t('TXT_CODE_3b1cc020')"
-    :ok-text="t('TXT_CODE_abfe9512')"
-    :mask-closable="false"
-    :width="fullScreen ? '100%' : '1600px'"
-    :confirm-loading="isLoading"
-    @ok="submit"
-    @cancel="cancel"
-  >
+  <a-modal v-model:open="open" centered :wrap-class-name="fullScreen ? 'full-modal' : ''"
+    :cancel-text="t('TXT_CODE_3b1cc020')" :ok-text="t('TXT_CODE_abfe9512')" :mask-closable="false"
+    :width="fullScreen ? '100%' : '1600px'" :confirm-loading="isLoading" @ok="submit" @cancel="cancel">
     <template #title>
       {{ dialogTitle }}
       <a-button v-if="!isPhone" type="text" size="small" @click="fullScreen = !fullScreen">
@@ -149,13 +140,8 @@ defineExpose({
         </template>
       </a-button>
     </template>
-    <Editor
-      v-if="openEditor"
-      ref="EditorComponent"
-      v-model:text="editorText"
-      :filename="fileName"
-      :height="fullScreen ? '100%' : '60vh'"
-    />
+    <Editor v-if="openEditor" ref="EditorComponent" v-model:text="editorText" :filename="fileName"
+      :height="fullScreen ? '100%' : '60vh'" />
     <a-skeleton v-else :paragraph="{ rows: 12 }" active />
   </a-modal>
 </template>
@@ -165,18 +151,21 @@ defineExpose({
   .ant-modal-close {
     top: 10px;
   }
+
   .ant-modal {
     max-width: 100%;
     top: 0;
     padding-bottom: 0;
     margin: 0 !important;
   }
+
   .ant-modal-content {
     display: flex;
     flex-direction: column;
     height: 100svh;
     padding: 5px;
   }
+
   .ant-modal-body {
     flex: 1;
     overflow: hidden;

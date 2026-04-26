@@ -9,7 +9,6 @@ import {
 } from "@ant-design/icons-vue";
 import { Flex, message } from "ant-design-vue";
 import { computed, onMounted, ref, watch } from "vue";
-import FileEditor from "../instance/dialogs/FileEditor.vue";
 import LocalModTable from "../instance/mod-manager/LocalModTable.vue";
 import ModConfigModal from "../instance/mod-manager/ModConfigModal.vue";
 import ModFloatingTools from "../instance/mod-manager/ModFloatingTools.vue";
@@ -32,6 +31,7 @@ const props = defineProps<{
 
 const emit = defineEmits<{
     (e: "close"): void;
+    (e: "open-file-editor", filePath: string, fileName: string): void;
 }>();
 
 const { instanceInfo, isRunning: isInstanceRunning } = useInstanceInfo({
@@ -224,10 +224,13 @@ const {
     fileInput
 } = useModUpload(props.instanceId, props.daemonId, activeKey, loadMods);
 
-const FileEditorDialog = ref();
+const { showConfigModal, currentMod, configFiles, configLoading, openConfig } =
+    useModConfig(props.instanceId, props.daemonId, ref(null));
 
-const { showConfigModal, currentMod, configFiles, configLoading, openConfig, editFile } =
-    useModConfig(props.instanceId, props.daemonId, FileEditorDialog);
+const handleEditFile = (file: any) => {
+    showConfigModal.value = false;
+    emit("open-file-editor", file.path, file.name);
+};
 
 const hasModsFolder = computed(() => folders.value.includes("mods"));
 const hasPluginsFolder = computed(() => folders.value.includes("plugins"));
@@ -564,13 +567,11 @@ onMounted(async () => {
                 </a-tabs>
 
                 <ModVersionModal v-model:visible="showVersionModal" :selected-mod="selectedMod" :versions="versions"
-                    :versions-loading="versionsLoading" :search-filters="searchFilters" :mods="mods"
+                    :versions-loading="versionsLoading" :search-filters="searchFilters" :mods="mods" :is-desktop="true"
                     @download="handleDownload" />
 
                 <ModConfigModal v-model:visible="showConfigModal" :current-mod="currentMod" :config-files="configFiles"
-                    :config-loading="configLoading" @edit="editFile" />
-
-                <FileEditor ref="FileEditorDialog" :daemon-id="props.daemonId" :instance-id="props.instanceId" />
+                    :config-loading="configLoading" :is-desktop="true" @edit="handleEditFile" />
             </div>
         </div>
 
