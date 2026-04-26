@@ -249,6 +249,10 @@ const handleInstanceClick = (e: MouseEvent, instance: InstanceDetail) => {
     if (multipleMode.value) {
         e.preventDefault();
         selectInstance(instance);
+        return;
+    }
+    if (selectedNodeId.value) {
+        emit("open-console", instance, selectedNodeId.value);
     }
 };
 
@@ -552,7 +556,7 @@ onUnmounted(() => {
 
             <div v-for="instance in filteredInstances" :key="instance.instanceUuid" class="dim-instance"
                 :class="{ 'dim-instance--operating': isOperating(instance.instanceUuid), 'dim-instance--selected': findInstance(instance) }"
-                @click="handleInstanceClick($event, instance)" @dblclick="handleInstanceDblClick(instance)">
+                @click="handleInstanceClick($event, instance)">
                 <div class="dim-instance__info">
                     <div class="dim-instance__header">
                         <span class="dim-instance__status" :class="getStatusClass(instance.status)">
@@ -560,7 +564,7 @@ onUnmounted(() => {
                         </span>
                         <span class="dim-instance__name">{{
                             instance.config.nickname || t("TXT_CODE_DESKTOP_IM_UNNAMED")
-                            }}</span><span class="dim-instance__badge" :class="getStatusClass(instance.status)">
+                        }}</span><span class="dim-instance__badge" :class="getStatusClass(instance.status)">
                             {{ getStatusText(instance.status) }}
                         </span>
                     </div>

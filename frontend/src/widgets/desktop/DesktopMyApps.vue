@@ -300,7 +300,7 @@ onUnmounted(() => {
 
             <div v-for="instance in filteredInstances" :key="instance.instanceUuid" class="ma-instance"
                 :class="{ 'ma-instance--operating': isOperating(instance.instanceUuid) }"
-                @dblclick="handleInstanceDblClick(instance)">
+                @click="handleInstanceDblClick(instance)">
                 <div class="ma-instance__info">
                     <div class="ma-instance__header">
                         <span class="ma-instance__status" :class="getStatusClass(instance.status)">
@@ -308,7 +308,7 @@ onUnmounted(() => {
                         </span>
                         <span class="ma-instance__name">{{
                             instance.nickname || t("TXT_CODE_DESKTOP_IM_UNNAMED")
-                        }}</span>
+                            }}</span>
                         <span class="ma-instance__badge" :class="getStatusClass(instance.status)">
                             {{ getStatusText(instance.status) }}
                         </span>
