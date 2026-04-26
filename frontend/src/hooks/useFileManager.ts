@@ -735,16 +735,21 @@ export const useFileManager = (instanceId: string = "", daemonId: string = "", s
     }
   };
 
-  const downloadFromUrl = async (downloadConfig: DownloadFileConfigItem) => {
+  const downloadFromUrl = async (downloadConfig: DownloadFileConfigItem, showLoadingDialog = true) => {
     if (!downloadConfig.url) throw new Error(t("TXT_CODE_f3031262"));
     if (!downloadConfig.fileName) throw new Error(t("TXT_CODE_7b605ad8"));
 
     const { execute } = downloadFromUrlAPI();
-    const loadingDialog = await openLoadingDialog(
-      t("TXT_CODE_b3825da"),
-      t("TXT_CODE_2b5b8a3d"),
-      t("TXT_CODE_6f038f25")
-    );
+    let loadingDialog: any = null;
+    if (showLoadingDialog) {
+      loadingDialog = await openLoadingDialog(
+        t("TXT_CODE_b3825da"),
+        t("TXT_CODE_2b5b8a3d"),
+        t("TXT_CODE_6f038f25")
+      );
+    } else {
+      showLoadingWindow(t("TXT_CODE_b3825da"), t("TXT_CODE_2b5b8a3d"));
+    }
     try {
       await execute({
         params: {
@@ -762,7 +767,8 @@ export const useFileManager = (instanceId: string = "", daemonId: string = "", s
       message.error(t("TXT_CODE_9ea5696b"));
       reportErrorMsg(error.message);
     } finally {
-      loadingDialog.cancel();
+      if (loadingDialog) loadingDialog.cancel();
+      hideLoadingWindow();
     }
   };
 

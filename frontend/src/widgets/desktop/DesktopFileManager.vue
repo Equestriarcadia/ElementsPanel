@@ -357,11 +357,58 @@ const handleRightClickRow = (e: MouseEvent, record: DataType) => {
     return false;
 };
 
+const downloadDialog = ref({
+    show: false,
+    url: "",
+    fileName: ""
+});
+
+const getFileNameFromUrl = (url: string | undefined): string | undefined => {
+    if (!url) return undefined;
+    try {
+        const urlObject = new URL(url);
+        const pathSegments = urlObject.pathname.split("/").filter(Boolean);
+        const lastPathSegment = pathSegments.pop() || "";
+        return decodeURIComponent(lastPathSegment);
+    } catch (_) {
+        return undefined;
+    }
+};
+
+watch(
+    () => downloadDialog.value.url,
+    (newUrl, oldUrl) => {
+        if (newUrl == oldUrl) return;
+        const fileName = getFileNameFromUrl(newUrl);
+        if (!fileName) return;
+        downloadDialog.value.fileName = fileName;
+    }
+);
+
 const downloadFromURLFile = async () => {
-    const { useDownloadFileDialog } = await import("@/components/fc");
-    const data = await useDownloadFileDialog();
-    if (!data) return;
-    await downloadFromUrl(data);
+    downloadDialog.value.url = "";
+    downloadDialog.value.fileName = "";
+    downloadDialog.value.show = true;
+};
+
+const submitDownloadDialog = async () => {
+    const { reportValidatorError } = await import("@/tools/validator");
+    if (!downloadDialog.value.url) return reportValidatorError(t("TXT_CODE_b5095a15"));
+    if (!downloadDialog.value.fileName) return reportValidatorError(t("TXT_CODE_de1b06cd"));
+    try {
+        new URL(downloadDialog.value.url);
+    } catch (_) {
+        return reportValidatorError(t("TXT_CODE_a4a960b9"));
+    }
+    downloadDialog.value.show = false;
+    await downloadFromUrl({
+        url: downloadDialog.value.url,
+        fileName: downloadDialog.value.fileName
+    }, false);
+};
+
+const cancelDownloadDialog = () => {
+    downloadDialog.value.show = false;
 };
 
 const tableBodyRef = ref<HTMLElement | null>(null);
@@ -800,6 +847,45 @@ onUnmounted(() => {
                             </button>
                             <button class="dfm-btn dfm-btn--primary" :disabled="dialog.loading" @click="dialog.ok()">
                                 {{ t("TXT_CODE_DESKTOP_USERS_SAVE") }}
+                            </button>
+                        </div>
+                    </div>
+                </DesktopWindow>
+            </Transition>
+        </Teleport>
+
+        <!-- Download Dialog -->
+        <Teleport to="body">
+            <Transition name="dfm-dialog-fade">
+                <DesktopWindow v-if="downloadDialog.show" id="file-manager-download-dialog"
+                    :title="t('TXT_CODE_f27b68b3')" :icon="DownloadOutlined" :visible="downloadDialog.show"
+                    :minimized="false" :maximized="false" :active="true" :initial-width="400" :initial-height="280"
+                    :initial-x="windowWidth / 2 - 200" :initial-y="windowHeight / 2 - 140" :z-index="10002"
+                    :show-minimize="false" :show-maximize="false" :resizable="false" @close="cancelDownloadDialog">
+                    <div class="dfm-dialog-content">
+                        <div class="dfm-dialog__body">
+                            <a-form layout="vertical">
+                                <a-form-item :label="t('TXT_CODE_ab8dd5a0')">
+                                    <div style="display: flex; flex-direction: column; gap: 4px;">
+                                        <a-typography-text type="secondary" class="typography-text-ellipsis">
+                                            {{ t("TXT_CODE_3fd7fe73") }}
+                                        </a-typography-text>
+                                        <a-input v-model:value="downloadDialog.url"
+                                            :placeholder="t('TXT_CODE_4ea93630')" />
+                                    </div>
+                                </a-form-item>
+                                <a-form-item :label="t('TXT_CODE_2eace3d5')">
+                                    <a-input v-model:value="downloadDialog.fileName"
+                                        :placeholder="t('TXT_CODE_4ea93630')" />
+                                </a-form-item>
+                            </a-form>
+                        </div>
+                        <div class="dfm-dialog__footer">
+                            <button class="dfm-btn dfm-btn--default" @click="cancelDownloadDialog">
+                                {{ t("TXT_CODE_a0451c97") }}
+                            </button>
+                            <button class="dfm-btn dfm-btn--primary" @click="submitDownloadDialog">
+                                {{ t("TXT_CODE_d507abff") }}
                             </button>
                         </div>
                     </div>
