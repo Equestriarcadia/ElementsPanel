@@ -88,7 +88,8 @@ const {
   toDisk,
   oneSelected,
   isImage,
-  showImage
+  showImage,
+  deleteDialog
 } = useFileManager(instanceId, daemonId);
 
 const { openRightClickMenu } = useRightClickMenu();
@@ -405,24 +406,14 @@ onUnmounted(() => {
               <download-outlined />
               {{ t("TXT_CODE_5b364aef") }}
             </a-button>
-            <a-upload
-              v-model:file-list="fileList"
-              :before-upload="() => false"
-              multiple
-              :on-change="onFileSelect"
-              :show-upload-list="false"
-            >
+            <a-upload v-model:file-list="fileList" :before-upload="() => false" multiple :on-change="onFileSelect"
+              :show-upload-list="false">
               <a-button type="dashed">
                 <upload-outlined />
                 {{ t("TXT_CODE_e00c858c") }}
               </a-button>
             </a-upload>
-            <a-button
-              v-if="clipboard?.value && clipboard.value.length > 0"
-              type="dashed"
-              danger
-              @click="paste()"
-            >
+            <a-button v-if="clipboard?.value && clipboard.value.length > 0" type="dashed" danger @click="paste()">
               {{ t("TXT_CODE_f0260e51") }}
             </a-button>
             <a-button v-else type="default" @click="reloadList()">
@@ -431,18 +422,14 @@ onUnmounted(() => {
 
             <a-dropdown v-if="isMultiple">
               <template #overlay>
-                <a-menu
-                  mode="vertical"
-                  :items="
-                    menuList({
-                      name: '',
-                      type: 0,
-                      size: 0,
-                      time: '',
-                      mode: 0
-                    })
-                  "
-                >
+                <a-menu mode="vertical" :items="menuList({
+                  name: '',
+                  type: 0,
+                  size: 0,
+                  time: '',
+                  mode: 0
+                })
+                  ">
                 </a-menu>
               </template>
               <a-button type="primary">
@@ -470,12 +457,8 @@ onUnmounted(() => {
           </template>
           <template #center>
             <div class="search-input">
-              <a-input
-                v-model:value.trim.lazy="operationForm.name"
-                :placeholder="t('TXT_CODE_7cad42a5')"
-                allow-clear
-                @change="handleSearchChange()"
-              >
+              <a-input v-model:value.trim.lazy="operationForm.name" :placeholder="t('TXT_CODE_7cad42a5')" allow-clear
+                @change="handleSearchChange()">
                 <template #suffix>
                   <search-outlined />
                 </template>
@@ -486,81 +469,42 @@ onUnmounted(() => {
       </a-col>
 
       <a-col :span="24">
-        <CardPanel
-          style="height: 100%"
-          :style="opacity && 'opacity: 0.4'"
-          @dragover="handleDragover"
-          @dragleave="handleDragleave"
-          @drop="handleDrop"
-        >
+        <CardPanel style="height: 100%" :style="opacity && 'opacity: 0.4'" @dragover="handleDragover"
+          @dragleave="handleDragleave" @drop="handleDrop">
           <template #body>
             <div v-if="uploadData.current" class="flex-nowrap w-100">
-              <a-typography-text
-                :ellipsis="true"
-                :content="`${uploadData.currentFile} ${uploadInstanceTag}`.trim()"
-              />
+              <a-typography-text :ellipsis="true" :content="`${uploadData.currentFile} ${uploadInstanceTag}`.trim()" />
               <a-typography-text style="padding-left: 5px; white-space: nowrap">
                 ({{ uploadData.files[0] }}/{{ uploadData.files[1] }})
               </a-typography-text>
               <div class="flex" style="margin-left: 5px; padding: 3px; gap: 3px">
-                <upload-task-progress
-                  v-for="(uTask, i) in uploadService.task.filter((v) => v)"
-                  :key="i"
-                  :progress="uTask!.progress / (uTask!.rangeEnd - uTask!.rangeStart)"
-                  :retries="uTask!.retries"
-                />
+                <upload-task-progress v-for="(uTask, i) in uploadService.task.filter((v) => v)" :key="i"
+                  :progress="uTask!.progress / (uTask!.rangeEnd - uTask!.rangeStart)" :retries="uTask!.retries" />
               </div>
-              <caret-right-outlined
-                v-if="uploadData.suspending"
-                style="margin-left: 5px"
-                type="button"
-                @click="uploadService.unsuspend()"
-              />
-              <pause-outlined
-                v-else
-                style="margin-left: 5px"
-                type="button"
-                @click="uploadService.suspend()"
-              />
-              <close-outlined
-                style="margin-left: 5px"
-                type="button"
-                @click="uploadService.stop()"
-              />
+              <caret-right-outlined v-if="uploadData.suspending" style="margin-left: 5px" type="button"
+                @click="uploadService.unsuspend()" />
+              <pause-outlined v-else style="margin-left: 5px" type="button" @click="uploadService.suspend()" />
+              <close-outlined style="margin-left: 5px" type="button" @click="uploadService.stop()" />
             </div>
             <div v-if="uploadData.current" class="flex-nowrap w-100">
-              <a-progress
-                :stroke-color="{
-                  '0%': '#49b3ff',
-                  '100%': '#25f5b9'
-                }"
-                :percent="progress"
-                :show-info="false"
-                class="mb-20 no-animation"
-              />
+              <a-progress :stroke-color="{
+                '0%': '#49b3ff',
+                '100%': '#25f5b9'
+              }" :percent="progress" :show-info="false" class="mb-20 no-animation" />
               <a-typography-text style="padding-left: 2px; white-space: nowrap">
                 {{ convertFileSize(uploadData.current![0].toString()) }} /
                 {{ convertFileSize(uploadData.current![1].toString()) }}
               </a-typography-text>
             </div>
-            <a-tabs
-              v-model:activeKey="activeTab"
-              type="editable-card"
-              @edit="onEditTabs"
-              @change="(key) => handleChangeTab(key as string)"
-            >
+            <a-tabs v-model:activeKey="activeTab" type="editable-card" @edit="onEditTabs"
+              @change="(key) => handleChangeTab(key as string)">
               <a-tab-pane v-for="b in currentTabs" :key="b.key" :tab="b.name" :closable="true">
               </a-tab-pane>
             </a-tabs>
 
             <div class="flex-wrap items-flex-start">
-              <a-select
-                v-if="isShowDiskList"
-                v-model:value="currentDisk"
-                :class="isPhone ? 'w-100 mb-10' : 'mr-10'"
-                style="width: 125px"
-                @change="toDisk(currentDisk)"
-              >
+              <a-select v-if="isShowDiskList" v-model:value="currentDisk" :class="isPhone ? 'w-100 mb-10' : 'mr-10'"
+                style="width: 125px" @change="toDisk(currentDisk)">
                 <a-select-option value="/">{{ t("TXT_CODE_28124988") }}</a-select-option>
                 <a-select-option v-for="disk in fileStatus?.disks" :key="disk" :value="disk">
                   {{ disk }}
@@ -577,64 +521,41 @@ onUnmounted(() => {
               </div>
             </div>
 
-            <p
-              v-if="fileStatus?.downloadFileFromURLTask && fileStatus.downloadFileFromURLTask > 0"
-              style="color: #1677ff"
-            >
+            <p v-if="fileStatus?.downloadFileFromURLTask && fileStatus.downloadFileFromURLTask > 0"
+              style="color: #1677ff">
               <a-spin />
               {{ t("TXT_CODE_8b7fe641", { count: fileStatus?.downloadFileFromURLTask }) }}
             </p>
-            <p
-              v-if="fileStatus?.instanceFileTask && fileStatus.instanceFileTask > 0"
-              style="color: #1677ff"
-            >
+            <p v-if="fileStatus?.instanceFileTask && fileStatus.instanceFileTask > 0" style="color: #1677ff">
               <a-spin />
               {{ t("TXT_CODE_dd06dea2") + fileStatus?.instanceFileTask + t("TXT_CODE_3e959ce7") }}
             </p>
             <a-spin :spinning="spinning">
-              <a-table
-                :row-selection="{
-                  selectedRowKeys: selectedRowKeys,
-                  onChange: selectChanged
-                }"
-                :row-key="(record: DataType) => record.name"
-                :data-source="dataSource"
-                :columns="columns"
-                :scroll="{
-                  x: 'max-content'
-                }"
-                size="small"
-                :pagination="{
-                  current: operationForm.current,
-                  pageSize: operationForm.pageSize,
-                  total: operationForm.total,
-                  hideOnSinglePage: false,
-                  showSizeChanger: true
-                }"
-                :custom-row="
-                  (record: DataType) => {
-                    return {
-                      onContextmenu: (e: MouseEvent) => handleRightClickRow(e, record as DataType)
-                    };
-                  }
-                "
-                @change="
-                  (e: any) =>
-                    handleTableChange({ current: e.current || 0, pageSize: e.pageSize || 0 })
-                "
-              >
+              <a-table :row-selection="{
+                selectedRowKeys: selectedRowKeys,
+                onChange: selectChanged
+              }" :row-key="(record: DataType) => record.name" :data-source="dataSource" :columns="columns" :scroll="{
+                x: 'max-content'
+              }" size="small" :pagination="{
+                current: operationForm.current,
+                pageSize: operationForm.pageSize,
+                total: operationForm.total,
+                hideOnSinglePage: false,
+                showSizeChanger: true
+              }" :custom-row="(record: DataType) => {
+                return {
+                  onContextmenu: (e: MouseEvent) => handleRightClickRow(e, record as DataType)
+                };
+              }
+                " @change="
+                    (e: any) =>
+                      handleTableChange({ current: e.current || 0, pageSize: e.pageSize || 0 })
+                  ">
                 <template #bodyCell="{ column, record }">
                   <template v-if="column.key === 'name'">
-                    <a-button
-                      type="link"
-                      class="file-name"
-                      @click="handleClickFile(record as DataType)"
-                    >
+                    <a-button type="link" class="file-name" @click="handleClickFile(record as DataType)">
                       <span class="mr-4">
-                        <component
-                          :is="getFileIcon(record.name, record.type)"
-                          style="font-size: 16px"
-                        />
+                        <component :is="getFileIcon(record.name, record.type)" style="font-size: 16px" />
                       </span>
                       {{ record.name }}
                     </a-button>
@@ -650,25 +571,15 @@ onUnmounted(() => {
                       </a-button>
                     </a-dropdown>
                     <a-space v-else>
-                      <a-tooltip
-                        v-for="(item, i) in (menuList(record as DataType) as any).filter(
-                          (menu: any) => !menu.children
-                        )"
-                        :key="i"
-                        :title="item.label"
-                      >
-                        <a-button
-                          :icon="item.icon"
-                          type="text"
-                          size="small"
-                          :style="item.style"
-                          @click="
-                            () => {
-                              oneSelected(record.name, record as DataType);
-                              item.onClick();
-                            }
-                          "
-                        >
+                      <a-tooltip v-for="(item, i) in (menuList(record as DataType) as any).filter(
+                        (menu: any) => !menu.children
+                      )" :key="i" :title="item.label">
+                        <a-button :icon="item.icon" type="text" size="small" :style="item.style" @click="
+                          () => {
+                            oneSelected(record.name, record as DataType);
+                            item.onClick();
+                          }
+                        ">
                         </a-button>
                       </a-tooltip>
                     </a-space>
@@ -682,22 +593,12 @@ onUnmounted(() => {
     </a-row>
   </div>
 
-  <a-modal
-    v-model:open="dialog.show"
-    :title="dialog.title"
-    :confirm-loading="dialog.loading"
-    :style="dialog.style"
-    @ok="dialog.ok()"
-    @cancel="dialog.cancel()"
-  >
+  <a-modal v-model:open="dialog.show" :title="dialog.title" :confirm-loading="dialog.loading" :style="dialog.style"
+    @ok="dialog.ok()" @cancel="dialog.cancel()">
     <p>{{ dialog.info }}</p>
 
-    <a-input
-      v-if="dialog.mode == ''"
-      :ref="dialog.ref"
-      v-model:value="dialog.value"
-      :placeholder="t('TXT_CODE_4ea93630')"
-    />
+    <a-input v-if="dialog.mode == ''" :ref="dialog.ref" v-model:value="dialog.value"
+      :placeholder="t('TXT_CODE_4ea93630')" />
 
     <a-space v-if="dialog.mode == 'unzip'" direction="vertical" class="w-100">
       <a-typography-title :level="5">{{ t("TXT_CODE_a6453188") }}</a-typography-title>
@@ -706,20 +607,12 @@ onUnmounted(() => {
         <a-radio-button value="1">{{ t("TXT_CODE_329fb904") }}</a-radio-button>
       </a-radio-group>
 
-      <a-input
-        v-if="dialog.unzipmode == '1'"
-        v-model:value="dialog.value"
-        :placeholder="t('TXT_CODE_377e5535')"
-      />
+      <a-input v-if="dialog.unzipmode == '1'" v-model:value="dialog.value" :placeholder="t('TXT_CODE_377e5535')" />
     </a-space>
 
     <a-space v-if="dialog.mode == 'zip'" direction="vertical" class="w-100">
-      <a-input
-        :ref="dialog.ref"
-        v-model:value="dialog.value"
-        :placeholder="t('TXT_CODE_366bad15')"
-        addon-after=". zip"
-      />
+      <a-input :ref="dialog.ref" v-model:value="dialog.value" :placeholder="t('TXT_CODE_366bad15')"
+        addon-after=". zip" />
     </a-space>
 
     <a-space v-if="dialog.mode == 'unzip'" direction="vertical" class="w-100 mt-16">
@@ -747,11 +640,7 @@ onUnmounted(() => {
     <a-space v-if="dialog.mode == 'permission'" direction="vertical" class="w-100 select-none">
       <a-spin :spinning="permission.loading">
         <div class="flex-between permission">
-          <a-checkbox-group
-            v-for="item in permission.item"
-            :key="item.key"
-            v-model:value="permission.data[item.role]"
-          >
+          <a-checkbox-group v-for="item in permission.item" :key="item.key" v-model:value="permission.data[item.role]">
             <a-row class="direction-column son">
               <a-typography-text class="mb-10">
                 <strong>{{ item.key }}</strong>
@@ -775,13 +664,15 @@ onUnmounted(() => {
     </a-space>
   </a-modal>
 
-  <FileEditor
-    v-if="daemonId && instanceId"
-    ref="FileEditorDialog"
-    :daemon-id="daemonId"
-    :instance-id="instanceId"
-    @save="getFileList"
-  />
+  <!-- Delete Confirm Dialog -->
+  <a-modal v-model:open="deleteDialog.show" :title="t('TXT_CODE_71155575')" :ok-text="t('TXT_CODE_d507abff')"
+    :cancel-text="t('TXT_CODE_a0451c97')" @ok="deleteDialog.resolve && deleteDialog.resolve(true)"
+    @cancel="deleteDialog.resolve && deleteDialog.resolve(false)">
+    <span style="color: red;">{{ t("TXT_CODE_6a10302d") }}</span>
+  </a-modal>
+
+  <FileEditor v-if="daemonId && instanceId" ref="FileEditorDialog" :daemon-id="daemonId" :instance-id="instanceId"
+    @save="getFileList" />
 </template>
 
 <style lang="scss" scoped>
