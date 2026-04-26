@@ -2,13 +2,15 @@
 import { useInstanceInfo } from "@/hooks/useInstance";
 import { t } from "@/lang/i18n";
 import {
+    ExclamationCircleOutlined,
+    FolderOutlined,
     LoadingOutlined,
     ReloadOutlined,
     SearchOutlined,
     UploadOutlined
 } from "@ant-design/icons-vue";
 import { Flex, message } from "ant-design-vue";
-import { computed, onMounted, ref, watch } from "vue";
+import { computed, onMounted, onUnmounted, ref, watch } from "vue";
 import LocalModTable from "../instance/mod-manager/LocalModTable.vue";
 import ModConfigModal from "../instance/mod-manager/ModConfigModal.vue";
 import ModFloatingTools from "../instance/mod-manager/ModFloatingTools.vue";
@@ -19,6 +21,7 @@ import { useLocalMods } from "../instance/mod-manager/useLocalMods";
 import { useModConfig } from "../instance/mod-manager/useModConfig";
 import { useModSearch } from "../instance/mod-manager/useModSearch";
 import { useModUpload } from "../instance/mod-manager/useModUpload";
+import DesktopWindow from "./DesktopWindow.vue";
 
 const TAB_KEY_MODS = "TAB_KEY_MODS";
 const TAB_KEY_PLUGINS = "TAB_KEY_PLUGINS";
@@ -43,6 +46,22 @@ const { instanceInfo, isRunning: isInstanceRunning } = useInstanceInfo({
 const activeKey = ref(TAB_KEY_MODS);
 const headerSearchQuery = ref("");
 
+const windowWidth = ref(window.innerWidth);
+const windowHeight = ref(window.innerHeight);
+
+const updateWindowSize = () => {
+    windowWidth.value = window.innerWidth;
+    windowHeight.value = window.innerHeight;
+};
+
+onMounted(() => {
+    window.addEventListener("resize", updateWindowSize);
+});
+
+onUnmounted(() => {
+    window.removeEventListener("resize", updateWindowSize);
+});
+
 const isWindows = computed(() => {
     const config = instanceInfo.value?.config;
     if (config?.crlf === 2) return true;
@@ -56,6 +75,16 @@ const isRunning = computed(() => {
     return s === 2 || s === 3;
 });
 
+// Windows file lock confirmation dialog state
+const fileLockDialog = ref({
+    show: false,
+    type: "",
+    name: "",
+    data: null as any,
+    immediateFn: null as (() => Promise<void>) | null,
+    resolve: null as ((value: "cancel" | "immediate" | "queue") => void) | null
+});
+
 const checkAndConfirm = async (
     type: string,
     name: string,
@@ -63,65 +92,46 @@ const checkAndConfirm = async (
     immediateFn: () => Promise<void>
 ) => {
     if (isWindows.value && isRunning.value) {
-        const { createVNode } = await import("vue");
-        const { Modal, Button } = await import("ant-design-vue");
-        const { ExclamationCircleOutlined } = await import("@ant-design/icons-vue");
-        Modal.confirm({
-            title: t("TXT_CODE_MOD_WIN_FILE_LOCK_TITLE"),
-            icon: createVNode(ExclamationCircleOutlined),
-            content: t("TXT_CODE_MOD_WIN_FILE_LOCK_DESC"),
-            okText: t("TXT_CODE_MOD_ADD_TO_QUEUE"),
-            cancelText: t("TXT_CODE_MOD_TRY_IMMEDIATELY"),
-            closable: true,
-            maskClosable: true,
-            footer: createVNode(
-                "div",
-                {
-                    style: {
-                        marginTop: "24px",
-                        textAlign: "right",
-                        display: "flex",
-                        justifyContent: "flex-end",
-                        gap: "8px"
+        return new Promise<void>((resolve) => {
+            fileLockDialog.value = {
+                show: true,
+                type,
+                name,
+                data,
+                immediateFn,
+                resolve: (action: "cancel" | "immediate" | "queue") => {
+                    fileLockDialog.value.show = false;
+                    if (action === "immediate") {
+                        immediateFn().then(resolve);
+                    } else if (action === "queue") {
+                        addDeferredTask(type, name, data);
+                        resolve();
+                    } else {
+                        resolve();
                     }
-                },
-                [
-                    createVNode(
-                        Button,
-                        {
-                            onClick: () => {
-                                Modal.destroyAll();
-                            }
-                        },
-                        { default: () => t("TXT_CODE_a0451c97") }
-                    ),
-                    createVNode(
-                        Button,
-                        {
-                            danger: true,
-                            onClick: () => {
-                                Modal.destroyAll();
-                                immediateFn();
-                            }
-                        },
-                        { default: () => t("TXT_CODE_MOD_TRY_IMMEDIATELY") }
-                    ),
-                    createVNode(
-                        Button,
-                        {
-                            type: "primary",
-                            onClick: () => {
-                                Modal.destroyAll();
-                                addDeferredTask(type, name, data);
-                            }
-                        },
-                        { default: () => t("TXT_CODE_MOD_ADD_TO_QUEUE") }
-                    )
-                ]
-            )
+                }
+            };
         });
     } else {
         await immediateFn();
+    }
+};
+
+const handleFileLockCancel = () => {
+    if (fileLockDialog.value.resolve) {
+        fileLockDialog.value.resolve("cancel");
+    }
+};
+
+const handleFileLockImmediate = () => {
+    if (fileLockDialog.value.resolve) {
+        fileLockDialog.value.resolve("immediate");
+    }
+};
+
+const handleFileLockQueue = () => {
+    if (fileLockDialog.value.resolve) {
+        fileLockDialog.value.resolve("queue");
     }
 };
 
@@ -188,8 +198,9 @@ const {
     selectedMod,
     versions,
     versionsLoading,
-    formatDate
-} = useModSearch(props.instanceId, props.daemonId, () => mods.value, loadMods, folders);
+    formatDate,
+    saveLocationDialog
+} = useModSearch(props.instanceId, props.daemonId, () => mods.value, loadMods, folders, true);
 
 const openExternal = (mod: any) => {
     const { source, id, slug, name } = mod;
@@ -212,6 +223,24 @@ const handleDownload = async (version: any) => {
     if (task) {
         await checkAndConfirm(task.type, task.name, task.data, task.immediateFn);
     }
+};
+
+const handleSaveLocationSelect = (type: "mod" | "plugin") => {
+    if (saveLocationDialog.value.resolve) {
+        saveLocationDialog.value.resolve(type);
+    }
+    saveLocationDialog.value.show = false;
+    saveLocationDialog.value.resolve = null;
+    saveLocationDialog.value.reject = null;
+};
+
+const handleSaveLocationCancel = () => {
+    if (saveLocationDialog.value.reject) {
+        saveLocationDialog.value.reject(new Error("Cancelled"));
+    }
+    saveLocationDialog.value.show = false;
+    saveLocationDialog.value.resolve = null;
+    saveLocationDialog.value.reject = null;
 };
 
 const {
@@ -580,6 +609,70 @@ onMounted(async () => {
             @remove-task="removeDeferredTask" @refresh="loadMods" />
 
         <input ref="fileInput" type="file" multiple style="display: none" accept=".jar,.zip" @change="onFileChange" />
+
+        <!-- Save Location Dialog -->
+        <Teleport to="body">
+            <Transition name="dmm-dialog-fade">
+                <DesktopWindow v-if="saveLocationDialog.show" id="mod-save-location-dialog"
+                    :title="t('TXT_CODE_MOD_SELECT_SAVE_DIR')" :icon="ExclamationCircleOutlined"
+                    :visible="saveLocationDialog.show" :minimized="false" :maximized="false" :active="true"
+                    :initial-width="360" :initial-height="220" :initial-x="windowWidth / 2 - 180"
+                    :initial-y="windowHeight / 2 - 100" :z-index="10003" :show-minimize="false" :show-maximize="false"
+                    :resizable="false" @close="handleSaveLocationCancel">
+                    <div class="dmm-dialog-content">
+                        <div class="dmm-dialog__body dmm-dialog__body--column">
+                            <ExclamationCircleOutlined class="dmm-dialog__warn-icon" />
+                            <p class="dmm-dialog__desc">{{ t("TXT_CODE_MOD_SELECT_SAVE_DIR") }}</p>
+                        </div>
+                        <div class="dmm-dialog__footer">
+                            <button class="dmm-dialog-btn dmm-dialog-btn--default" @click="handleSaveLocationCancel">
+                                {{ t("TXT_CODE_a0451c97") }}
+                            </button>
+                            <button class="dmm-dialog-btn dmm-dialog-btn--primary"
+                                :class="{ 'dmm-dialog-btn--highlighted': saveLocationDialog.detectedType === 'mod' }"
+                                @click="handleSaveLocationSelect('mod')">
+                                <FolderOutlined /> {{ t("TXT_CODE_MOD") }}
+                            </button>
+                            <button class="dmm-dialog-btn dmm-dialog-btn--primary"
+                                :class="{ 'dmm-dialog-btn--highlighted': saveLocationDialog.detectedType === 'plugin' }"
+                                @click="handleSaveLocationSelect('plugin')">
+                                <FolderOutlined /> {{ t("TXT_CODE_PLUGIN") }}
+                            </button>
+                        </div>
+                    </div>
+                </DesktopWindow>
+            </Transition>
+        </Teleport>
+
+        <!-- Windows File Lock Dialog -->
+        <Teleport to="body">
+            <Transition name="dmm-dialog-fade">
+                <DesktopWindow v-if="fileLockDialog.show" id="mod-file-lock-dialog"
+                    :title="t('TXT_CODE_MOD_WIN_FILE_LOCK_TITLE')" :icon="ExclamationCircleOutlined"
+                    :visible="fileLockDialog.show" :minimized="false" :maximized="false" :active="true"
+                    :initial-width="400" :initial-height="240" :initial-x="windowWidth / 2 - 200"
+                    :initial-y="windowHeight / 2 - 110" :z-index="10004" :show-minimize="false" :show-maximize="false"
+                    :resizable="false" @close="handleFileLockCancel">
+                    <div class="dmm-dialog-content">
+                        <div class="dmm-dialog__body dmm-dialog__body--column">
+                            <ExclamationCircleOutlined class="dmm-dialog__warn-icon" />
+                            <p class="dmm-dialog__desc">{{ t("TXT_CODE_MOD_WIN_FILE_LOCK_DESC") }}</p>
+                        </div>
+                        <div class="dmm-dialog__footer">
+                            <button class="dmm-dialog-btn dmm-dialog-btn--default" @click="handleFileLockCancel">
+                                {{ t("TXT_CODE_a0451c97") }}
+                            </button>
+                            <button class="dmm-dialog-btn dmm-dialog-btn--danger" @click="handleFileLockImmediate">
+                                {{ t("TXT_CODE_MOD_TRY_IMMEDIATELY") }}
+                            </button>
+                            <button class="dmm-dialog-btn dmm-dialog-btn--primary" @click="handleFileLockQueue">
+                                {{ t("TXT_CODE_MOD_ADD_TO_QUEUE") }}
+                            </button>
+                        </div>
+                    </div>
+                </DesktopWindow>
+            </Transition>
+        </Teleport>
     </div>
 </template>
 
@@ -782,5 +875,106 @@ onMounted(async () => {
     gap: 8px;
     justify-content: flex-end;
     margin-top: 8px;
+}
+
+// ─── Dialogs ───
+.dmm-dialog-fade-enter-active,
+.dmm-dialog-fade-leave-active {
+    transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.dmm-dialog-fade-enter-from,
+.dmm-dialog-fade-leave-to {
+    opacity: 0;
+    transform: scale(0.95);
+}
+
+.dmm-dialog-content {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    background: transparent;
+}
+
+.dmm-dialog__body {
+    padding: 20px;
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    &--column {
+        flex-direction: column;
+        gap: 12px;
+    }
+}
+
+.dmm-dialog__warn-icon {
+    font-size: 36px;
+    color: var(--color-warning, #faad14);
+}
+
+.dmm-dialog__desc {
+    margin: 0;
+    color: var(--desktop-window-text);
+    font-size: 14px;
+    text-align: center;
+    line-height: 1.6;
+}
+
+.dmm-dialog__footer {
+    padding: 12px 20px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    border-top: 1px solid var(--desktop-window-border);
+}
+
+.dmm-dialog-btn {
+    padding: 7px 16px;
+    border: none;
+    border-radius: 6px;
+    font-size: 13px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.2s;
+    color: var(--desktop-window-text);
+    white-space: nowrap;
+
+    &:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+
+    &--primary {
+        background: var(--color-blue-5, #1677ff);
+        color: #fff;
+        border-color: var(--color-blue-5, #1677ff);
+
+        &:hover:not(:disabled) {
+            background: var(--color-blue-6, #4096ff);
+        }
+    }
+
+    &--danger {
+        background: var(--color-red-5, #ff4d4f);
+        color: #fff;
+        border-color: var(--color-red-5, #ff4d4f);
+
+        &:hover:not(:disabled) {
+            background: var(--color-red-6, #ff7875);
+        }
+    }
+
+    &--default {
+        background: var(--desktop-window-titlebar-bg);
+        border: 1px solid var(--desktop-window-border);
+
+        &:hover:not(:disabled) {
+            background: var(--desktop-window-control-hover);
+        }
+    }
 }
 </style>
