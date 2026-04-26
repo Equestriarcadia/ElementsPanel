@@ -29,7 +29,7 @@ import {
     SearchOutlined,
     UploadOutlined
 } from "@ant-design/icons-vue";
-import { Modal, type ItemType, type UploadChangeParam, type UploadProps } from "ant-design-vue";
+import { type ItemType, type UploadChangeParam, type UploadProps } from "ant-design-vue";
 import dayjs from "dayjs";
 import { computed, h, onMounted, onUnmounted, ref, watch, type CSSProperties } from "vue";
 import DesktopWindow from "./DesktopWindow.vue";
@@ -208,6 +208,12 @@ const handleDragleave = (e: DragEvent) => {
     opacity.value = false;
 };
 
+const uploadConfirmDialog = ref({
+    show: false,
+    files: null as FileList | null,
+    name: ""
+});
+
 const handleDrop = (e: DragEvent) => {
     e.preventDefault();
     const files = e.dataTransfer?.files;
@@ -229,14 +235,22 @@ const handleDrop = (e: DragEvent) => {
     if (files.length > 1) {
         name += ` (${files.length})`;
     }
-    Modal.confirm({
-        title: t("TXT_CODE_52bc24ec"),
-        icon: h(ExclamationCircleOutlined),
-        content: t("TXT_CODE_52bc24ec") + ` ${name} ?`,
-        onOk() {
-            selectedFiles([...files]);
-        }
-    });
+    uploadConfirmDialog.value = {
+        show: true,
+        files,
+        name
+    };
+};
+
+const handleUploadConfirmOk = () => {
+    if (uploadConfirmDialog.value.files) {
+        selectedFiles([...uploadConfirmDialog.value.files]);
+    }
+    uploadConfirmDialog.value.show = false;
+};
+
+const handleUploadConfirmCancel = () => {
+    uploadConfirmDialog.value.show = false;
 };
 const fileList = ref<UploadProps["fileList"]>([]);
 const onFileSelect = (info: UploadChangeParam) => {
@@ -912,6 +926,34 @@ onUnmounted(() => {
             </Transition>
         </Teleport>
 
+        <!-- Upload Confirm Dialog -->
+        <Teleport to="body">
+            <Transition name="dfm-dialog-fade">
+                <DesktopWindow v-if="uploadConfirmDialog.show" id="file-manager-upload-confirm-dialog"
+                    :title="t('TXT_CODE_52bc24ec')" :icon="ExclamationCircleOutlined"
+                    :visible="uploadConfirmDialog.show" :minimized="false" :maximized="false" :active="true"
+                    :initial-width="400" :initial-height="200" :initial-x="windowWidth / 2 - 200"
+                    :initial-y="windowHeight / 2 - 100" :z-index="10004" :show-minimize="false" :show-maximize="false"
+                    :resizable="false" @close="handleUploadConfirmCancel">
+                    <div class="dfm-dialog-content">
+                        <div class="dfm-dialog__body dfm-dialog__body--column">
+                            <ExclamationCircleOutlined class="dfm-dialog__warn-icon" />
+                            <p class="dfm-dialog__desc">{{ t("TXT_CODE_52bc24ec") }} {{ uploadConfirmDialog.name }} ?
+                            </p>
+                        </div>
+                        <div class="dfm-dialog__footer">
+                            <button class="dfm-btn dfm-btn--default" @click="handleUploadConfirmCancel">
+                                {{ t("TXT_CODE_a0451c97") }}
+                            </button>
+                            <button class="dfm-btn dfm-btn--primary" @click="handleUploadConfirmOk">
+                                {{ t("TXT_CODE_d507abff") }}
+                            </button>
+                        </div>
+                    </div>
+                </DesktopWindow>
+            </Transition>
+        </Teleport>
+
     </div>
 </template>
 
@@ -1111,6 +1153,27 @@ onUnmounted(() => {
     padding: 16px 20px;
     flex: 1;
     overflow-y: auto;
+
+    &--column {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+    }
+}
+
+.dfm-dialog__warn-icon {
+    font-size: 36px;
+    color: var(--color-warning, #faad14);
+}
+
+.dfm-dialog__desc {
+    margin: 0;
+    color: var(--desktop-window-text);
+    font-size: 14px;
+    text-align: center;
+    line-height: 1.6;
 }
 
 .dfm-dialog__footer {
