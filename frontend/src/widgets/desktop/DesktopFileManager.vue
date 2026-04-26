@@ -905,14 +905,13 @@ onUnmounted(() => {
                         @change="(pagination: any) => handleTableChange({ current: pagination.current || 0, pageSize: pagination.pageSize || 0 })">
                         <template #bodyCell="{ column, record }">
                             <template v-if="column.key === 'name'">
-                                <a-button type="link" class="dfm-file-name"
-                                    @click="handleClickFile(record as DataType)">
+                                <span class="dfm-file-name">
                                     <span class="mr-4">
                                         <component :is="getFileIcon(record.name, record.type)"
                                             style="font-size: 16px" />
                                     </span>
                                     {{ record.name }}
-                                </a-button>
+                                </span>
                             </template>
                             <template v-if="column.key === 'action'">
                                 <a-dropdown>
@@ -1269,10 +1268,6 @@ onUnmounted(() => {
 .dfm-file-name {
     color: inherit;
     font-size: 12px;
-
-    &:hover {
-        color: #1677ff;
-    }
 }
 
 .dfm-permission {
@@ -1331,8 +1326,8 @@ onUnmounted(() => {
 
 :deep(.ant-table-tbody > tr > td) {
     border-bottom: 1px solid var(--desktop-window-border) !important;
-    padding: 1px 6px !important;
-    line-height: 1.1;
+    padding: 6px 8px !important;
+    line-height: 1.4;
 }
 
 :deep(.ant-table-tbody > tr:hover > td) {

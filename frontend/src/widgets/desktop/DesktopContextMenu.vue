@@ -110,7 +110,7 @@ onUnmounted(() => {
     border-radius: 8px;
     border: 1px solid var(--desktop-menu-border);
     box-shadow: 0 8px 32px var(--desktop-menu-shadow);
-    z-index: 2000;
+    z-index: 100001;
     padding: 4px 0;
     overflow: hidden;
 }
