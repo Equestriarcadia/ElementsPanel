@@ -82,13 +82,45 @@ const windowStyle = computed(() => {
     };
 });
 
+const isRestoringFromMaximized = ref(false);
+const pendingDragOffset = ref({ x: 0, y: 0 });
+
 const onMouseDownTitlebar = (e: MouseEvent) => {
-    if (props.maximized) return;
-    isDragging.value = true;
-    dragOffset.value = {
-        x: e.clientX - x.value,
-        y: e.clientY - y.value
-    };
+    if (e.button !== 0) return;
+    if (props.maximized) {
+        const restoredW = Math.min(savedPos.value.w, window.innerWidth - 40);
+        const restoredH = Math.min(savedPos.value.h, window.innerHeight - 100);
+        const titlebarHeight = 38;
+        const restoredX = Math.max(0, Math.min(e.clientX - restoredW * 0.15, window.innerWidth - restoredW - 10));
+        const restoredY = Math.max(0, Math.min(e.clientY - titlebarHeight * 0.5, window.innerHeight - restoredH - 60));
+
+        x.value = restoredX;
+        y.value = restoredY;
+        width.value = restoredW;
+        height.value = restoredH;
+
+        savedPos.value = { x: restoredX, y: restoredY, w: restoredW, h: restoredH };
+
+        emit("maximize", props.id);
+
+        pendingDragOffset.value = {
+            x: e.clientX - restoredX,
+            y: e.clientY - restoredY
+        };
+        dragOffset.value = pendingDragOffset.value;
+
+        isRestoringFromMaximized.value = true;
+        setTimeout(() => {
+            isDragging.value = true;
+            isRestoringFromMaximized.value = false;
+        }, 280);
+    } else {
+        isDragging.value = true;
+        dragOffset.value = {
+            x: e.clientX - x.value,
+            y: e.clientY - y.value
+        };
+    }
     emit("focus", props.id);
     e.preventDefault();
 };
@@ -206,7 +238,7 @@ onUnmounted(() => {
                 </span>
                 <span class="window__title">{{ title }}</span>
             </div>
-            <div class="window__controls">
+            <div class="window__controls" @mousedown.stop>
                 <div v-if="showMinimize" class="window__control window__control--minimize"
                     @click.stop="emit('minimize', id)">
                     <MinusOutlined />
@@ -246,12 +278,12 @@ onUnmounted(() => {
     display: flex;
     flex-direction: column;
     overflow: hidden;
-    transition: left 0.25s ease,
-        top 0.25s ease,
-        width 0.25s ease,
-        height 0.25s ease,
-        border-radius 0.25s ease,
-        box-shadow 0.25s ease;
+    transition: left 0.2s ease,
+        top 0.2s ease,
+        width 0.2s ease,
+        height 0.2s ease,
+        border-radius 0.2s ease,
+        box-shadow 0.2s ease;
 
     &--active {
         border-color: var(--desktop-window-border);
