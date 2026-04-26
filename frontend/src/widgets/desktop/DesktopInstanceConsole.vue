@@ -2,6 +2,7 @@
 import { openMarketDialog, openRenewalDialog } from "@/components/fc";
 import TerminalCore from "@/components/TerminalCore.vue";
 import { INSTANCE_TYPE_TRANSLATION, verifyEULA } from "@/hooks/useInstance";
+import { useOverviewInfo } from "@/hooks/useOverviewInfo";
 import { useTerminal, type UseTerminalHook } from "@/hooks/useTerminal";
 import { t } from "@/lang/i18n";
 import {
@@ -16,11 +17,14 @@ import { sleep } from "@/tools/common";
 import { reportErrorMsg } from "@/tools/validator";
 import { INSTANCE_CRASH_TIMEOUT, INSTANCE_STATUS } from "@/types/const";
 import {
+    ApartmentOutlined,
     ArrowLeftOutlined,
+    BlockOutlined,
     CheckCircleOutlined,
     CloseOutlined,
     CloudDownloadOutlined,
     ControlOutlined,
+    DashboardOutlined,
     FieldTimeOutlined,
     FolderOpenOutlined,
     InfoCircleOutlined,
@@ -68,6 +72,13 @@ const {
     isDockerMode,
     clearTerminal
 } = terminalHook;
+
+const { state: overviewState } = useOverviewInfo();
+
+const nodeInfo = computed(() => {
+    if (!overviewState.value?.remote) return null;
+    return overviewState.value.remote.find((node: any) => node.uuid === props.daemonId);
+});
 
 const activeDialog = ref<DialogPanel>("none");
 
@@ -269,6 +280,61 @@ const getInstanceName = computed(() => {
     }
 });
 
+const formatBytes = (bytes: number): string => {
+    if (bytes == null || isNaN(bytes)) return "0 B/s";
+    const units = ["B/s", "KB/s", "MB/s", "GB/s", "TB/s"];
+    let value = bytes;
+    let unitIndex = 0;
+    while (value >= 1024 && unitIndex < units.length - 1) {
+        value /= 1024;
+        unitIndex++;
+    }
+    return `${value.toFixed(unitIndex === 0 ? 0 : 1)} ${units[unitIndex]}`;
+};
+
+const formatToGB = (bytes: number): string => {
+    if (bytes == null || isNaN(bytes)) return "0.0G";
+    return `${(bytes / 1024 / 1024 / 1024).toFixed(1)}G`;
+};
+
+const perfInfo = computed(() => {
+    const info = instanceInfo.value?.info;
+    if (!info) return null;
+
+    if (isDockerMode.value) {
+        const cpu = info.cpuUsage != null ? Math.min(Math.round(info.cpuUsage), 100) : null;
+        const mem = info.memoryUsagePercent != null ? Math.min(Math.round(info.memoryUsagePercent), 100) : null;
+        const memUsed = info.memoryUsage != null ? formatToGB(info.memoryUsage) : null;
+        const memTotal = info.memoryLimit != null ? formatToGB(info.memoryLimit) : null;
+        const net = info.rxRate != null || info.txRate != null
+            ? { rx: formatBytes(info.rxRate ?? 0), tx: formatBytes(info.txRate ?? 0) }
+            : null;
+        return { cpu, mem, memUsed, memTotal, net };
+    }
+
+    if (nodeInfo.value?.system) {
+        const system = nodeInfo.value.system;
+        const memoryUsage = system.totalmem - system.freemem;
+        const cpu = system.cpuUsage != null ? Math.min(Math.round(system.cpuUsage * 100), 100) : null;
+        const mem = system.totalmem > 0 ? Math.min(Math.round((memoryUsage / system.totalmem) * 100), 100) : null;
+        const memUsed = formatToGB(memoryUsage);
+        const memTotal = formatToGB(system.totalmem);
+        const net = info.rxRate != null || info.txRate != null
+            ? { rx: formatBytes(info.rxRate ?? 0), tx: formatBytes(info.txRate ?? 0) }
+            : null;
+        return { cpu, mem, memUsed, memTotal, net };
+    }
+
+    const cpu = info.cpuUsage != null ? Math.min(Math.round(info.cpuUsage), 100) : null;
+    const mem = info.memoryUsagePercent != null ? Math.min(Math.round(info.memoryUsagePercent), 100) : null;
+    const memUsed = info.memoryUsage != null ? formatToGB(info.memoryUsage) : null;
+    const memTotal = info.memoryLimit != null ? formatToGB(info.memoryLimit) : null;
+    const net = info.rxRate != null || info.txRate != null
+        ? { rx: formatBytes(info.rxRate ?? 0), tx: formatBytes(info.txRate ?? 0) }
+        : null;
+    return { cpu, mem, memUsed, memTotal, net };
+});
+
 onUnmounted(() => {
     if (checkRunningTimer) clearTimeout(checkRunningTimer);
 });
@@ -304,6 +370,22 @@ onUnmounted(() => {
                 </div>
             </div>
             <div class="dim-toolbar__right">
+                <!-- Performance indicator -->
+                <div v-if="perfInfo" class="dim-perf">
+                    <span v-if="perfInfo.cpu != null" class="dim-perf__item"
+                        :class="`dim-perf__cpu--${perfInfo.cpu > 80 ? 'high' : perfInfo.cpu > 50 ? 'mid' : 'low'}`"
+                        :title="t('TXT_CODE_b862a158')">
+                        <BlockOutlined /> {{ perfInfo.cpu }}%
+                    </span>
+                    <span v-if="perfInfo.mem != null && perfInfo.memUsed && perfInfo.memTotal" class="dim-perf__item"
+                        :class="`dim-perf__mem--${perfInfo.mem > 80 ? 'high' : perfInfo.mem > 50 ? 'mid' : 'low'}`"
+                        :title="t('TXT_CODE_593ee330')">
+                        <DashboardOutlined /> {{ perfInfo.memUsed }}/{{ perfInfo.memTotal }}
+                    </span>
+                    <span v-if="perfInfo.net" class="dim-perf__item dim-perf__net" :title="t('TXT_CODE_50daec4')">
+                        <ApartmentOutlined /> ↓{{ perfInfo.net.rx }}/s ↑{{ perfInfo.net.tx }}/s
+                    </span>
+                </div>
                 <template v-for="item in [...quickOperations, ...instanceOperations]" :key="item.title">
                     <button v-if="item.noConfirm" class="dim-btn dim-btn--sm" :class="{
                         'dim-btn--primary': item.class === 'button-color-success',
@@ -576,6 +658,60 @@ onUnmounted(() => {
     display: flex;
     align-items: center;
     gap: 4px;
+}
+
+// ─── Performance Indicator ───
+.dim-perf {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 0 12px;
+    border-right: 1px solid var(--desktop-window-border);
+    margin-right: 8px;
+}
+
+.dim-perf__item {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    font-size: 11px;
+    font-weight: 500;
+    white-space: nowrap;
+    padding: 2px 6px;
+    border-radius: 4px;
+    background: var(--desktop-window-titlebar-bg);
+    cursor: default;
+
+    // CPU: blue tones
+    &.dim-perf__cpu--low {
+        color: var(--color-blue-5, #1677ff);
+    }
+
+    &.dim-perf__cpu--mid {
+        color: var(--color-gold-6, #faad14);
+    }
+
+    &.dim-perf__cpu--high {
+        color: var(--color-red-5, #ff4d4f);
+    }
+
+    // Memory: purple tones
+    &.dim-perf__mem--low {
+        color: var(--color-purple-5, #722ed1);
+    }
+
+    &.dim-perf__mem--mid {
+        color: var(--color-gold-6, #faad14);
+    }
+
+    &.dim-perf__mem--high {
+        color: var(--color-red-5, #ff4d4f);
+    }
+
+    // Network: green tones
+    &.dim-perf__net {
+        color: var(--color-green-6, #52c41a);
+    }
 }
 
 // ─── Body Area ───
