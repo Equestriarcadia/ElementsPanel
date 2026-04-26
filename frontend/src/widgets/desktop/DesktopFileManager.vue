@@ -89,7 +89,8 @@ const {
     showImage,
     pushSelected,
     selectionData,
-    loadingWindow
+    loadingWindow,
+    deleteDialog
 } = useFileManager(props.instanceId, props.daemonId, props.sessionId || "");
 
 const { openRightClickMenu } = useRightClickMenu();
@@ -599,6 +600,42 @@ const onTableMouseUp = () => {
 const windowWidth = ref(window.innerWidth);
 const windowHeight = ref(window.innerHeight);
 
+const handleKeyboardShortcut = (e: KeyboardEvent) => {
+    const tag = (e.target as HTMLElement)?.tagName;
+    if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
+    if ((e.target as HTMLElement)?.isContentEditable) return;
+
+    const isCtrl = e.ctrlKey || e.metaKey;
+
+    if (isCtrl && e.key === 'c') {
+        e.preventDefault();
+        if (!selectionData.value || selectionData.value.length === 0) return;
+        setClipBoard('copy');
+        return;
+    }
+
+    if (isCtrl && e.key === 'x') {
+        e.preventDefault();
+        if (!selectionData.value || selectionData.value.length === 0) return;
+        setClipBoard('move');
+        return;
+    }
+
+    if (isCtrl && e.key === 'v') {
+        e.preventDefault();
+        paste();
+        return;
+    }
+
+    if (e.key === 'Delete' || e.key === 'Del') {
+        e.preventDefault();
+        if (!selectionData.value || selectionData.value.length === 0) return;
+        const file = selectionData.value.length === 1 ? selectionData.value[0].name : undefined;
+        deleteFile(file);
+        return;
+    }
+};
+
 onMounted(async () => {
     const updateWindowSize = () => {
         windowWidth.value = window.innerWidth;
@@ -621,6 +658,7 @@ onMounted(async () => {
 
     document.addEventListener('mousemove', onTableMouseMove);
     document.addEventListener('mouseup', onTableMouseUp);
+    document.addEventListener('keydown', handleKeyboardShortcut);
 });
 
 onUnmounted(() => {
@@ -628,6 +666,7 @@ onUnmounted(() => {
     task = undefined;
     document.removeEventListener('mousemove', onTableMouseMove);
     document.removeEventListener('mouseup', onTableMouseUp);
+    document.removeEventListener('keydown', handleKeyboardShortcut);
     window.removeEventListener('resize', () => {
         windowWidth.value = window.innerWidth;
         windowHeight.value = window.innerHeight;
@@ -1029,6 +1068,37 @@ onUnmounted(() => {
                             </button>
                             <button class="dfm-btn dfm-btn--primary" @click="handleOverwriteOk">
                                 {{ t("TXT_CODE_ae09d79d") }}
+                            </button>
+                        </div>
+                    </div>
+                </DesktopWindow>
+            </Transition>
+        </Teleport>
+
+        <!-- Delete Confirm Dialog -->
+        <Teleport to="body">
+            <Transition name="dfm-dialog-fade">
+                <DesktopWindow v-if="deleteDialog.show" id="file-manager-delete-dialog" :title="t('TXT_CODE_71155575')"
+                    :icon="ExclamationCircleOutlined" :visible="deleteDialog.show" :minimized="false" :maximized="false"
+                    :active="true" :initial-width="400" :initial-height="200" :initial-x="windowWidth / 2 - 200"
+                    :initial-y="windowHeight / 2 - 100" :z-index="10006" :show-minimize="false" :show-maximize="false"
+                    :resizable="false" @close="deleteDialog.resolve && deleteDialog.resolve(false)">
+                    <div class="dfm-dialog-content">
+                        <div class="dfm-dialog__body dfm-dialog__body--column">
+                            <ExclamationCircleOutlined class="dfm-dialog__warn-icon" />
+                            <p class="dfm-dialog__desc">
+                                {{ t("TXT_CODE_6a10302d") }}
+                            </p>
+                        </div>
+                        <div class="dfm-dialog__footer">
+                            <button class="dfm-btn dfm-btn--default"
+                                @click="deleteDialog.resolve && deleteDialog.resolve(false)">
+                                {{ t("TXT_CODE_a0451c97") }}
+                            </button>
+                            <button class="dfm-btn dfm-btn--primary"
+                                style="background: var(--color-red-5); border-color: var(--color-red-5);"
+                                @click="deleteDialog.resolve && deleteDialog.resolve(true)">
+                                {{ t("TXT_CODE_d507abff") }}
                             </button>
                         </div>
                     </div>

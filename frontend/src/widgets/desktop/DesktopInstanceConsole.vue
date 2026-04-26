@@ -667,7 +667,7 @@ onUnmounted(() => {
     gap: 6px;
     padding: 0 12px;
     border-right: 1px solid var(--desktop-window-border);
-    margin-right: 8px;
+    margin-right: 5px;
 }
 
 .dim-perf__item {

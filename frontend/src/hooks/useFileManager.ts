@@ -261,6 +261,13 @@ export const useFileManager = (instanceId: string = "", daemonId: string = "", s
     text: ""
   });
 
+  const deleteDialog = ref({
+    show: false,
+    loading: false,
+    file: undefined as string | undefined,
+    resolve: null as ((value: boolean) => void) | null
+  });
+
   const showLoadingWindow = (title: string, text: string) => {
     loadingWindow.value.title = title;
     loadingWindow.value.text = text;
@@ -442,48 +449,56 @@ export const useFileManager = (instanceId: string = "", daemonId: string = "", s
   };
 
   const deleteFile = async (file?: string) => {
-    const { execute } = deleteFileApi();
-    const useDeleteFileApi = async (files: string[]) => {
-      try {
-        await execute({
-          params: {
-            uuid: instanceId || "",
-            daemonId: daemonId || ""
-          },
-          data: {
-            targets: files
+    deleteDialog.value.file = file;
+    deleteDialog.value.show = true;
+    return new Promise<void>((resolve) => {
+      deleteDialog.value.resolve = (confirmed: boolean) => {
+        deleteDialog.value.show = false;
+        deleteDialog.value.resolve = null;
+        if (!confirmed) {
+          resolve();
+          return;
+        }
+        const { execute } = deleteFileApi();
+        const useDeleteFileApi = async (files: string[]) => {
+          try {
+            await execute({
+              params: {
+                uuid: instanceId || "",
+                daemonId: daemonId || ""
+              },
+              data: {
+                targets: files
+              }
+            });
+            await getFileList();
+            message.success(t("TXT_CODE_cae10a08"));
+            if (dataSource?.value?.length === 0 && operationForm.value.current > 1) {
+              operationForm.value.current -= 1;
+              await getFileList();
+            }
+          } catch (error: any) {
+            reportErrorMsg(error.message);
           }
-        });
-        await getFileList();
-        message.success(t("TXT_CODE_cae10a08"));
-        if (dataSource?.value?.length === 0 && operationForm.value.current > 1) {
-          operationForm.value.current -= 1;
-          await getFileList();
-        }
-      } catch (error: any) {
-        reportErrorMsg(error.message);
-      }
-    };
+        };
 
-    Modal.confirm({
-      title: t("TXT_CODE_71155575"),
-      icon: createVNode(ExclamationCircleOutlined),
-      content: createVNode("div", { style: "color:red;" }, t("TXT_CODE_6a10302d")),
-      async onOk() {
-        if (!isMultiple.value) {
-          // one file
-          await useDeleteFileApi([currentPath.value + file]);
-        } else {
-          // more file
-          if (!selectionData.value) return reportErrorMsg(t("TXT_CODE_f41ad30a"));
-          await useDeleteFileApi(selectionData.value.map((e) => currentPath.value + e.name));
-        }
-      },
-      okType: "danger",
-      okText: t("TXT_CODE_d507abff"),
-      class: "test"
+        (async () => {
+          if (!isMultiple.value) {
+            // one file
+            await useDeleteFileApi([currentPath.value + file]);
+          } else {
+            // more file
+            if (!selectionData.value) {
+              reportErrorMsg(t("TXT_CODE_f41ad30a"));
+              resolve();
+              return;
+            }
+            await useDeleteFileApi(selectionData.value.map((e) => currentPath.value + e.name));
+          }
+          resolve();
+        })();
+      };
     });
-    return;
   };
 
   const zipFile = async (showLoadingDialog = true) => {
@@ -988,6 +1003,7 @@ export const useFileManager = (instanceId: string = "", daemonId: string = "", s
     paste,
     resetName,
     deleteFile,
+    deleteDialog,
     zipFile,
     unzipFile,
     selectedFiles,
