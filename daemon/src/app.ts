@@ -30,7 +30,7 @@ console.log(`
 |_____|_|___|_|_|_|___|_|_|_| |___|__|  |__,|_|_|___|_|
 
  + Copyright ${new Date().getFullYear()} EQAD Network
- + Base on MCSManager
+ + Based on MCSManager
  + Version ${VERSION}
 `);
 
