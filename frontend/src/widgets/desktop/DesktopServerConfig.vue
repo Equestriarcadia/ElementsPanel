@@ -190,7 +190,7 @@ onMounted(async () => {
                     <InstanceConfigEditor :config="configFileState" :config-name="selectedFile.redirect" />
                 </div>
                 <div v-else class="dsc-empty">
-                    <p class="dsc-empty__text">{{ t("TXT_CODE_f859eac") }}</p>
+                    <p class="dsc-empty__text">{{ t("TXT_CODE_b197be11") }}</p>
                 </div>
             </div>
         </div>
