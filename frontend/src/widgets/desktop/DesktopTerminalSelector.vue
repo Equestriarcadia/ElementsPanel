@@ -67,7 +67,7 @@ const openConsole = (node: NodeStatus) => {
 
         <div class="dts-list-wrap">
             <div v-if="isLoading" class="dts-loading">
-                {{ t("TXT_CODE_DESKTOP_IM_LOADING") }}
+                {{ t("TXT_CODE_b197be11") }}
             </div>
             <div v-else-if="!filteredNodes.length" class="dts-empty">
                 {{ t("TXT_CODE_DESKTOP_NODES_NO_RESULTS") || 'No nodes found' }}

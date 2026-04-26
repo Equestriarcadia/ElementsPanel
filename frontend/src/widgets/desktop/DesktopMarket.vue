@@ -165,7 +165,7 @@ const handleInstall = async () => {
 <template>
     <div class="desktop-market">
         <div v-if="appListLoading" class="dm-loading">
-            {{ t("TXT_CODE_DESKTOP_IM_LOADING") }}
+            {{ t("TXT_CODE_b197be11") }}
         </div>
         <template v-else>
             <!-- Header / Search Bar -->
@@ -254,7 +254,7 @@ const handleInstall = async () => {
                                     <div class="dm-template-info__tags">
                                         <span class="dm-tag">{{ selectedTemplate.platform }}</span>
                                         <span class="dm-tag">{{ selectedTemplateType === 'docker' ? 'Docker' : 'Normal'
-                                        }}</span>
+                                            }}</span>
                                     </div>
                                 </div>
                             </div>
@@ -269,7 +269,7 @@ const handleInstall = async () => {
                                 {{ t("TXT_CODE_a0451c97") }}
                             </button>
                             <button class="dm-btn dm-btn--primary" @click="handleInstall" :disabled="isInstalling">
-                                {{ isInstalling ? t("TXT_CODE_DESKTOP_IM_LOADING") : t("TXT_CODE_e4898801") }}
+                                {{ isInstalling ? t("TXT_CODE_b197be11") : t("TXT_CODE_e4898801") }}
                             </button>
                         </div>
                     </div>

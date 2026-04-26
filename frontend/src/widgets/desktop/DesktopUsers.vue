@@ -390,7 +390,7 @@ const getInstanceStatusLabel = (status: number): string => {
                 <tbody>
                     <tr v-if="loading">
                         <td colspan="8" class="du-table__empty">
-                            <div class="du-loading">{{ t("TXT_CODE_DESKTOP_IM_LOADING") }}</div>
+                            <div class="du-loading">{{ t("TXT_CODE_b197be11") }}</div>
                         </td>
                     </tr>
                     <tr v-else-if="users.length === 0">
@@ -598,7 +598,7 @@ const getInstanceStatusLabel = (status: number): string => {
                                 </div>
                                 <div class="du-assign-panel__body">
                                     <div v-if="instancesLoading" class="du-assign-empty">
-                                        {{ t("TXT_CODE_DESKTOP_IM_LOADING") }}
+                                        {{ t("TXT_CODE_b197be11") }}
                                     </div>
                                     <div v-else-if="!instances?.data?.length" class="du-assign-empty">
                                         {{ t("TXT_CODE_DESKTOP_IM_NO_INSTANCES") }}

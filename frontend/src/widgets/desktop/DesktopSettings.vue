@@ -231,7 +231,7 @@ limitations under the License.`;
 <template>
     <div class="desktop-settings">
         <div v-if="!isReady || !formData" class="ds-loading">
-            {{ t("TXT_CODE_DESKTOP_IM_LOADING") }}
+            {{ t("TXT_CODE_b197be11") }}
         </div>
         <template v-else>
             <div class="ds-sidebar">
@@ -522,7 +522,7 @@ limitations under the License.`;
                                 <select v-model="(formData as any).ssoOnlyMode" class="ds-select">
                                     <option v-for="item in allYesNo" :key="String(item.value)" :value="item.value">{{
                                         item.label
-                                    }}</option>
+                                        }}</option>
                                 </select>
                             </div>
 
@@ -532,7 +532,7 @@ limitations under the License.`;
                                 <select v-model="(formData as any).ssoAutoRedirect" class="ds-select">
                                     <option v-for="item in allYesNo" :key="String(item.value)" :value="item.value">{{
                                         item.label
-                                    }}</option>
+                                        }}</option>
                                 </select>
                             </div>
                         </template>

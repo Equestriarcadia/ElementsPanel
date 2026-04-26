@@ -899,7 +899,11 @@ onUnmounted(() => {
                             return {
                                 onclick: (e: MouseEvent) => handleRowClick(e, record as DataType),
                                 onContextmenu: (e: MouseEvent) => handleRightClickRow(e, record as DataType),
-                                ondblclick: () => handleClickFile(record as DataType)
+                                ondblclick: (e: MouseEvent) => {
+                                    const target = e.target as HTMLElement;
+                                    if (target.closest('.ant-checkbox')) return;
+                                    handleClickFile(record as DataType);
+                                }
                             };
                         }"
                         @change="(pagination: any) => handleTableChange({ current: pagination.current || 0, pageSize: pagination.pageSize || 0 })">

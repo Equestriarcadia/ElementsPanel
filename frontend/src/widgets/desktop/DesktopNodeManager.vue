@@ -208,7 +208,7 @@ const cancelDelete = () => {
                 <tbody>
                     <tr v-if="loading">
                         <td colspan="5" class="dn-table__empty">
-                            <div class="dn-loading">{{ t("TXT_CODE_DESKTOP_IM_LOADING") }}</div>
+                            <div class="dn-loading">{{ t("TXT_CODE_b197be11") }}</div>
                         </td>
                     </tr>
                     <tr v-else-if="filteredNodes.length === 0">
