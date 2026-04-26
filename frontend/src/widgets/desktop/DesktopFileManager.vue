@@ -1285,6 +1285,10 @@ onUnmounted(() => {
     user-select: none;
 }
 
+:deep(.ant-table-measure-row) {
+    display: none !important;
+}
+
 .dfm-drag-select-rect {
     position: absolute;
     background: rgba(22, 119, 255, 0.12);

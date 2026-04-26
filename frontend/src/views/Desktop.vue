@@ -1186,17 +1186,17 @@ const username = computed(() => appState.userInfo?.userName || "User");
 }
 
 .desktop-window-group-leave-active {
-    transition: all 0.2s ease-in;
+    transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 .desktop-window-group-enter-from {
     opacity: 0;
-    transform: scale(0.9);
+    transform: scale(0.95);
 }
 
 .desktop-window-group-leave-to {
     opacity: 0;
-    transform: scale(0.9);
+    transform: scale(0.95);
 }
 
 .desktop-content-wrapper {
