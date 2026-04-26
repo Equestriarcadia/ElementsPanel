@@ -82,38 +82,18 @@ const windowStyle = computed(() => {
     };
 });
 
-const isRestoringFromMaximized = ref(false);
-const pendingDragOffset = ref({ x: 0, y: 0 });
+const DRAG_THRESHOLD = 20;
+
+const isDragThresholdMet = ref(false);
+const dragStartPos = ref({ x: 0, y: 0 });
 
 const onMouseDownTitlebar = (e: MouseEvent) => {
     if (e.button !== 0) return;
     if (props.maximized) {
-        const restoredW = Math.min(savedPos.value.w, window.innerWidth - 40);
-        const restoredH = Math.min(savedPos.value.h, window.innerHeight - 100);
-        const titlebarHeight = 38;
-        const restoredX = Math.max(0, Math.min(e.clientX - restoredW * 0.15, window.innerWidth - restoredW - 10));
-        const restoredY = Math.max(0, Math.min(e.clientY - titlebarHeight * 0.5, window.innerHeight - restoredH - 60));
-
-        x.value = restoredX;
-        y.value = restoredY;
-        width.value = restoredW;
-        height.value = restoredH;
-
-        savedPos.value = { x: restoredX, y: restoredY, w: restoredW, h: restoredH };
-
-        emit("maximize", props.id);
-
-        pendingDragOffset.value = {
-            x: e.clientX - restoredX,
-            y: e.clientY - restoredY
-        };
-        dragOffset.value = pendingDragOffset.value;
-
-        isRestoringFromMaximized.value = true;
-        setTimeout(() => {
-            isDragging.value = true;
-            isRestoringFromMaximized.value = false;
-        }, 280);
+        dragStartPos.value = { x: e.clientX, y: e.clientY };
+        isDragThresholdMet.value = false;
+        isDragging.value = true;
+        dragOffset.value = { x: 0, y: 0 };
     } else {
         isDragging.value = true;
         dragOffset.value = {
@@ -126,6 +106,37 @@ const onMouseDownTitlebar = (e: MouseEvent) => {
 };
 
 const onMouseMove = (e: MouseEvent) => {
+    if (isDragging.value && props.maximized && !isDragThresholdMet.value) {
+        const dx = e.clientX - dragStartPos.value.x;
+        const dy = e.clientY - dragStartPos.value.y;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+
+        if (distance >= DRAG_THRESHOLD) {
+            isDragThresholdMet.value = true;
+
+            const restoredW = Math.min(savedPos.value.w, window.innerWidth - 40);
+            const restoredH = Math.min(savedPos.value.h, window.innerHeight - 100);
+            const titlebarHeight = 38;
+            const restoredX = Math.max(0, Math.min(e.clientX - restoredW * 0.15, window.innerWidth - restoredW - 10));
+            const restoredY = Math.max(0, Math.min(e.clientY - titlebarHeight * 0.5, window.innerHeight - restoredH - 60));
+
+            x.value = restoredX;
+            y.value = restoredY;
+            width.value = restoredW;
+            height.value = restoredH;
+
+            savedPos.value = { x: restoredX, y: restoredY, w: restoredW, h: restoredH };
+
+            emit("maximize", props.id);
+
+            dragOffset.value = {
+                x: e.clientX - restoredX,
+                y: e.clientY - restoredY
+            };
+        }
+        return;
+    }
+
     if (isDragging.value) {
         x.value = e.clientX - dragOffset.value.x;
         y.value = e.clientY - dragOffset.value.y;
