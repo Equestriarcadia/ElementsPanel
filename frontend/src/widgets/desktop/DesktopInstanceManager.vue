@@ -237,8 +237,9 @@ const findInstance = (item: InstanceDetail) => {
 };
 
 const selectInstance = (item: InstanceDetail) => {
-    if (findInstance(item)) {
-        selectedInstance.value.splice(selectedInstance.value.indexOf(item), 1);
+    const index = selectedInstance.value.findIndex((i) => i.instanceUuid === item.instanceUuid);
+    if (index !== -1) {
+        selectedInstance.value.splice(index, 1);
     } else {
         selectedInstance.value.push(item);
     }
@@ -558,7 +559,7 @@ onUnmounted(() => {
                         </span>
                         <span class="dim-instance__name">{{
                             instance.config.nickname || t("TXT_CODE_DESKTOP_IM_UNNAMED")
-                        }}</span><span class="dim-instance__badge" :class="getStatusClass(instance.status)">
+                            }}</span><span class="dim-instance__badge" :class="getStatusClass(instance.status)">
                             {{ getStatusText(instance.status) }}
                         </span>
                     </div>
