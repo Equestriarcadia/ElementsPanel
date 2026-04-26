@@ -8,7 +8,7 @@ import {
   SwapOutlined
 } from "@ant-design/icons-vue";
 import { Button, Popover, Progress } from "ant-design-vue";
-import { computed, onMounted, onUnmounted, ref } from "vue";
+import { computed, onMounted, onUnmounted, ref, watch } from "vue";
 
 import { stopTransferApi } from "@/services/apis/modManager";
 import { message } from "ant-design-vue";
@@ -34,6 +34,14 @@ const emit = defineEmits<{
 
 const activeTasksCount = computed(() => {
   return props.fileStatus?.downloadTasks?.filter((t: any) => t.status === 0).length || 0;
+});
+
+const rippleKey = ref(0);
+
+watch(activeTasksCount, (newVal, oldVal) => {
+  if (newVal > oldVal) {
+    rippleKey.value++;
+  }
 });
 
 const onStopTransfer = async (task: any) => {
@@ -234,6 +242,7 @@ onUnmounted(() => {
         <span v-if="activeTasksCount > 0" class="draggable-trigger__badge">{{ activeTasksCount > 99 ? '99+' :
           activeTasksCount
         }}</span>
+        <span v-if="activeTasksCount > 0" :key="rippleKey" class="draggable-trigger__ripple"></span>
       </div>
     </Popover>
   </teleport>
@@ -268,11 +277,10 @@ onUnmounted(() => {
   justify-content: space-between;
   height: 38px;
   padding: 0 8px 0 12px;
-  background: var(--desktop-window-titlebar-bg, rgba(0, 0, 0, 0.04));
+  background: transparent;
   cursor: default;
   user-select: none;
   flex-shrink: 0;
-  border-radius: 10px 10px 0 0;
   margin: -12px -12px 0 -12px;
 }
 
@@ -303,7 +311,6 @@ onUnmounted(() => {
 .dw-badge {
   font-size: 0.75rem;
   opacity: 0.3;
-  font-family: monospace;
   background-color: rgba(107, 114, 128, 0.1);
   padding-left: 0.5rem;
   padding-right: 0.5rem;
@@ -370,7 +377,6 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.06);
 }
 
 .url-task-icon-inner {
@@ -397,57 +403,47 @@ onUnmounted(() => {
 
 .task-item {
   position: relative;
-  overflow: hidden;
-  border: 1px solid rgba(0, 0, 0, 0.03);
-  border-radius: 0.75rem;
-  background-color: rgba(0, 0, 0, 0.02);
-  padding: 1rem;
-  transition: all 0.3s;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  border-radius: 0.5rem;
+  background-color: transparent;
+  padding: 0.75rem;
 }
 
 .app-dark-theme .task-item {
-  border-color: rgba(255, 255, 255, 0.05);
-  background-color: rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 255, 255, 0.08);
 }
 
 .task-item:hover {
-  background-color: rgba(0, 0, 0, 0.05);
-  box-shadow:
-    0 10px 15px -3px rgba(0, 0, 0, 0.1),
-    0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  background-color: rgba(0, 0, 0, 0.03);
 }
 
 .app-dark-theme .task-item:hover {
-  background-color: rgba(255, 255, 255, 0.08);
-  box-shadow:
-    0 10px 15px -3px rgba(0, 0, 0, 0.3),
-    0 4px 6px -2px rgba(0, 0, 0, 0.2);
+  background-color: rgba(255, 255, 255, 0.04);
 }
 
 .task-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 1rem;
+  margin-bottom: 0.75rem;
 }
 
 .task-info {
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: 0.75rem;
   overflow: hidden;
   flex: 1;
 }
 
 .task-icon {
-  width: 3rem;
-  height: 3rem;
-  border-radius: 0.5rem;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 0.375rem;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
 }
 
 .task-icon-download {
@@ -476,7 +472,7 @@ onUnmounted(() => {
 
 .task-filename {
   font-weight: 600;
-  font-size: 1rem;
+  font-size: 0.875rem;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -488,7 +484,6 @@ onUnmounted(() => {
 .task-status-text {
   font-size: 0.75rem;
   opacity: 0.4;
-  font-family: monospace;
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -537,7 +532,6 @@ onUnmounted(() => {
 .task-percent {
   font-size: 0.875rem;
   font-weight: 900;
-  font-family: monospace;
   letter-spacing: -0.05em;
 }
 
@@ -563,19 +557,16 @@ onUnmounted(() => {
   justify-content: center;
   width: 2.5rem;
   height: 2.5rem;
-  border-radius: 0.5rem;
-  opacity: 0;
-  transition: all 0.3s;
-  transform: translateX(0.5rem);
+  border-radius: 0.375rem;
+  opacity: 0.6;
 }
 
 .task-item:hover .task-stop-button {
   opacity: 1;
-  transform: translateX(0);
 }
 
 .task-stop-button:hover {
-  background-color: rgba(239, 68, 68, 0.1);
+  background-color: rgba(239, 68, 68, 0.08);
 }
 
 .task-progress-wrapper {
@@ -601,33 +592,28 @@ onUnmounted(() => {
 .draggable-trigger__body {
   width: 40px;
   height: 40px;
-  border-radius: 12px;
+  border-radius: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 18px;
-  background-color: rgba(255, 255, 255, 0.75);
-  backdrop-filter: blur(20px) saturate(180%);
-  -webkit-backdrop-filter: blur(20px) saturate(180%);
-  border: 1px solid rgba(255, 255, 255, 0.4);
-  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.08);
+  background-color: rgba(255, 255, 255, 0.85);
+  border: 1px solid rgba(0, 0, 0, 0.08);
   color: #111827;
-  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
 .app-dark-theme .draggable-trigger__body {
-  background-color: rgba(10, 10, 10, 0.8);
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  background-color: rgba(30, 30, 30, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   color: #f9fafb;
 }
 
 .draggable-trigger:hover .draggable-trigger__body {
-  background-color: rgba(255, 255, 255, 0.8);
+  background-color: rgba(255, 255, 255, 0.95);
 }
 
 .app-dark-theme .draggable-trigger:hover .draggable-trigger__body {
-  background-color: rgba(31, 41, 55, 0.8);
-  box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.5);
+  background-color: rgba(40, 40, 40, 0.95);
 }
 
 .draggable-trigger__badge {
@@ -645,8 +631,39 @@ onUnmounted(() => {
   line-height: 18px;
   text-align: center;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  box-shadow: 0 2px 6px rgba(255, 77, 79, 0.4);
   pointer-events: none;
+}
+
+.draggable-trigger__ripple {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 40px;
+  height: 40px;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background-color: #3b82f6;
+  pointer-events: none;
+  z-index: -1;
+  animation: ripple-expand 0.4s ease-out forwards;
+}
+
+.app-dark-theme .draggable-trigger__ripple {
+  background-color: #60a5fa;
+}
+
+@keyframes ripple-expand {
+  0% {
+    width: 0px;
+    height: 0px;
+    opacity: 0.5;
+  }
+
+  100% {
+    width: 1000px;
+    height: 1000px;
+    opacity: 0;
+  }
 }
 
 @media (max-width: 585px) {
@@ -677,20 +694,16 @@ onUnmounted(() => {
 
 <style>
 .frosted-popover .ant-popover-inner {
-  background-color: rgba(255, 255, 255, 0.75) !important;
-  backdrop-filter: blur(30px) saturate(200%) !important;
-  -webkit-backdrop-filter: blur(30px) saturate(200%) !important;
-  border: 1px solid rgba(255, 255, 255, 0.5) !important;
-  box-shadow: 0 20px 50px 0 rgba(0, 0, 0, 0.1) !important;
-  border-radius: 16px !important;
+  background-color: rgba(255, 255, 255, 0.85) !important;
+  border: 1px solid rgba(0, 0, 0, 0.06) !important;
+  border-radius: 12px !important;
   padding: 12px !important;
   color: #111827 !important;
 }
 
 .app-dark-theme .frosted-popover .ant-popover-inner {
-  background-color: rgba(10, 10, 10, 0.8) !important;
-  border: 1px solid rgba(255, 255, 255, 0.05) !important;
-  box-shadow: 0 20px 50px 0 rgba(0, 0, 0, 0.6) !important;
+  background-color: rgba(20, 20, 20, 0.9) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
   color: #f9fafb !important;
 }
 
