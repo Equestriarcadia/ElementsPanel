@@ -25,7 +25,6 @@ import { arrayFilter } from "../../tools/array";
 import EventConfig from "../instance/dialogs/EventConfig.vue";
 import InstanceDetail from "../instance/dialogs/InstanceDetail.vue";
 import InstanceFundamentalDetail from "../instance/dialogs/InstanceFundamentalDetail.vue";
-import JavaManager from "../instance/dialogs/JavaManager.vue";
 import McPingSettings from "../instance/dialogs/McPingSettings.vue";
 import PingConfig from "../instance/dialogs/PingConfig.vue";
 import RconSettings from "../instance/dialogs/RconSettings.vue";
@@ -43,6 +42,7 @@ const emit = defineEmits<{
     (e: "open-event-config"): void;
     (e: "open-term-config"): void;
     (e: "open-mc-ping"): void;
+    (e: "open-java-manager"): void;
 }>();
 
 const { isAdmin, state } = useAppStateStore();
@@ -50,7 +50,6 @@ const { toPage: toOtherPager } = useAppRouters();
 
 const rconSettingsDialog = ref<InstanceType<typeof RconSettings>>();
 const mcSettingsDialog = ref<InstanceType<typeof McPingSettings>>();
-const javaManagerDialog = ref<InstanceType<typeof JavaManager>>();
 const eventConfigDialog = ref<InstanceType<typeof EventConfig>>();
 const pingConfigDialog = ref<InstanceType<typeof PingConfig>>();
 const instanceDetailsDialog = ref<InstanceType<typeof InstanceDetail>>();
@@ -148,7 +147,7 @@ const btns = computed(() => {
             title: t("TXT_CODE_3fee13ed"),
             icon: BuildOutlined,
             click: () => {
-                javaManagerDialog.value?.openDialog();
+                emit("open-java-manager");
             },
             condition: () =>
                 (instanceInfo.value?.config.type.includes(TYPE_MINECRAFT_JAVA) &&
@@ -251,8 +250,6 @@ watch(instanceInfo, (cfg, oldCfg) => {
     <McPingSettings ref="mcSettingsDialog" :instance-info="instanceInfo" :instance-id="props.instanceId"
         :daemon-id="props.daemonId" @update="refreshInstanceInfo" />
 
-    <JavaManager ref="javaManagerDialog" :instance-info="instanceInfo" :daemon-id="props.daemonId"
-        :instance-id="props.instanceId" @update="refreshInstanceInfo" />
 </template>
 
 <style lang="scss" scoped>
