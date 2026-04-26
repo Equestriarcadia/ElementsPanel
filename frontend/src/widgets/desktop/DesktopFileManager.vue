@@ -691,6 +691,15 @@ const handleKeyboardShortcut = (e: KeyboardEvent) => {
         return;
     }
 
+    if (isCtrl && e.key === 'a') {
+        e.preventDefault();
+        if (!dataSource.value || dataSource.value.length === 0) return;
+        const allKeys = dataSource.value.map(d => d.name);
+        selectedRowKeys.value = allKeys;
+        selectionData.value = [...dataSource.value];
+        return;
+    }
+
     if (e.key === 'Delete' || e.key === 'Del') {
         e.preventDefault();
         if (!selectionData.value || selectionData.value.length === 0) return;
