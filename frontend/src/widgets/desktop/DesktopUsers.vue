@@ -635,7 +635,7 @@ const getInstanceStatusLabel = (status: number): string => {
                                         {{ t("TXT_CODE_DESKTOP_IM_PREV") }}
                                     </button>
                                     <span class="du-page-info">{{ assignForm.currentPage }} / {{ instances.maxPage
-                                    }}</span>
+                                        }}</span>
                                     <button class="du-page-btn" :disabled="assignForm.currentPage >= instances.maxPage"
                                         @click="assignForm.currentPage++; loadRemoteInstances()">
                                         {{ t("TXT_CODE_DESKTOP_IM_NEXT") }}
@@ -1004,6 +1004,10 @@ const getInstanceStatusLabel = (status: number): string => {
     flex-direction: column;
     height: 100%;
     background: transparent;
+}
+
+.du-dialog__footer {
+    margin-top: auto;
 }
 
 .du-form-group {

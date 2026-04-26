@@ -617,6 +617,10 @@ const cancelDelete = () => {
     background: transparent;
 }
 
+.dn-dialog__footer {
+    margin-top: auto;
+}
+
 .dn-form-group {
     margin-bottom: 14px;
 
