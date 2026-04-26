@@ -81,7 +81,7 @@ export async function bind2FA(ctx: Koa.ParameterizedContext) {
   try {
     const secret = authenticator.generateSecret();
     const qrCode = await QRCode.toDataURL(
-      authenticator.keyuri(userName, "Elements Panel", secret)
+      authenticator.keyuri(userName, "ElementsPanel", secret)
     );
     userSystem.edit(user.uuid, { secret, open2FA: false });
     return qrCode;

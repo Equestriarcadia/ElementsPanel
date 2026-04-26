@@ -65,7 +65,7 @@ function getDefaultFrontendLayoutConfig(): IPageLayoutConfig[] {
       page: "__settings__",
       items: [],
       theme: {
-        pageTitle: "Elements Panel",
+        pageTitle: "ElementsPanel",
         logoImage: "",
         backgroundImage: "",
         sidebarPosition: "right"
