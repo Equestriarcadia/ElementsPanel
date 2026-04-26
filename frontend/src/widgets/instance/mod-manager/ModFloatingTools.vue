@@ -59,12 +59,7 @@ const onStopTransfer = async (task: any) => {
 <template>
   <teleport to="body">
     <!-- Download Manager Button (Bottom) -->
-    <Popover
-      placement="leftBottom"
-      trigger="click"
-      overlay-class-name="frosted-popover"
-      :arrow="false"
-    >
+    <Popover placement="leftBottom" trigger="click" overlay-class-name="frosted-popover" :arrow="false">
       <template #content>
         <div class="popover-content custom-scrollbar">
           <div class="popover-header">
@@ -75,10 +70,7 @@ const onStopTransfer = async (task: any) => {
             </div>
           </div>
 
-          <div
-            v-if="!fileStatus?.downloadTasks?.length && !fileStatus?.downloadFileFromURLTask"
-            class="empty-state"
-          >
+          <div v-if="!fileStatus?.downloadTasks?.length && !fileStatus?.downloadFileFromURLTask" class="empty-state">
             <div class="empty-icon">
               <SwapOutlined style="font-size: 28px" class="empty-icon-inner" />
             </div>
@@ -87,35 +79,27 @@ const onStopTransfer = async (task: any) => {
             </div>
           </div>
 
-          <div
-            v-if="
-              fileStatus?.downloadFileFromURLTask > 0 &&
-              (!fileStatus.downloadTasks || fileStatus.downloadTasks.length === 0)
-            "
-            class="url-task-indicator"
-          >
+          <div v-if="
+            fileStatus?.downloadFileFromURLTask > 0 &&
+            (!fileStatus.downloadTasks || fileStatus.downloadTasks.length === 0)
+          " class="url-task-indicator">
             <div class="url-task-icon">
               <loading-outlined class="url-task-icon-inner" />
             </div>
             <span class="url-task-text">{{
               t("TXT_CODE_8b7fe641", { count: fileStatus.downloadFileFromURLTask })
-            }}</span>
+              }}</span>
           </div>
 
           <div class="task-list">
             <div v-for="task in fileStatus.downloadTasks" :key="task.path" class="task-item">
               <div class="task-header">
                 <div class="task-info">
-                  <div
-                    :class="[
-                      'task-icon',
-                      task.type === 'download' ? 'task-icon-download' : 'task-icon-upload'
-                    ]"
-                  >
-                    <CloudDownloadOutlined
-                      v-if="task.type === 'download'"
-                      style="font-size: 22px"
-                    />
+                  <div :class="[
+                    'task-icon',
+                    task.type === 'download' ? 'task-icon-download' : 'task-icon-upload'
+                  ]">
+                    <CloudDownloadOutlined v-if="task.type === 'download'" style="font-size: 22px" />
                     <CloudUploadOutlined v-else style="font-size: 22px" />
                   </div>
                   <div class="task-details">
@@ -125,84 +109,62 @@ const onStopTransfer = async (task: any) => {
                     <div class="task-status-text">
                       <span v-if="task.status === 2" class="task-status-error">{{
                         task.error || t("TXT_CODE_DOWNLOAD_FAILED")
-                      }}</span>
+                        }}</span>
                       <span v-else-if="task.status === 1" class="task-status-success">{{
                         t("TXT_CODE_FINISHED")
-                      }}</span>
+                        }}</span>
                       <template v-else>
-                        <span class="task-status-progress"
-                          >{{ (task.current / 1024 / 1024).toFixed(2) }}MB</span
-                        >
-                        <span v-if="task.total > 0" class="task-status-total"
-                          >/ {{ (task.total / 1024 / 1024).toFixed(2) }}MB</span
-                        >
+                        <span class="task-status-progress">{{ (task.current / 1024 / 1024).toFixed(2) }}MB</span>
+                        <span v-if="task.total > 0" class="task-status-total">/ {{ (task.total / 1024 / 1024).toFixed(2)
+                          }}MB</span>
                       </template>
                     </div>
                   </div>
                 </div>
                 <div class="task-actions">
-                  <span
-                    :class="[
-                      'task-percent',
-                      task.status === 2
-                        ? 'task-percent-error'
-                        : task.status === 1
+                  <span :class="[
+                    'task-percent',
+                    task.status === 2
+                      ? 'task-percent-error'
+                      : task.status === 1
                         ? 'task-percent-success'
                         : task.type === 'upload'
-                        ? 'task-percent-upload'
-                        : 'task-percent-download'
-                    ]"
-                  >
+                          ? 'task-percent-upload'
+                          : 'task-percent-download'
+                  ]">
                     {{ task.total > 0 ? Math.floor((task.current / task.total) * 100) : 0 }}%
                   </span>
-                  <Button
-                    v-if="task.status === 0"
-                    size="large"
-                    type="text"
-                    danger
-                    class="task-stop-button"
-                    @click="onStopTransfer(task)"
-                  >
-                    <template #icon><DeleteOutlined style="font-size: 18px" /></template>
+                  <Button v-if="task.status === 0" size="large" type="text" danger class="task-stop-button"
+                    @click="onStopTransfer(task)">
+                    <template #icon>
+                      <DeleteOutlined style="font-size: 18px" />
+                    </template>
                   </Button>
                 </div>
               </div>
               <div class="task-progress-wrapper">
-                <Progress
-                  :percent="
-                    task.status === 1
-                      ? 100
-                      : task.total > 0
+                <Progress :percent="task.status === 1
+                    ? 100
+                    : task.total > 0
                       ? Math.floor((task.current / task.total) * 100)
                       : 0
-                  "
-                  :show-info="false"
-                  :status="
-                    task.status === 2 ? 'exception' : task.status === 1 ? 'success' : 'active'
-                  "
-                  :stroke-width="6"
-                  :stroke-color="
-                    task.status === 2
+                  " :show-info="false" :status="task.status === 2 ? 'exception' : task.status === 1 ? 'success' : 'active'
+                    " :stroke-width="6" :stroke-color="task.status === 2
                       ? '#ef4444'
                       : task.status === 1
-                      ? '#22c55e'
-                      : task.type === 'upload'
-                      ? '#f97316'
-                      : '#3b82f6'
-                  "
-                  class="task-progress"
-                />
+                        ? '#22c55e'
+                        : task.type === 'upload'
+                          ? '#f97316'
+                          : '#3b82f6'
+                    " class="task-progress" />
               </div>
             </div>
           </div>
         </div>
       </template>
-      <FloatButton
-        class="frosted-float-button"
-        :style="{ right: '24px', bottom: '24px', zIndex: 9999 }"
+      <FloatButton class="frosted-float-button" :style="{ right: '24px', bottom: '24px', zIndex: 9999 }"
         :tooltip="t('TXT_CODE_TRANSFER_MANAGER')"
-        :badge="{ count: activeTasksCount, overflowCount: 999, showZero: false }"
-      >
+        :badge="{ count: activeTasksCount, overflowCount: 999, showZero: false }">
         <template #icon>
           <SwapOutlined />
         </template>
@@ -215,10 +177,12 @@ const onStopTransfer = async (task: any) => {
 .custom-scrollbar::-webkit-scrollbar {
   width: 4px;
 }
+
 .custom-scrollbar::-webkit-scrollbar-thumb {
   background: rgba(156, 163, 175, 0.2);
   border-radius: 10px;
 }
+
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
   background: rgba(156, 163, 175, 0.4);
 }
@@ -541,6 +505,7 @@ const onStopTransfer = async (task: any) => {
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
     opacity: 0.6;
   }
+
   .frosted-float-button::after {
     content: "";
     position: absolute;
@@ -551,6 +516,7 @@ const onStopTransfer = async (task: any) => {
     background: transparent;
     cursor: pointer;
   }
+
   .frosted-float-button:hover,
   .frosted-float-button:active {
     transform: translateX(0);
