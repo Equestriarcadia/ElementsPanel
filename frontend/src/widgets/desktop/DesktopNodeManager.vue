@@ -185,13 +185,12 @@ const cancelDelete = () => {
         <div class="dn-toolbar">
             <div class="dn-search">
                 <SearchOutlined class="dn-search__icon" />
-                <input v-model="searchQuery" class="dn-search__input"
-                    :placeholder="t('TXT_CODE_DESKTOP_NODES_SEARCH') || 'Search nodes...'" autocomplete="off"
-                    spellcheck="false" />
+                <input v-model="searchQuery" class="dn-search__input" :placeholder="t('TXT_CODE_DESKTOP_NODES_SEARCH')"
+                    autocomplete="off" spellcheck="false" />
             </div>
             <button class="dn-btn dn-btn--primary" @click="openAddDialog">
                 <PlusOutlined />
-                {{ t("TXT_CODE_DESKTOP_NODES_ADD") || 'Add Node' }}
+                {{ t("TXT_CODE_DESKTOP_NODES_ADD") }}
             </button>
         </div>
 
@@ -199,10 +198,10 @@ const cancelDelete = () => {
             <table class="dn-table">
                 <thead>
                     <tr>
-                        <th class="dn-table__col--status">{{ t("TXT_CODE_DESKTOP_NODES_STATUS") || 'Status' }}</th>
-                        <th class="dn-table__col--name">{{ t("TXT_CODE_DESKTOP_NODES_REMARKS") || 'Remarks' }}</th>
-                        <th class="dn-table__col--ip">{{ t("TXT_CODE_DESKTOP_NODES_IP") || 'IP Address' }}</th>
-                        <th class="dn-table__col--port">{{ t("TXT_CODE_DESKTOP_NODES_PORT") || 'Port' }}</th>
+                        <th class="dn-table__col--status">{{ t("TXT_CODE_DESKTOP_NODES_STATUS") }}</th>
+                        <th class="dn-table__col--name">{{ t("TXT_CODE_DESKTOP_NODES_REMARKS") }}</th>
+                        <th class="dn-table__col--ip">{{ t("TXT_CODE_DESKTOP_NODES_IP") }}</th>
+                        <th class="dn-table__col--port">{{ t("TXT_CODE_DESKTOP_NODES_PORT") }}</th>
                         <th class="dn-table__col--actions">{{ t("TXT_CODE_OPERATE") }}</th>
                     </tr>
                 </thead>
@@ -214,7 +213,7 @@ const cancelDelete = () => {
                     </tr>
                     <tr v-else-if="filteredNodes.length === 0">
                         <td colspan="5" class="dn-table__empty">
-                            <div class="dn-empty">{{ t("TXT_CODE_DESKTOP_NODES_NO_RESULTS") || 'No nodes found' }}</div>
+                            <div class="dn-empty">{{ t("TXT_CODE_DESKTOP_NODES_NO_RESULTS") }}</div>
                         </td>
                     </tr>
                     <tr v-for="node in filteredNodes" :key="node.uuid" class="dn-table__row">
@@ -233,12 +232,11 @@ const cancelDelete = () => {
                         <td class="dn-table__col--actions">
                             <div class="dn-action-btns">
                                 <button class="dn-action-btn dn-action-btn--edit"
-                                    :title="t('TXT_CODE_DESKTOP_NODES_EDIT') || 'Edit'" @click="openEditDialog(node)">
+                                    :title="t('TXT_CODE_DESKTOP_NODES_EDIT')" @click="openEditDialog(node)">
                                     <EditOutlined />
                                 </button>
                                 <button class="dn-action-btn dn-action-btn--delete"
-                                    :title="t('TXT_CODE_DESKTOP_NODES_DELETE') || 'Delete'"
-                                    @click="confirmDelete(node)">
+                                    :title="t('TXT_CODE_DESKTOP_NODES_DELETE')" @click="confirmDelete(node)">
                                     <DeleteOutlined />
                                 </button>
                             </div>
@@ -251,7 +249,7 @@ const cancelDelete = () => {
         <Teleport to="body">
             <Transition name="dn-dialog-fade">
                 <DesktopWindow v-if="showDialog" id="node-edit-dialog"
-                    :title="dialogMode === 'add' ? (t('TXT_CODE_DESKTOP_NODES_ADD') || 'Add Node') : (t('TXT_CODE_DESKTOP_NODES_EDIT') || 'Edit Node')"
+                    :title="dialogMode === 'add' ? (t('TXT_CODE_DESKTOP_NODES_ADD')) : (t('TXT_CODE_DESKTOP_NODES_EDIT'))"
                     :icon="dialogMode === 'add' ? PlusOutlined : EditOutlined" :visible="showDialog" :minimized="false"
                     :maximized="false" :active="true" :initial-width="420" :initial-height="460"
                     :initial-x="windowWidth / 2 - 210" :initial-y="windowHeight / 2 - 230" :z-index="10001"
@@ -260,44 +258,44 @@ const cancelDelete = () => {
                         <div class="dn-dialog__body">
                             <div class="dn-form-group">
                                 <label class="dn-form-label">
-                                    {{ t("TXT_CODE_DESKTOP_NODES_REMARKS") || 'Remarks' }}
+                                    {{ t("TXT_CODE_DESKTOP_NODES_REMARKS") }}
                                 </label>
                                 <input v-model="form.remarks" class="dn-form-input"
-                                    :placeholder="t('TXT_CODE_DESKTOP_NODES_REMARKS') || 'Remarks'" />
+                                    :placeholder="t('TXT_CODE_DESKTOP_NODES_REMARKS')" />
                             </div>
                             <div class="dn-form-group">
                                 <label class="dn-form-label">
-                                    {{ t("TXT_CODE_DESKTOP_NODES_IP") || 'IP Address' }}
+                                    {{ t("TXT_CODE_DESKTOP_NODES_IP") }}
                                 </label>
                                 <input v-model="form.ip" class="dn-form-input"
-                                    :placeholder="t('TXT_CODE_DESKTOP_NODES_IP') || 'IP Address'" />
+                                    :placeholder="t('TXT_CODE_DESKTOP_NODES_IP')" />
                             </div>
                             <div class="dn-form-group">
                                 <label class="dn-form-label">
-                                    {{ t("TXT_CODE_DESKTOP_NODES_PORT") || 'Port' }}
+                                    {{ t("TXT_CODE_DESKTOP_NODES_PORT") }}
                                 </label>
                                 <input v-model="form.port" type="number" class="dn-form-input"
-                                    :placeholder="t('TXT_CODE_DESKTOP_NODES_PORT') || 'Port'" />
+                                    :placeholder="t('TXT_CODE_DESKTOP_NODES_PORT')" />
                             </div>
                             <div class="dn-form-group">
                                 <label class="dn-form-label">
-                                    {{ t("TXT_CODE_DESKTOP_NODES_APIKEY") || 'API Key' }}
+                                    {{ t("TXT_CODE_DESKTOP_NODES_APIKEY") }}
                                 </label>
                                 <input v-model="form.apiKey" type="password" class="dn-form-input"
                                     autocomplete="new-password"
-                                    :placeholder="dialogMode === 'edit' ? (t('TXT_CODE_DESKTOP_NODES_APIKEY_HELP') || 'Leave empty to keep unchanged') : ''" />
+                                    :placeholder="dialogMode === 'edit' ? (t('TXT_CODE_DESKTOP_NODES_APIKEY_HELP')) : ''" />
                                 <span v-if="dialogMode === 'edit'" class="dn-form-hint">
-                                    {{ t("TXT_CODE_DESKTOP_NODES_APIKEY_HELP") || 'Leave empty to keep unchanged' }}
+                                    {{ t("TXT_CODE_DESKTOP_NODES_APIKEY_HELP") }}
                                 </span>
                             </div>
                             <div v-if="formError" class="dn-form-error">{{ formError }}</div>
                         </div>
                         <div class="dn-dialog__footer">
                             <button class="dn-btn dn-btn--default" @click="closeDialog">
-                                {{ t("TXT_CODE_DESKTOP_NODES_CANCEL") || 'Cancel' }}
+                                {{ t("TXT_CODE_DESKTOP_NODES_CANCEL") }}
                             </button>
                             <button class="dn-btn dn-btn--primary" :disabled="saving" @click="saveNode">
-                                {{ t("TXT_CODE_DESKTOP_NODES_SAVE") || 'Save' }}
+                                {{ t("TXT_CODE_DESKTOP_NODES_SAVE") }}
                             </button>
                         </div>
                     </div>
@@ -308,27 +306,25 @@ const cancelDelete = () => {
         <Teleport to="body">
             <Transition name="dn-dialog-fade">
                 <DesktopWindow v-if="showDeleteConfirm" id="node-delete-dialog"
-                    :title="t('TXT_CODE_DESKTOP_NODES_DELETE') || 'Delete Node'" :icon="DeleteOutlined"
-                    :visible="showDeleteConfirm" :minimized="false" :maximized="false" :active="true"
-                    :initial-width="360" :initial-height="180" :initial-x="windowWidth / 2 - 180"
-                    :initial-y="windowHeight / 2 - 90" :z-index="10002" :show-minimize="false" :show-maximize="false"
-                    :resizable="false" @close="cancelDelete">
+                    :title="t('TXT_CODE_DESKTOP_NODES_DELETE')" :icon="DeleteOutlined" :visible="showDeleteConfirm"
+                    :minimized="false" :maximized="false" :active="true" :initial-width="360" :initial-height="180"
+                    :initial-x="windowWidth / 2 - 180" :initial-y="windowHeight / 2 - 90" :z-index="10002"
+                    :show-minimize="false" :show-maximize="false" :resizable="false" @close="cancelDelete">
                     <div class="dn-dialog-content">
                         <div class="dn-dialog__body">
                             <p class="dn-delete-text">
                                 {{ t("TXT_CODE_DESKTOP_NODES_DELETE_CONFIRM", {
                                     name: deletingNode?.remarks ||
                                         deletingNode?.ip
-                                }) || `Are you sure you want to delete node ${deletingNode?.remarks ||
-                                deletingNode?.ip}?` }}
+                                }) }}
                             </p>
                         </div>
                         <div class="dn-dialog__footer">
                             <button class="dn-btn dn-btn--default" @click="cancelDelete">
-                                {{ t("TXT_CODE_DESKTOP_NODES_CANCEL") || 'Cancel' }}
+                                {{ t("TXT_CODE_DESKTOP_NODES_CANCEL") }}
                             </button>
                             <button class="dn-btn dn-btn--danger" :disabled="saving" @click="executeDelete">
-                                {{ t("TXT_CODE_DESKTOP_NODES_DELETE") || 'Delete' }}
+                                {{ t("TXT_CODE_DESKTOP_NODES_DELETE") }}
                             </button>
                         </div>
                     </div>
