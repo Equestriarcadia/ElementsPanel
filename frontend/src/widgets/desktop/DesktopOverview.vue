@@ -172,27 +172,21 @@ const memColor = computed(() => {
                 </div>
                 <div class="ov-panel__body">
                     <div class="ov-info-row">
+                        <span class="ov-info-row__label">{{ t("TXT_CODE_413b9c01") }}</span>
+                        <span class="ov-info-row__value">{{ systemInfo?.node }}</span>
+                    </div>
+                    <div class="ov-info-row">
                         <span class="ov-info-row__label">{{ t("TXT_CODE_af21e6b") }}</span>
                         <span class="ov-info-row__value">{{ panelVersion }}</span>
                     </div>
                     <div class="ov-info-row">
-                        <span class="ov-info-row__label">{{ t("TXT_CODE_3f99f17f") }}</span>
+                        <span class="ov-info-row__label">{{ t("TXT_CODE_a0e70887") }}</span>
                         <span class="ov-info-row__value">{{ daemonVersion }}</span>
                     </div>
                     <div class="ov-info-row">
-                        <span class="ov-info-row__label">CPU</span>
-                        <span class="ov-info-row__value">{{ panelProcess?.cpu ? (panelProcess.cpu * 100).toFixed(1) +
-                            "%" : "--" }}</span>
-                    </div>
-                    <div class="ov-info-row">
-                        <span class="ov-info-row__label">{{ t("TXT_CODE_593ee330") }}</span>
+                        <span class="ov-info-row__label">{{ t("TXT_CODE_77d038f7") }}</span>
                         <span class="ov-info-row__value">{{ panelProcess?.memory ? formatBytes(panelProcess.memory) :
                             "--" }}</span>
-                    </div>
-                    <div class="ov-info-row">
-                        <span class="ov-info-row__label">{{ t("TXT_CODE_uptime") }}</span>
-                        <span class="ov-info-row__value">{{ systemInfo?.uptime ? formatUptime(systemInfo.uptime) : "--"
-                        }}</span>
                     </div>
                 </div>
             </div>
@@ -202,10 +196,6 @@ const memColor = computed(() => {
                     <span class="ov-panel__title">{{ t("TXT_CODE_9c3ca8f") }}</span>
                 </div>
                 <div class="ov-panel__body">
-                    <div class="ov-info-row">
-                        <span class="ov-info-row__label">{{ t("TXT_CODE_39994770") }}</span>
-                        <span class="ov-info-row__value">{{ record?.logined ?? 0 }}</span>
-                    </div>
                     <div class="ov-info-row">
                         <span class="ov-info-row__label">{{ t("TXT_CODE_871fb0d6") }}</span>
                         <span class="ov-info-row__value">{{ record?.loginFailed ?? 0 }} / {{ record?.illegalAccess ?? 0

@@ -158,9 +158,8 @@ const overviewList = computed(() => {
     {
       type: "text",
       title: t("TXT_CODE_b4d8588"),
-      value: `${
-        system.version.length > 16 ? system.version.slice(0, 16) + "..." : system.version
-      } ${system.release}`,
+      value: `${system.version.length > 16 ? system.version.slice(0, 16) + "..." : system.version
+        } ${system.release}`,
       icon: CodeOutlined
     },
     {
@@ -181,13 +180,7 @@ const overviewList = computed(() => {
       <template #title>{{ card.title }}</template>
       <template #body>
         <a-row :gutter="[24, 24]">
-          <a-col
-            v-for="(item, index) in overviewList"
-            :key="`${item.title}-${index}`"
-            :span="12"
-            :md="12"
-            :lg="6"
-          >
+          <a-col v-for="(item, index) in overviewList" :key="`${item.title}-${index}`" :span="12" :md="12" :lg="6">
             <!-- Memory: progress bar + percent and value -->
             <div v-if="item.type === 'memory'" class="overview-item overview-item--progress">
               <div class="overview-item__title">
@@ -224,10 +217,7 @@ const overviewList = computed(() => {
               </div>
               <div class="loadavg-tags">
                 <template v-for="(v, i) in item.values" :key="i">
-                  <a-tag
-                    :color="i === 0 ? 'green' : i === 1 ? 'gold' : 'volcano'"
-                    class="loadavg-tag"
-                  >
+                  <a-tag :color="i === 0 ? 'green' : i === 1 ? 'gold' : 'volcano'" class="loadavg-tag">
                     {{ v.toFixed(2) }}
                   </a-tag>
                   <span v-if="i < item.values.length - 1" class="loadavg-sep">·</span>
