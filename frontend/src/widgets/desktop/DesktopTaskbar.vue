@@ -310,11 +310,11 @@ const handleContextMenu = (event: MouseEvent, win: TaskbarWindow) => {
 }
 
 .start-menu-enter-active {
-    transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+    transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 .start-menu-leave-active {
-    transition: all 0.15s ease-in;
+    transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 .start-menu-enter-from {
