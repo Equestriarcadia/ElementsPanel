@@ -8,6 +8,7 @@ import {
     ClusterOutlined,
     DeleteOutlined,
     EditOutlined,
+    ExclamationCircleOutlined,
     PlusOutlined,
     SearchOutlined
 } from "@ant-design/icons-vue";
@@ -251,7 +252,7 @@ const cancelDelete = () => {
                 <DesktopWindow v-if="showDialog" id="node-edit-dialog"
                     :title="dialogMode === 'add' ? (t('TXT_CODE_DESKTOP_NODES_ADD')) : (t('TXT_CODE_DESKTOP_NODES_EDIT'))"
                     :icon="dialogMode === 'add' ? PlusOutlined : EditOutlined" :visible="showDialog" :minimized="false"
-                    :maximized="false" :active="true" :initial-width="420" :initial-height="460"
+                    :maximized="false" :active="true" :initial-width="420" :initial-height="400"
                     :initial-x="windowWidth / 2 - 210" :initial-y="windowHeight / 2 - 230" :z-index="10001"
                     :show-minimize="false" :show-maximize="false" :resizable="false" @close="closeDialog">
                     <div class="dn-dialog-content">
@@ -306,13 +307,15 @@ const cancelDelete = () => {
         <Teleport to="body">
             <Transition name="dn-dialog-fade">
                 <DesktopWindow v-if="showDeleteConfirm" id="node-delete-dialog"
-                    :title="t('TXT_CODE_DESKTOP_NODES_DELETE')" :icon="DeleteOutlined" :visible="showDeleteConfirm"
-                    :minimized="false" :maximized="false" :active="true" :initial-width="360" :initial-height="180"
-                    :initial-x="windowWidth / 2 - 180" :initial-y="windowHeight / 2 - 90" :z-index="10002"
-                    :show-minimize="false" :show-maximize="false" :resizable="false" @close="cancelDelete">
+                    :title="t('TXT_CODE_DESKTOP_NODES_DELETE')" :icon="ExclamationCircleOutlined"
+                    :visible="showDeleteConfirm" :minimized="false" :maximized="false" :active="true"
+                    :initial-width="400" :initial-height="200" :initial-x="windowWidth / 2 - 200"
+                    :initial-y="windowHeight / 2 - 100" :z-index="10002" :show-minimize="false" :show-maximize="false"
+                    :resizable="false" @close="cancelDelete">
                     <div class="dn-dialog-content">
-                        <div class="dn-dialog__body">
-                            <p class="dn-delete-text">
+                        <div class="dn-dialog__body dn-dialog__body--column">
+                            <ExclamationCircleOutlined class="dn-dialog__warn-icon" />
+                            <p class="dn-dialog__desc">
                                 {{ t("TXT_CODE_DESKTOP_NODES_DELETE_CONFIRM", {
                                     name: deletingNode?.remarks ||
                                         deletingNode?.ip
@@ -323,7 +326,9 @@ const cancelDelete = () => {
                             <button class="dn-btn dn-btn--default" @click="cancelDelete">
                                 {{ t("TXT_CODE_DESKTOP_NODES_CANCEL") }}
                             </button>
-                            <button class="dn-btn dn-btn--danger" :disabled="saving" @click="executeDelete">
+                            <button class="dn-btn dn-btn--primary"
+                                style="background: var(--color-red-5); border-color: var(--color-red-5);"
+                                :disabled="saving" @click="executeDelete">
                                 {{ t("TXT_CODE_DESKTOP_NODES_DELETE") }}
                             </button>
                         </div>
@@ -597,10 +602,6 @@ const cancelDelete = () => {
         }
     }
 
-    &__body {
-        padding: 16px 20px;
-    }
-
     &__footer {
         padding: 12px 20px;
         display: flex;
@@ -679,6 +680,33 @@ const cancelDelete = () => {
     color: #ff4d4f;
     font-size: 12px;
     margin-top: 8px;
+}
+
+.dn-dialog__body {
+    padding: 16px 20px;
+    flex: 1;
+    overflow-y: auto;
+
+    &--column {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+    }
+}
+
+.dn-dialog__warn-icon {
+    font-size: 36px;
+    color: var(--color-warning, #faad14);
+}
+
+.dn-dialog__desc {
+    margin: 0;
+    color: var(--desktop-window-text);
+    font-size: 14px;
+    text-align: center;
+    line-height: 1.6;
 }
 
 .dn-delete-text {

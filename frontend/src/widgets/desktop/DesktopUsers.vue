@@ -11,6 +11,7 @@ import {
     DatabaseOutlined,
     DeleteOutlined,
     EditOutlined,
+    ExclamationCircleOutlined,
     KeyOutlined,
     LinkOutlined,
     PlusOutlined,
@@ -459,7 +460,7 @@ const getInstanceStatusLabel = (status: number): string => {
                 <DesktopWindow v-if="showDialog" id="user-edit-dialog"
                     :title="dialogMode === 'add' ? t('TXT_CODE_DESKTOP_USERS_ADD') : t('TXT_CODE_DESKTOP_USERS_EDIT')"
                     :icon="dialogMode === 'add' ? PlusOutlined : EditOutlined" :visible="showDialog" :minimized="false"
-                    :maximized="false" :active="true" :initial-width="420" :initial-height="380"
+                    :maximized="false" :active="true" :initial-width="420" :initial-height="335"
                     :initial-x="windowWidth / 2 - 210" :initial-y="windowHeight / 2 - 190" :z-index="10001"
                     :show-minimize="false" :show-maximize="false" :resizable="false" @close="closeDialog">
                     <div class="du-dialog-content">
@@ -517,13 +518,15 @@ const getInstanceStatusLabel = (status: number): string => {
         <Teleport to="body">
             <Transition name="du-dialog-fade">
                 <DesktopWindow v-if="showDeleteConfirm" id="user-delete-dialog"
-                    :title="t('TXT_CODE_DESKTOP_USERS_DELETE')" :icon="DeleteOutlined" :visible="showDeleteConfirm"
-                    :minimized="false" :maximized="false" :active="true" :initial-width="360" :initial-height="180"
-                    :initial-x="windowWidth / 2 - 180" :initial-y="windowHeight / 2 - 90" :z-index="10002"
-                    :show-minimize="false" :show-maximize="false" :resizable="false" @close="cancelDelete">
+                    :title="t('TXT_CODE_DESKTOP_USERS_DELETE')" :icon="ExclamationCircleOutlined"
+                    :visible="showDeleteConfirm" :minimized="false" :maximized="false" :active="true"
+                    :initial-width="400" :initial-height="200" :initial-x="windowWidth / 2 - 200"
+                    :initial-y="windowHeight / 2 - 100" :z-index="10002" :show-minimize="false" :show-maximize="false"
+                    :resizable="false" @close="cancelDelete">
                     <div class="du-dialog-content">
-                        <div class="du-dialog__body">
-                            <p class="du-delete-text">
+                        <div class="du-dialog__body du-dialog__body--column">
+                            <ExclamationCircleOutlined class="du-dialog__warn-icon" />
+                            <p class="du-dialog__desc">
                                 {{ t("TXT_CODE_DESKTOP_USERS_DELETE_CONFIRM", { name: deletingUser?.userName }) }}
                             </p>
                         </div>
@@ -531,7 +534,9 @@ const getInstanceStatusLabel = (status: number): string => {
                             <button class="du-btn du-btn--default" @click="cancelDelete">
                                 {{ t("TXT_CODE_DESKTOP_USERS_CANCEL") }}
                             </button>
-                            <button class="du-btn du-btn--danger" :disabled="saving" @click="executeDelete">
+                            <button class="du-btn du-btn--primary"
+                                style="background: var(--color-red-5); border-color: var(--color-red-5);"
+                                :disabled="saving" @click="executeDelete">
                                 {{ t("TXT_CODE_DESKTOP_USERS_DELETE") }}
                             </button>
                         </div>
@@ -988,6 +993,14 @@ const getInstanceStatusLabel = (status: number): string => {
 
     &__body {
         padding: 16px 20px;
+
+        &--column {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+        }
     }
 
     &__footer {
@@ -1008,6 +1021,19 @@ const getInstanceStatusLabel = (status: number): string => {
 
 .du-dialog__footer {
     margin-top: auto;
+}
+
+.du-dialog__warn-icon {
+    font-size: 36px;
+    color: var(--color-warning, #faad14);
+}
+
+.du-dialog__desc {
+    margin: 0;
+    color: var(--desktop-window-text);
+    font-size: 14px;
+    text-align: center;
+    line-height: 1.6;
 }
 
 .du-form-group {
