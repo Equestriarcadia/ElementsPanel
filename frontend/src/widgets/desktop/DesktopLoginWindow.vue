@@ -30,7 +30,6 @@ const { updateUserInfo } = useAppStateStore();
 const loginStep = ref(0);
 const is2Fa = ref(false);
 
-//─── Drag Logic ───
 const windowRef = ref<HTMLElement | null>(null);
 const pos = reactive({ x: 0, y: 0 });
 const isDragging = ref(false);
@@ -44,7 +43,6 @@ const centerWindow = () => {
 };
 
 const onMouseDown = (e: MouseEvent) => {
-    // Only drag from header area
     const target = e.target as HTMLElement;
     if (target.closest("input") || target.closest("button") || target.closest("a")) return;
     isDragging.value = true;
@@ -74,7 +72,6 @@ onBeforeUnmount(() => {
     document.removeEventListener("mouseup", onMouseUp);
 });
 
-// ─── Login Logic ───
 const handleLogin = async () => {
     if (!formData.username.trim() || !formData.password.trim()) {
         return message.error(t("TXT_CODE_c846074d"));

@@ -41,7 +41,6 @@ const filteredNodes = computed(() => {
 const openConsole = (node: NodeStatus) => {
     if (!node.available) return;
 
-    // Create a mock instance object for the global terminal
     const mockInstance = {
         instanceUuid: "global0001",
         config: {

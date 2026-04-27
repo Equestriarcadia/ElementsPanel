@@ -342,7 +342,6 @@ onUnmounted(() => {
 
 <template>
     <div class="dim">
-        <!-- Toolbar -->
         <div class="dim-toolbar">
             <div class="dim-toolbar__left">
                 <div class="dim-instance__header">
@@ -370,7 +369,6 @@ onUnmounted(() => {
                 </div>
             </div>
             <div class="dim-toolbar__right">
-                <!-- Performance indicator -->
                 <div v-if="perfInfo" class="dim-perf">
                     <span v-if="perfInfo.cpu != null" class="dim-perf__item"
                         :class="`dim-perf__cpu--${perfInfo.cpu > 80 ? 'high' : perfInfo.cpu > 50 ? 'mid' : 'low'}`"
@@ -407,15 +405,12 @@ onUnmounted(() => {
             </div>
         </div>
 
-        <!-- Main Content Area -->
         <div class="dim-body">
-            <!-- Terminal View (default) -->
             <div v-if="activeDialog === 'none'" class="dim-list">
                 <TerminalCore :use-terminal-hook="terminalHook" :instance-id="instanceId" :daemon-id="daemonId"
                     height="100%" />
             </div>
 
-            <!-- File Manager Dialog -->
             <div v-else-if="activeDialog === 'file-manager'" class="dim-dialog">
                 <div class="dim-dialog__header">
                     <button class="dim-btn dim-btn--icon" @click="closeDialog" :title="t('TXT_CODE_6c5985ca')">
@@ -434,7 +429,6 @@ onUnmounted(() => {
                 </div>
             </div>
 
-            <!-- Mod Manager Dialog -->
             <div v-else-if="activeDialog === 'mod-manager'" class="dim-dialog">
                 <div class="dim-dialog__header">
                     <button class="dim-btn dim-btn--icon" @click="closeDialog" :title="t('TXT_CODE_6c5985ca')">
@@ -453,7 +447,6 @@ onUnmounted(() => {
                 </div>
             </div>
 
-            <!-- Schedule Dialog -->
             <div v-else-if="activeDialog === 'schedule'" class="dim-dialog">
                 <div class="dim-dialog__header">
                     <button class="dim-btn dim-btn--icon" @click="closeDialog" :title="t('TXT_CODE_6c5985ca')">
@@ -472,7 +465,6 @@ onUnmounted(() => {
                 </div>
             </div>
 
-            <!-- Server Config Dialog -->
             <div v-else-if="activeDialog === 'server-config'" class="dim-dialog">
                 <div class="dim-dialog__header">
                     <button class="dim-btn dim-btn--icon" @click="closeDialog" :title="t('TXT_CODE_6c5985ca')">
@@ -492,7 +484,6 @@ onUnmounted(() => {
             </div>
         </div>
 
-        <!-- Management Buttons -->
         <DesktopManagerBtns :instance-id="instanceId" :daemon-id="daemonId"
             @open-server-config="(type: string) => emit('open-server-config', instanceId, daemonId, type)"
             @open-file-manager="emit('open-file-manager', instanceId, daemonId, getInstanceName || instanceId)"
@@ -514,7 +505,6 @@ onUnmounted(() => {
     font-size: 13px;
 }
 
-// ─── Toolbar ───
 .dim-toolbar {
     display: flex;
     align-items: center;
@@ -585,7 +575,6 @@ onUnmounted(() => {
     }
 }
 
-// ─── Instance Header Styles ───
 .dim-instance__header {
     display: flex;
     align-items: center;
@@ -660,7 +649,6 @@ onUnmounted(() => {
     gap: 4px;
 }
 
-// ─── Performance Indicator ───
 .dim-perf {
     display: flex;
     align-items: center;
@@ -682,7 +670,6 @@ onUnmounted(() => {
     background: var(--desktop-window-titlebar-bg);
     cursor: default;
 
-    // CPU: blue tones
     &.dim-perf__cpu--low {
         color: var(--color-blue-5, #1677ff);
     }
@@ -695,7 +682,6 @@ onUnmounted(() => {
         color: var(--color-red-5, #ff4d4f);
     }
 
-    // Memory: purple tones
     &.dim-perf__mem--low {
         color: var(--color-purple-5, #722ed1);
     }
@@ -708,13 +694,11 @@ onUnmounted(() => {
         color: var(--color-red-5, #ff4d4f);
     }
 
-    // Network: green tones
     &.dim-perf__net {
         color: var(--color-green-6, #52c41a);
     }
 }
 
-// ─── Body Area ───
 .dim-body {
     flex: 1;
     overflow: hidden;
@@ -743,7 +727,6 @@ onUnmounted(() => {
     flex-shrink: 0;
 }
 
-// ─── Dialog Panel ───
 .dim-dialog {
     height: 100%;
     display: flex;
@@ -780,7 +763,6 @@ onUnmounted(() => {
     }
 }
 
-// ─── Placeholder ───
 .dim-placeholder {
     display: flex;
     flex-direction: column;

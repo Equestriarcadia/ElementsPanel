@@ -84,7 +84,7 @@ const fetchNodesSilent = async () => {
             nodes.value = res.value || [];
         }
     } catch {
-        // silent fail
+        // ignore
     }
 };
 
@@ -116,7 +116,7 @@ const openEditDialog = (node: NodeStatus) => {
     form.port = node.port;
     form.remarks = node.remarks;
     form.prefix = node.prefix || "";
-    form.apiKey = ""; // API key is usually not returned, so we leave it empty for edit unless user wants to change it
+    form.apiKey = "";
     formError.value = "";
     showDialog.value = true;
 };

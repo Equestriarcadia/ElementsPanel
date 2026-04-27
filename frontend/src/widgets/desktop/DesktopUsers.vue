@@ -50,13 +50,11 @@ const saving = ref(false);
 const showDeleteConfirm = ref(false);
 const deletingUser = ref<BaseUserInfo | null>(null);
 
-// Assign instance dialog state
 const showAssignDialog = ref(false);
 const assignTargetUser = ref<BaseUserInfo | null>(null);
 const assignedInstances = ref<UserInstance[]>([]);
 const assignSaving = ref(false);
 
-// Remote node/instance selection for assign dialog
 const { execute: getNodes, state: nodes } = remoteNodeList();
 const { execute: getInstances, state: instances, isLoading: instancesLoading } = remoteInstances();
 const currentRemoteNode = ref<NodeStatus>();
@@ -640,7 +638,7 @@ const getInstanceStatusLabel = (status: number): string => {
                                         {{ t("TXT_CODE_DESKTOP_IM_PREV") }}
                                     </button>
                                     <span class="du-page-info">{{ assignForm.currentPage }} / {{ instances.maxPage
-                                        }}</span>
+                                    }}</span>
                                     <button class="du-page-btn" :disabled="assignForm.currentPage >= instances.maxPage"
                                         @click="assignForm.currentPage++; loadRemoteInstances()">
                                         {{ t("TXT_CODE_DESKTOP_IM_NEXT") }}

@@ -749,10 +749,8 @@ onUnmounted(() => {
 
 <template>
     <div class="dfm">
-        <!-- Toolbar -->
         <div class="dfm-toolbar">
             <div class="dfm-toolbar__left">
-                <!-- Search -->
                 <a-input v-model:value.trim.lazy="operationForm.name" :placeholder="t('TXT_CODE_7cad42a5')" allow-clear
                     size="small" @change="handleSearchChange()">
                     <template #suffix>
@@ -817,7 +815,6 @@ onUnmounted(() => {
             </div>
         </div>
 
-        <!-- Upload Progress -->
         <div v-if="uploadData.current" class="dfm-upload-progress">
             <div class="dfm-upload-progress__info">
                 <a-typography-text :ellipsis="true">
@@ -841,17 +838,14 @@ onUnmounted(() => {
             </a-typography-text>
         </div>
 
-        <!-- Body -->
         <div class="dfm-body" :style="opacity ? 'opacity: 0.4' : ''" @dragover="handleDragover"
             @dragleave="handleDragleave" @drop="handleDrop">
-            <!-- Tabs -->
             <a-tabs v-model:activeKey="activeTab" type="editable-card" size="small" @edit="onEditTabs"
                 @change="(key) => handleChangeTab(key as string)">
                 <a-tab-pane v-for="b in currentTabs" :key="b.key" :tab="b.name" :closable="true">
                 </a-tab-pane>
             </a-tabs>
 
-            <!-- Disk & Breadcrumbs -->
             <div class="dfm-nav">
                 <a-select v-if="isShowDiskList" v-model:value="currentDisk" size="small"
                     style="width: 125px; flex-shrink: 0" @change="toDisk(currentDisk)">
@@ -871,7 +865,6 @@ onUnmounted(() => {
                 </div>
             </div>
 
-            <!-- Task Info -->
             <p v-if="fileStatus?.downloadFileFromURLTask && fileStatus.downloadFileFromURLTask > 0"
                 class="dfm-task-info">
                 <a-spin />
@@ -882,7 +875,6 @@ onUnmounted(() => {
                 {{ t("TXT_CODE_dd06dea2") + fileStatus?.instanceFileTask + t("TXT_CODE_3e959ce7") }}
             </p>
 
-            <!-- File Table -->
             <a-spin :spinning="spinning">
                 <div class="dfm-table-wrapper" @mousedown="onTableMouseDown">
                     <a-table :row-selection="{
@@ -939,7 +931,6 @@ onUnmounted(() => {
             </a-spin>
         </div>
 
-        <!-- Dialogs -->
         <Teleport to="body">
             <Transition name="dfm-dialog-fade">
                 <DesktopWindow v-if="dialog.show" id="file-manager-dialog" :title="dialog.title" :icon="FileOutlined"
@@ -1025,7 +1016,6 @@ onUnmounted(() => {
             </Transition>
         </Teleport>
 
-        <!-- Download Dialog -->
         <Teleport to="body">
             <Transition name="dfm-dialog-fade">
                 <DesktopWindow v-if="downloadDialog.show" id="file-manager-download-dialog"
@@ -1064,7 +1054,6 @@ onUnmounted(() => {
             </Transition>
         </Teleport>
 
-        <!-- Loading Window -->
         <Teleport to="body">
             <Transition name="dfm-dialog-fade">
                 <DesktopWindow v-if="loadingWindow.show" id="file-manager-loading-dialog" :title="loadingWindow.title"
@@ -1083,7 +1072,6 @@ onUnmounted(() => {
             </Transition>
         </Teleport>
 
-        <!-- Upload Confirm Dialog -->
         <Teleport to="body">
             <Transition name="dfm-dialog-fade">
                 <DesktopWindow v-if="uploadConfirmDialog.show" id="file-manager-upload-confirm-dialog"
@@ -1111,7 +1099,6 @@ onUnmounted(() => {
             </Transition>
         </Teleport>
 
-        <!-- Overwrite Confirm Dialog -->
         <Teleport to="body">
             <Transition name="dfm-dialog-fade">
                 <DesktopWindow v-if="overwriteDialog.show" id="file-manager-overwrite-dialog"
@@ -1147,7 +1134,6 @@ onUnmounted(() => {
             </Transition>
         </Teleport>
 
-        <!-- Delete Confirm Dialog -->
         <Teleport to="body">
             <Transition name="dfm-dialog-fade">
                 <DesktopWindow v-if="deleteDialog.show" id="file-manager-delete-dialog" :title="t('TXT_CODE_71155575')"

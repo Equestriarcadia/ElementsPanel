@@ -44,7 +44,6 @@ import { notification } from "ant-design-vue";
 import { computed, onMounted, onUnmounted, ref, type Component } from "vue";
 import DesktopWindow from "./DesktopWindow.vue";
 
-//─── State ───
 const nodes = ref<NodeStatus[]>([]);
 const selectedNodeId = ref<string>("");
 const instances = ref<InstanceDetail[]>([]);
@@ -61,7 +60,6 @@ const selectedInstance = ref<InstanceDetail[]>([]);
 
 let refreshTimer: ReturnType<typeof setInterval> | null = null;
 
-// ─── Delete Dialog State ───
 const deleteDialog = ref<{
     show: boolean;
     deleteFile: boolean;
@@ -79,7 +77,6 @@ const deleteDialog = ref<{
 const windowWidth = ref(window.innerWidth);
 const windowHeight = ref(window.innerHeight);
 
-// ─── API Instances ───
 const { execute: executeNodeList } = remoteNodeList();
 const { execute: executeRemoteInstances } = remoteInstances();
 const { execute: executeOpen } = openInstance();
@@ -87,7 +84,6 @@ const { execute: executeStop } = stopInstance();
 const { execute: executeKill } = killInstance();
 const { execute: executeRestart } = restartInstance();
 
-// ─── Computed ───
 const filteredInstances = computed(() => {
     let list = instances.value;
     if (searchText.value.trim()) {
@@ -114,7 +110,6 @@ const instanceCounts = computed(() => {
     return { running, stopped, total };
 });
 
-// ─── Helpers ───
 const getStatusText = (status: INSTANCE_STATUS_CODE): string => {
     const map: Record<INSTANCE_STATUS_CODE, string> = {
         [INSTANCE_STATUS_CODE.BUSY]: t("TXT_CODE_DESKTOP_IM_BUSY"),
@@ -149,7 +144,6 @@ const getStatusIconComponent = (status: INSTANCE_STATUS_CODE): Component => {
     return statusIconMap[status] || QuestionCircleOutlined;
 };
 
-// ─── Data Fetching ───
 const fetchNodes = async () => {
     try {
         const res = await executeNodeList();
@@ -188,7 +182,6 @@ const fetchInstances = async (silent = false) => {
     }
 };
 
-// ─── Actions ───
 const handleStart = async (uuid: string) => {
     operatingIds.value.add(uuid);
     try {
@@ -420,7 +413,6 @@ const handleInstanceDblClick = (instance: InstanceDetail) => {
     }
 };
 
-// ─── Watch & Lifecycle ───
 import { watch } from "vue";
 
 watch(selectedNodeId, () => {
@@ -459,10 +451,8 @@ onUnmounted(() => {
 
 <template>
     <div class="dim">
-        <!-- Toolbar -->
         <div class="dim-toolbar">
             <div class="dim-toolbar__left">
-                <!-- Node Selector -->
                 <div class="dim-select">
                     <label class="dim-select__label">{{ t("TXT_CODE_DESKTOP_IM_NODE") }}:</label>
                     <select v-model="selectedNodeId" class="dim-select__input">
@@ -473,7 +463,6 @@ onUnmounted(() => {
                     </select>
                 </div>
 
-                <!-- Status Filter -->
                 <div class="dim-select">
                     <select v-model="statusFilter" class="dim-select__input">
                         <option value="all">{{ t("TXT_CODE_DESKTOP_IM_ALL_STATUS") }}</option>
@@ -494,7 +483,6 @@ onUnmounted(() => {
             </div>
 
             <div class="dim-toolbar__right">
-                <!-- Batch Operations -->
                 <div v-if="multipleMode" class="dim-batch-actions">
                     <button class="dim-btn" @click="exitMultipleMode">
                         {{ t("TXT_CODE_5366af54") }}
@@ -524,7 +512,6 @@ onUnmounted(() => {
                     </button>
                 </div>
 
-                <!-- Search -->
                 <div class="dim-search">
                     <input v-model="searchText" type="text" class="dim-search__input"
                         :placeholder="t('TXT_CODE_DESKTOP_IM_SEARCH')" />
@@ -533,20 +520,17 @@ onUnmounted(() => {
                     </span>
                 </div>
 
-                <!-- Refresh -->
                 <button class="dim-btn dim-btn--icon" @click="fetchInstances()">
                     <LoadingOutlined v-if="loading" />
                     <ReloadOutlined v-else />
                 </button>
 
-                <!-- New Instance -->
                 <button class="dim-btn dim-btn--primary" @click="emit('open-new-instance')">
                     <PlusOutlined /> {{ t("TXT_CODE_DESKTOP_IM_NEW_INSTANCE") }}
                 </button>
             </div>
         </div>
 
-        <!-- Stats Bar -->
         <div class="dim-stats">
             <div class="dim-stats__item">
                 <span class="dim-stats__dot dim-stats__dot--total"></span>
@@ -570,7 +554,6 @@ onUnmounted(() => {
             </div>
         </div>
 
-        <!-- Instance List -->
         <div class="dim-list" :class="{ 'dim-list--loading': loading }">
             <div v-if="loading && instances.length === 0" class="dim-empty">
                 <div class="dim-spinner"></div>
@@ -594,7 +577,7 @@ onUnmounted(() => {
                         </span>
                         <span class="dim-instance__name">{{
                             instance.config.nickname || t("TXT_CODE_DESKTOP_IM_UNNAMED")
-                        }}</span><span class="dim-instance__badge" :class="getStatusClass(instance.status)">
+                            }}</span><span class="dim-instance__badge" :class="getStatusClass(instance.status)">
                             {{ getStatusText(instance.status) }}
                         </span>
                     </div>
@@ -644,7 +627,6 @@ onUnmounted(() => {
             </div>
         </div>
 
-        <!-- Pagination -->
         <div v-if="totalPages > 1" class="dim-pagination">
             <button class="dim-btn dim-btn--sm" :disabled="currentPage <= 1" @click="currentPage--; fetchInstances()">
                 <LeftOutlined /> {{ t("TXT_CODE_DESKTOP_IM_PREV") }}
@@ -657,7 +639,6 @@ onUnmounted(() => {
             </button>
         </div>
 
-        <!-- Delete Confirm Dialog -->
         <Teleport to="body">
             <Transition name="dim-dialog-fade">
                 <DesktopWindow v-if="deleteDialog.show" id="instance-manager-delete-dialog"
@@ -703,7 +684,6 @@ onUnmounted(() => {
     font-size: 13px;
 }
 
-// ─── Toolbar ───
 .dim-toolbar {
     display: flex;
     align-items: center;
@@ -875,7 +855,6 @@ onUnmounted(() => {
     }
 }
 
-// ─── Stats Bar ───
 .dim-stats {
     display: flex;
     align-items: center;
@@ -928,7 +907,6 @@ onUnmounted(() => {
     }
 }
 
-// ─── Instance List ───
 .dim-list {
     flex: 1;
     overflow-y: auto;
@@ -1104,7 +1082,6 @@ onUnmounted(() => {
     }
 }
 
-// ─── Action Buttons ───
 .dim-action {
     width: 30px;
     height: 30px;
@@ -1161,7 +1138,6 @@ onUnmounted(() => {
     }
 }
 
-// ─── Pagination ───
 .dim-pagination {
     display: flex;
     align-items: center;
@@ -1176,7 +1152,6 @@ onUnmounted(() => {
     }
 }
 
-// ─── Dialog Styles ───
 .dim-dialog-fade-enter-active,
 .dim-dialog-fade-leave-active {
     transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);

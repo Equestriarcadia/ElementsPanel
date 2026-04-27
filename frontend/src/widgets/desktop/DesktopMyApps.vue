@@ -26,14 +26,12 @@ import {
 } from "@ant-design/icons-vue";
 import { computed, onMounted, onUnmounted, ref, type Component } from "vue";
 
-// Extended instance type with optional info field from API response
 interface MyAppInstance extends UserInstance {
     info?: Record<string, any>;
     config?: IGlobalInstanceConfig;
     endTime?: number;
 }
 
-//─── State ───
 const instances = ref<MyAppInstance[]>([]);
 const loading = ref(false);
 const searchText = ref("");
@@ -42,14 +40,12 @@ const operatingIds = ref<Set<string>>(new Set());
 
 let refreshTimer: ReturnType<typeof setInterval> | null = null;
 
-// ─── API Instances ───
 const { execute: executeUserInfoAdvanced } = userInfoApiAdvanced();
 const { execute: executeOpen } = openInstance();
 const { execute: executeStop } = stopInstance();
 const { execute: executeKill } = killInstance();
 const { execute: executeRestart } = restartInstance();
 
-// ─── Computed ───
 const filteredInstances = computed(() => {
     let list = instances.value;
     if (searchText.value.trim()) {
@@ -74,7 +70,6 @@ const instanceCounts = computed(() => {
     return { running, stopped, total };
 });
 
-// ─── Helpers ───
 const getStatusText = (status: INSTANCE_STATUS_CODE): string => {
     const map: Record<INSTANCE_STATUS_CODE, string> = {
         [INSTANCE_STATUS_CODE.BUSY]: t("TXT_CODE_DESKTOP_IM_BUSY"),
@@ -109,7 +104,6 @@ const getStatusIconComponent = (status: INSTANCE_STATUS_CODE): Component => {
     return statusIconMap[status] || QuestionCircleOutlined;
 };
 
-// ─── Data Fetching ───
 const fetchInstances = async (silent = false) => {
     if (!silent) loading.value = true;
     try {
@@ -136,7 +130,6 @@ const fetchInstances = async (silent = false) => {
     }
 };
 
-// ─── Actions ───
 const handleStart = async (uuid: string, daemonId: string) => {
     operatingIds.value.add(uuid);
     try {
@@ -213,7 +206,6 @@ const handleInstanceDblClick = (instance: MyAppInstance) => {
     }
 };
 
-// ─── Lifecycle ───
 onMounted(async () => {
     await fetchInstances();
     refreshTimer = setInterval(() => fetchInstances(true), 10000);
@@ -229,10 +221,8 @@ onUnmounted(() => {
 
 <template>
     <div class="ma">
-        <!-- Toolbar -->
         <div class="ma-toolbar">
             <div class="ma-toolbar__left">
-                <!-- Status Filter -->
                 <div class="ma-select">
                     <select v-model="statusFilter" class="ma-select__input">
                         <option value="all">{{ t("TXT_CODE_DESKTOP_IM_ALL_STATUS") }}</option>
@@ -253,7 +243,6 @@ onUnmounted(() => {
             </div>
 
             <div class="ma-toolbar__right">
-                <!-- Search -->
                 <div class="ma-search">
                     <input v-model="searchText" type="text" class="ma-search__input"
                         :placeholder="t('TXT_CODE_DESKTOP_IM_SEARCH')" />
@@ -262,7 +251,6 @@ onUnmounted(() => {
                     </span>
                 </div>
 
-                <!-- Refresh -->
                 <button class="ma-btn ma-btn--icon" @click="fetchInstances()">
                     <LoadingOutlined v-if="loading" />
                     <ReloadOutlined v-else />
@@ -270,7 +258,6 @@ onUnmounted(() => {
             </div>
         </div>
 
-        <!-- Stats Bar -->
         <div class="ma-stats">
             <div class="ma-stats__item">
                 <span class="ma-stats__dot ma-stats__dot--total"></span>
@@ -286,7 +273,6 @@ onUnmounted(() => {
             </div>
         </div>
 
-        <!-- Instance List -->
         <div class="ma-list" :class="{ 'ma-list--loading': loading }">
             <div v-if="loading && instances.length === 0" class="ma-empty">
                 <div class="ma-spinner"></div>
@@ -310,7 +296,7 @@ onUnmounted(() => {
                         </span>
                         <span class="ma-instance__name">{{
                             instance.nickname || t("TXT_CODE_DESKTOP_IM_UNNAMED")
-                        }}</span>
+                            }}</span>
                         <span class="ma-instance__badge" :class="getStatusClass(instance.status)">
                             {{ getStatusText(instance.status) }}
                         </span>
@@ -374,7 +360,6 @@ onUnmounted(() => {
     font-size: 13px;
 }
 
-// ─── Toolbar ───
 .ma-toolbar {
     display: flex;
     align-items: center;
@@ -497,7 +482,6 @@ onUnmounted(() => {
     }
 }
 
-// ─── Stats Bar ───
 .ma-stats {
     display: flex;
     align-items: center;
@@ -533,7 +517,6 @@ onUnmounted(() => {
     }
 }
 
-// ─── Instance List ───
 .ma-list {
     flex: 1;
     overflow-y: auto;
@@ -704,7 +687,6 @@ onUnmounted(() => {
     }
 }
 
-// ─── Action Buttons ───
 .ma-action {
     width: 30px;
     height: 30px;

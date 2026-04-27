@@ -152,12 +152,10 @@ const submit = async (needReload: boolean = true) => {
     saveError.value = "";
 
     try {
-        // Save backend settings
         await submitExecute({
             data: { ...formData.value }
         });
 
-        // Save frontend config (theme)
         const cfg = await getSettingsConfig();
         if (cfg) {
             if (!cfg.theme) cfg.theme = { pageTitle: "", logoImage: "", backgroundImage: "" };
@@ -244,7 +242,6 @@ limitations under the License.`;
 
             <div class="ds-content">
                 <div class="ds-content__scroll">
-                    <!-- Base Info -->
                     <div v-show="activeTab === 'baseInfo'" class="ds-form">
                         <h2 class="ds-title">{{ t("TXT_CODE_5206cf41") }}</h2>
 
@@ -287,7 +284,6 @@ limitations under the License.`;
                         </div>
                     </div>
 
-                    <!-- UI -->
                     <div v-show="activeTab === 'ui'" class="ds-form">
                         <h2 class="ds-title">{{ t("TXT_CODE_1c18acc0") }}</h2>
 
@@ -340,7 +336,6 @@ limitations under the License.`;
                         </div>
                     </div>
 
-                    <!-- Security -->
                     <div v-show="activeTab === 'security'" class="ds-form">
                         <h2 class="ds-title">{{ t("TXT_CODE_9c3ca8f") }}</h2>
                         <p class="ds-desc ds-mb-4">{{ t("TXT_CODE_fcde7b2e") }}<br />{{ t("TXT_CODE_af19b7b5") }}</p>
@@ -422,7 +417,6 @@ limitations under the License.`;
                         </div>
                     </div>
 
-                    <!-- SSO -->
                     <div v-show="activeTab === 'sso'" class="ds-form">
                         <h2 class="ds-title">{{ t("TXT_CODE_SSO_TAB_TITLE") }}</h2>
 
@@ -522,7 +516,7 @@ limitations under the License.`;
                                 <select v-model="(formData as any).ssoOnlyMode" class="ds-select">
                                     <option v-for="item in allYesNo" :key="String(item.value)" :value="item.value">{{
                                         item.label
-                                        }}</option>
+                                    }}</option>
                                 </select>
                             </div>
 
@@ -532,13 +526,12 @@ limitations under the License.`;
                                 <select v-model="(formData as any).ssoAutoRedirect" class="ds-select">
                                     <option v-for="item in allYesNo" :key="String(item.value)" :value="item.value">{{
                                         item.label
-                                        }}</option>
+                                    }}</option>
                                 </select>
                             </div>
                         </template>
                     </div>
 
-                    <!-- About -->
                     <div v-show="activeTab === 'about'" class="ds-form">
                         <h2 class="ds-title">{{ t("TXT_CODE_3b4b656d") }}</h2>
                         <div class="ds-about-content">

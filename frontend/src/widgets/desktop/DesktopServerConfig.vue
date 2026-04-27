@@ -19,14 +19,12 @@ const emit = defineEmits<{
     (e: "close"): void;
 }>();
 
-// ─── State ───
 const configFiles = ref<InstanceConfigs[]>([]);
 const isLoading = ref(false);
 const selectedFile = ref<InstanceConfigs | null>(null);
 const isSaving = ref(false);
 const isEditing = ref(false);
 
-// ─── Load config files ───
 const { execute: requestConfigFileList, state: configFileListState } = getConfigFileList();
 
 const loadConfigFiles = async () => {
@@ -43,7 +41,6 @@ const loadConfigFiles = async () => {
             data: { files: paths }
         });
 
-        // Mark which files exist based on API response
         const realFiles = configFileListState.value;
         files.forEach((file) => {
             file.check = false;
@@ -62,7 +59,6 @@ const loadConfigFiles = async () => {
             });
         }
 
-        // Only show files that exist on the server
         configFiles.value = files.filter((f) => f.check);
     } catch (err: any) {
         console.error(err);
@@ -72,7 +68,6 @@ const loadConfigFiles = async () => {
     }
 };
 
-// ─── Select & load a config file ───
 const { execute: requestConfigFile, state: configFileState, isLoading: isFileLoading } = getConfigFile();
 
 const selectFile = async (file: InstanceConfigs) => {
@@ -97,7 +92,6 @@ const goBack = () => {
     isEditing.value = false;
 };
 
-// ─── Save config file ───
 const { execute: execUpdateConfigFile } = updateConfigFile();
 
 const saveFile = async () => {
@@ -131,7 +125,6 @@ const saveFile = async () => {
     }
 };
 
-// ─── Init ───
 onMounted(async () => {
     await loadConfigFiles();
 });
@@ -139,7 +132,6 @@ onMounted(async () => {
 
 <template>
     <div class="dsc">
-        <!-- Header -->
         <div class="dsc__header">
             <button v-if="selectedFile" class="dsc-btn dsc-btn--icon" @click="goBack" :title="t('TXT_CODE_c14b2ea3')">
                 <ArrowLeftOutlined />
@@ -164,9 +156,7 @@ onMounted(async () => {
             </div>
         </div>
 
-        <!-- Body -->
         <div class="dsc__body">
-            <!-- File List View -->
             <div v-if="!selectedFile" class="dsc-list">
                 <div v-if="configFiles.length === 0 && !isLoading" class="dsc-empty">
                     <FileExclamationOutlined class="dsc-empty__icon" />
@@ -186,7 +176,6 @@ onMounted(async () => {
                 </div>
             </div>
 
-            <!-- File Editor View -->
             <div v-else class="dsc-editor desktop-mode">
                 <div v-if="configFileState" class="dsc-editor__content">
                     <InstanceConfigEditor :key="selectedFile.path + Date.now()" :config="configFileState"
@@ -280,7 +269,6 @@ onMounted(async () => {
     }
 }
 
-// ─── File List ───
 .dsc-list {
     height: 100%;
 
@@ -337,7 +325,6 @@ onMounted(async () => {
     }
 }
 
-// ─── Editor ───
 .dsc-editor {
     height: 100%;
 
@@ -370,7 +357,6 @@ onMounted(async () => {
     }
 }
 
-// ─── Empty State ───
 .dsc-empty {
     display: flex;
     flex-direction: column;

@@ -46,7 +46,6 @@ onMounted(() => {
     fetchTemplate();
 });
 
-// --- Template Installation Logic ---
 const showInstallDialog = ref(false);
 const selectedTemplate = ref<QuickStartPackages | null>(null);
 const selectedTemplateType = ref<"normal" | "docker">("normal");
@@ -149,7 +148,6 @@ const handleInstall = async () => {
 
         closeInstallDialog();
 
-        // Open console for the new instance
         if (res.value?.instanceUuid) {
             emit("open-console", { instanceUuid: res.value.instanceUuid, config: { nickname: instanceName.value.trim() } }, node.uuid);
         }
@@ -168,7 +166,6 @@ const handleInstall = async () => {
             {{ t("TXT_CODE_b197be11") }}
         </div>
         <template v-else>
-            <!-- Header / Search Bar -->
             <div class="dm-header">
                 <div class="dm-header__left">
                     <button v-if="!isCategoryView" class="dm-btn dm-btn--icon" @click="handleBackToCategory">
@@ -192,9 +189,7 @@ const handleInstall = async () => {
                 </div>
             </div>
 
-            <!-- Content Area -->
             <div class="dm-content">
-                <!-- Category View -->
                 <div v-if="isCategoryView" class="dm-grid">
                     <div v-for="item in appList" :key="item.key" class="dm-card" @click="onCategoryCardClick(item)">
                         <div class="dm-card__image-wrapper">
@@ -206,7 +201,6 @@ const handleInstall = async () => {
                     </div>
                 </div>
 
-                <!-- Detail View -->
                 <div v-else class="dm-list">
                     <div v-if="detailList.length === 0" class="dm-empty">
                         {{ t("TXT_CODE_7356e569") }}
@@ -235,7 +229,6 @@ const handleInstall = async () => {
             </div>
         </template>
 
-        <!-- Install Window -->
         <Teleport to="body">
             <Transition name="du-dialog-fade">
                 <DesktopWindow v-if="showInstallDialog" id="market-install-dialog" :title="t('TXT_CODE_c10ea805')"
@@ -254,7 +247,7 @@ const handleInstall = async () => {
                                     <div class="dm-template-info__tags">
                                         <span class="dm-tag">{{ selectedTemplate.platform }}</span>
                                         <span class="dm-tag">{{ selectedTemplateType === 'docker' ? 'Docker' : 'Normal'
-                                            }}</span>
+                                        }}</span>
                                     </div>
                                 </div>
                             </div>

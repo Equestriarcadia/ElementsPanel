@@ -45,7 +45,6 @@ const {
     createState
 } = useSchedule(props.instanceId, props.daemonId);
 
-// ─── Window size for centering dialogs ───
 const windowWidth = ref(window.innerWidth);
 const windowHeight = ref(window.innerHeight);
 
@@ -62,7 +61,6 @@ onUnmounted(() => {
     window.removeEventListener("resize", updateWindowSize);
 });
 
-// ─── Schedule List ───
 const scheduleList = ref<Schedule[]>([]);
 
 const loadSchedules = async () => {
@@ -100,7 +98,6 @@ const timeRender = (text: string, schedule: Schedule) => {
     return formatFunction(text) ?? "Unknown Time";
 };
 
-// ─── New/Edit Schedule Dialog ───
 const dialogOpen = ref(false);
 const isEditing = ref(false);
 const isLoading = ref(false);
@@ -148,7 +145,6 @@ const openEditDialog = (task: Schedule) => {
 
     isEditing.value = true;
 
-    // Parse time based on type
     const parseTime = {
         [ScheduleCreateType.INTERVAL]: (time: string) =>
             (formTask.cycle = calculateIntervalFromTime(time)),
@@ -217,7 +213,6 @@ onMounted(async () => {
 
 <template>
     <div class="dschedule">
-        <!-- Header -->
         <div class="dschedule-header">
             <div class="dschedule-header__right">
                 <button class="ds-btn ds-btn--primary" @click="openNewDialog">
@@ -230,7 +225,6 @@ onMounted(async () => {
             </div>
         </div>
 
-        <!-- List -->
         <div class="dschedule-body">
             <a-spin :spinning="scheduleListLoading">
                 <div v-if="scheduleList.length === 0 && !scheduleListLoading" class="dschedule-empty">
@@ -274,7 +268,6 @@ onMounted(async () => {
         </div>
     </div>
 
-    <!-- New/Edit Dialog -->
     <Teleport to="body">
         <Transition name="ds-dialog-fade">
             <DesktopWindow v-if="dialogOpen" id="schedule-task-dialog"
@@ -299,7 +292,6 @@ onMounted(async () => {
                             </a-select>
                         </a-form-item>
 
-                        <!-- Interval -->
                         <template v-if="formTask.type === ScheduleCreateType.INTERVAL">
                             <a-form-item :label="t('TXT_CODE_3554dac0')">
                                 <a-row :gutter="[12, 12]">
@@ -323,7 +315,6 @@ onMounted(async () => {
                             </a-form-item>
                         </template>
 
-                        <!-- Cycle -->
                         <template v-if="formTask.type === ScheduleCreateType.CYCLE">
                             <a-form-item :label="t('TXT_CODE_3554dac0')">
                                 <a-time-picker v-model:value="formTask.objTime" class="w-100"
@@ -338,7 +329,6 @@ onMounted(async () => {
                             </a-form-item>
                         </template>
 
-                        <!-- Specify -->
                         <template v-if="formTask.type === ScheduleCreateType.SPECIFY">
                             <a-form-item :label="t('TXT_CODE_f3fe5c8e')">
                                 <a-date-picker v-model:value="formTask.objTime" show-time class="w-100"
@@ -346,7 +336,6 @@ onMounted(async () => {
                             </a-form-item>
                         </template>
 
-                        <!-- Actions -->
                         <a-form-item>
                             <div class="ds-actions-header">
                                 <span>{{ t("TXT_CODE_61811ac") }}</span>
@@ -582,7 +571,6 @@ onMounted(async () => {
     width: 100%;
 }
 
-// ─── DesktopWindow Dialog Styles ───
 .ds-dialog-fade-enter-active,
 .ds-dialog-fade-leave-active {
     transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);

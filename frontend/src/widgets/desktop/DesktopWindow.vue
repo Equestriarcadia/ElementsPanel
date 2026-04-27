@@ -239,7 +239,6 @@ onUnmounted(() => {
         'desktop-window--dragging': isDragging,
         'desktop-window--resizing': isResizing
     }" :style="windowStyle" @mousedown="handleFocus">
-        <!-- Title Bar -->
         <div class="window__titlebar" @mousedown="onMouseDownTitlebar" @dblclick="handleMaximize"
             @contextmenu.stop.prevent="onContextMenuTitlebar">
             <div class="window__titlebar-left">
@@ -264,12 +263,10 @@ onUnmounted(() => {
             </div>
         </div>
 
-        <!-- Content -->
         <div class="window__content" @contextmenu.stop>
             <slot></slot>
         </div>
 
-        <!-- Resize Handles -->
         <template v-if="!maximized && resizable">
             <div class="window__resize-handle window__resize-handle--nw" @mousedown="onResizeStart($event, 'nw')"></div>
             <div class="window__resize-handle window__resize-handle--ne" @mousedown="onResizeStart($event, 'ne')"></div>

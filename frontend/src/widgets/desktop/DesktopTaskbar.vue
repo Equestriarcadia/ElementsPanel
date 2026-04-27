@@ -122,14 +122,12 @@ const handleContextMenu = (event: MouseEvent, win: TaskbarWindow) => {
 
 <template>
     <div class="desktop-taskbar">
-        <!-- Start Button -->
         <div class="taskbar__start" :class="{ 'taskbar__start--active': startMenuOpen }" @click="toggleStartMenu">
             <span class="taskbar__start-icon">
                 <img :src="isDarkTheme ? '/desktop-icon.svg' : '/desktop-icon-b.svg'" alt="Start" />
             </span>
         </div>
 
-        <!-- Start Menu Popup -->
         <Transition name="start-menu">
             <div v-if="startMenuOpen" class="taskbar__start-menu" @click.stop>
                 <div class="start-menu__header" @click="handleOpenUserInfo" style="cursor: pointer;">
@@ -161,7 +159,6 @@ const handleContextMenu = (event: MouseEvent, win: TaskbarWindow) => {
             </div>
         </Transition>
 
-        <!-- Window Buttons -->
         <div class="taskbar__windows">
             <TransitionGroup name="taskbar-window-list">
                 <div v-for="(win, index) in windows" :key="win.id" class="taskbar__window-btn" :class="{
@@ -183,7 +180,6 @@ const handleContextMenu = (event: MouseEvent, win: TaskbarWindow) => {
             </TransitionGroup>
         </div>
 
-        <!-- System Tray -->
         <div class="taskbar__tray">
             <div class="taskbar__time">
                 <div class="taskbar__time-text">{{ currentTime }}</div>
@@ -192,7 +188,6 @@ const handleContextMenu = (event: MouseEvent, win: TaskbarWindow) => {
         </div>
     </div>
 
-    <!-- Click-outside overlay for start menu -->
     <div v-if="startMenuOpen" class="start-menu-overlay" @click="startMenuOpen = false"></div>
 </template>
 

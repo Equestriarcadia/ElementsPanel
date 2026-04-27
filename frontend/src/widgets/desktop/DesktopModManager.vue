@@ -75,7 +75,6 @@ const isRunning = computed(() => {
     return s === 2 || s === 3;
 });
 
-// Windows file lock confirmation dialog state
 const fileLockDialog = ref({
     show: false,
     type: "",
@@ -403,7 +402,6 @@ onMounted(async () => {
 
 <template>
     <div class="dmm">
-        <!-- Header -->
         <div v-if="activeKey === TAB_KEY_MODS || activeKey === TAB_KEY_PLUGINS" class="dmm-header">
             <div class="dmm-header__right">
                 <div class="dmm-search">
@@ -424,11 +422,9 @@ onMounted(async () => {
             </div>
         </div>
 
-        <!-- Body -->
         <div class="dmm-body">
             <div class="dmm-content" @dragover.prevent="handleDragover" @dragleave.prevent="handleDragleave"
                 @drop.prevent="handleDrop">
-                <!-- Drag upload overlay -->
                 <div v-if="opacity" class="dmm-drag-overlay">
                     <div class="dmm-drag-overlay__inner">
                         <UploadOutlined class="dmm-drag-overlay__icon" />
@@ -436,7 +432,6 @@ onMounted(async () => {
                     </div>
                 </div>
 
-                <!-- Windows warning -->
                 <a-alert v-if="isWindows && isRunning" type="warning" show-icon class="dmm-alert">
                     <template #message>
                         <div class="text-left">
@@ -448,7 +443,6 @@ onMounted(async () => {
                     </template>
                 </a-alert>
 
-                <!-- Tabs -->
                 <a-tabs v-model:activeKey="activeKey" class="dmm-tabs" destroy-inactive-tab-pane
                     @change="handleTabChange">
                     <a-tab-pane v-if="hasModsFolder" :key="TAB_KEY_MODS">
@@ -610,7 +604,6 @@ onMounted(async () => {
 
         <input ref="fileInput" type="file" multiple style="display: none" accept=".jar,.zip" @change="onFileChange" />
 
-        <!-- Save Location Dialog -->
         <Teleport to="body">
             <Transition name="dmm-dialog-fade">
                 <DesktopWindow v-if="saveLocationDialog.show" id="mod-save-location-dialog"
@@ -644,7 +637,6 @@ onMounted(async () => {
             </Transition>
         </Teleport>
 
-        <!-- Windows File Lock Dialog -->
         <Teleport to="body">
             <Transition name="dmm-dialog-fade">
                 <DesktopWindow v-if="fileLockDialog.show" id="mod-file-lock-dialog"
@@ -685,7 +677,6 @@ onMounted(async () => {
     font-size: 13px;
 }
 
-// ─── Header ───
 .dmm-header {
     display: flex;
     align-items: center;
@@ -712,7 +703,6 @@ onMounted(async () => {
     }
 }
 
-// ─── Buttons ───
 .dmm-btn {
     background: var(--desktop-window-titlebar-bg);
     border: 1px solid var(--desktop-window-border);
@@ -756,7 +746,6 @@ onMounted(async () => {
     }
 }
 
-// ─── Search ───
 .dmm-search {
     :deep(.ant-input) {
         background: var(--desktop-window-titlebar-bg);
@@ -774,7 +763,6 @@ onMounted(async () => {
     }
 }
 
-// ─── Body ───
 .dmm-body {
     flex: 1;
     overflow: hidden;
@@ -788,7 +776,6 @@ onMounted(async () => {
     position: relative;
 }
 
-// ─── Drag overlay ───
 .dmm-drag-overlay {
     position: absolute;
     top: 0;
@@ -823,7 +810,6 @@ onMounted(async () => {
     }
 }
 
-// ─── Alert ───
 .dmm-alert {
     margin-bottom: 12px;
     padding: 8px 14px !important;
@@ -833,7 +819,6 @@ onMounted(async () => {
     }
 }
 
-// ─── Tabs ───
 .dmm-tabs {
     :deep(.ant-tabs-nav) {
         margin-bottom: 0;
@@ -845,12 +830,10 @@ onMounted(async () => {
     }
 }
 
-// ─── Table wrapper ───
 .dmm-table-wrapper {
     padding: 8px 0;
 }
 
-// ─── Download section ───
 .dmm-download {
     padding: 8px 0;
 }
@@ -877,7 +860,6 @@ onMounted(async () => {
     margin-top: 8px;
 }
 
-// ─── Dialogs ───
 .dmm-dialog-fade-enter-active,
 .dmm-dialog-fade-leave-active {
     transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
