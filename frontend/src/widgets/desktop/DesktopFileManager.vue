@@ -1289,6 +1289,10 @@ onUnmounted(() => {
     display: none !important;
 }
 
+:deep(.ant-table-pagination-right) {
+    gap: 6px;
+}
+
 .dfm-drag-select-rect {
     position: absolute;
     background: rgba(22, 119, 255, 0.12);
