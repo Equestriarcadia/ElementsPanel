@@ -311,7 +311,6 @@ onUnmounted(() => {
 .dw-badge {
   font-size: 0.75rem;
   opacity: 0.3;
-  background-color: rgba(107, 114, 128, 0.1);
   padding-left: 0.5rem;
   padding-right: 0.5rem;
   padding-top: 0.125rem;
@@ -329,7 +328,7 @@ onUnmounted(() => {
 
 /* ===== Empty state ===== */
 .empty-state {
-  padding-top: 4rem;
+  padding-top: 3rem;
   padding-bottom: 4rem;
   text-align: center;
 }
@@ -340,9 +339,7 @@ onUnmounted(() => {
   justify-content: center;
   width: 4rem;
   height: 4rem;
-  border-radius: 1rem;
-  background-color: rgba(107, 114, 128, 0.05);
-  margin-bottom: 1rem;
+  margin-bottom: 5px;
 }
 
 .empty-icon-inner {
@@ -352,7 +349,6 @@ onUnmounted(() => {
 .empty-text {
   font-size: 0.75rem;
   opacity: 0.2;
-  letter-spacing: 0.2em;
   font-weight: 300;
   text-transform: uppercase;
 }
