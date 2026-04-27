@@ -22,8 +22,9 @@ import {
     CloseCircleOutlined,
     CloseOutlined,
     DeleteOutlined,
+    DownOutlined,
+    ExclamationCircleOutlined,
     InboxOutlined,
-    InfoCircleOutlined,
     LeftOutlined,
     LoadingOutlined,
     MinusCircleOutlined,
@@ -39,8 +40,9 @@ import {
     TeamOutlined,
     WarningOutlined
 } from "@ant-design/icons-vue";
-import { Modal, notification } from "ant-design-vue";
-import { computed, h, onMounted, onUnmounted, ref, watch, type Component } from "vue";
+import { notification } from "ant-design-vue";
+import { computed, onMounted, onUnmounted, ref, type Component } from "vue";
+import DesktopWindow from "./DesktopWindow.vue";
 
 //─── State ───
 const nodes = ref<NodeStatus[]>([]);
@@ -58,6 +60,24 @@ const multipleMode = ref(false);
 const selectedInstance = ref<InstanceDetail[]>([]);
 
 let refreshTimer: ReturnType<typeof setInterval> | null = null;
+
+// ─── Delete Dialog State ───
+const deleteDialog = ref<{
+    show: boolean;
+    deleteFile: boolean;
+    loading: boolean;
+    uuids: string[];
+    paths: string[];
+}>({
+    show: false,
+    deleteFile: false,
+    loading: false,
+    uuids: [],
+    paths: []
+});
+
+const windowWidth = ref(window.innerWidth);
+const windowHeight = ref(window.innerHeight);
 
 // ─── API Instances ───
 const { execute: executeNodeList } = remoteNodeList();
@@ -343,7 +363,6 @@ const batchOperation = async (actName: "start" | "stop" | "kill" | "restart") =>
 
 const batchDeleteInstance = async (deleteFile: boolean) => {
     if (selectedInstance.value.length === 0) return reportErrorMsg(t("TXT_CODE_a0a77be5"));
-    const { execute, state } = batchDelete();
     const uuids: string[] = [];
     const paths: string[] = [];
     for (const i of selectedInstance.value) {
@@ -352,48 +371,47 @@ const batchDeleteInstance = async (deleteFile: boolean) => {
             paths.push(i.config.cwd);
         }
     }
-    const confirmDeleteInstanceModal = Modal.confirm({
-        title: t("TXT_CODE_2a3b0c17"),
-        icon: h(InfoCircleOutlined),
-        content: () =>
-            h("div", {}, [
-                h("p", {}, deleteFile ? t("TXT_CODE_18d2f8ae") : t("TXT_CODE_ac01315a")),
-                paths.length > 1
-                    ? null
-                    : h("p", { style: "margin-top: 8px; color: #666;" }, [
-                        t("TXT_CODE_91d70059"),
-                        h("br"),
-                        paths.join()
-                    ])
-            ]),
-        okText: t("TXT_CODE_d507abff"),
-        async onOk() {
-            try {
-                await execute({
-                    params: {
-                        daemonId: selectedNodeId.value
-                    },
-                    data: {
-                        uuids: uuids,
-                        deleteFile: deleteFile
-                    }
-                });
-                if (state.value) {
-                    confirmDeleteInstanceModal.destroy();
-                    exitMultipleMode();
-                    notification.success({
-                        message: t("TXT_CODE_c3c06801"),
-                        description: t("TXT_CODE_50075e02")
-                    });
-                    await fetchInstances(true);
-                }
-            } catch (err: any) {
-                console.error(err);
-                reportErrorMsg(err.message);
+    deleteDialog.value = {
+        show: true,
+        deleteFile,
+        loading: false,
+        uuids,
+        paths
+    };
+};
+
+const handleDeleteConfirm = async () => {
+    const { execute, state } = batchDelete();
+    deleteDialog.value.loading = true;
+    try {
+        await execute({
+            params: {
+                daemonId: selectedNodeId.value
+            },
+            data: {
+                uuids: deleteDialog.value.uuids,
+                deleteFile: deleteDialog.value.deleteFile
             }
-        },
-        onCancel() { }
-    });
+        });
+        if (state.value) {
+            deleteDialog.value.show = false;
+            exitMultipleMode();
+            notification.success({
+                message: t("TXT_CODE_c3c06801"),
+                description: t("TXT_CODE_50075e02")
+            });
+            await fetchInstances(true);
+        }
+    } catch (err: any) {
+        console.error(err);
+        reportErrorMsg(err.message);
+    } finally {
+        deleteDialog.value.loading = false;
+    }
+};
+
+const handleDeleteCancel = () => {
+    deleteDialog.value.show = false;
 };
 
 const handleInstanceDblClick = (instance: InstanceDetail) => {
@@ -403,6 +421,8 @@ const handleInstanceDblClick = (instance: InstanceDetail) => {
 };
 
 // ─── Watch & Lifecycle ───
+import { watch } from "vue";
+
 watch(selectedNodeId, () => {
     currentPage.value = 1;
     fetchInstances();
@@ -414,6 +434,12 @@ watch([searchText, statusFilter], () => {
 });
 
 onMounted(async () => {
+    const updateWindowSize = () => {
+        windowWidth.value = window.innerWidth;
+        windowHeight.value = window.innerHeight;
+    };
+    window.addEventListener("resize", updateWindowSize);
+
     await fetchNodes();
     await fetchInstances();
     refreshTimer = setInterval(() => fetchInstances(true), 10000);
@@ -424,6 +450,10 @@ onUnmounted(() => {
         clearInterval(refreshTimer);
         refreshTimer = null;
     }
+    window.removeEventListener("resize", () => {
+        windowWidth.value = window.innerWidth;
+        windowHeight.value = window.innerHeight;
+    });
 });
 </script>
 
@@ -626,6 +656,41 @@ onUnmounted(() => {
                 <RightOutlined />
             </button>
         </div>
+
+        <!-- Delete Confirm Dialog -->
+        <Teleport to="body">
+            <Transition name="dim-dialog-fade">
+                <DesktopWindow v-if="deleteDialog.show" id="instance-manager-delete-dialog"
+                    :title="deleteDialog.deleteFile ? t('TXT_CODE_9ef27367') : t('TXT_CODE_ecbd7449')"
+                    :icon="ExclamationCircleOutlined" :visible="deleteDialog.show" :minimized="false" :maximized="false"
+                    :active="true" :initial-width="420" :initial-height="300" :initial-x="windowWidth / 2 - 210"
+                    :initial-y="windowHeight / 2 - 120" :z-index="10006" :show-minimize="false" :show-maximize="false"
+                    :resizable="false" @close="handleDeleteCancel">
+                    <div class="dim-dialog-content">
+                        <div class="dim-dialog__body dim-dialog__body--column">
+                            <ExclamationCircleOutlined class="dim-dialog__warn-icon" />
+                            <p class="dim-dialog__desc">
+                                {{ deleteDialog.deleteFile ? t("TXT_CODE_18d2f8ae") : t("TXT_CODE_ac01315a") }}
+                            </p>
+                            <p v-if="deleteDialog.paths.length === 1" class="dim-dialog__path">
+                                {{ t("TXT_CODE_91d70059") }}<br />{{ deleteDialog.paths.join() }}
+                            </p>
+                        </div>
+                        <div class="dim-dialog__footer">
+                            <button class="dim-btn dim-btn--default" :disabled="deleteDialog.loading"
+                                @click="handleDeleteCancel">
+                                {{ t("TXT_CODE_a0451c97") }}
+                            </button>
+                            <button class="dim-btn dim-btn--danger" :disabled="deleteDialog.loading"
+                                @click="handleDeleteConfirm">
+                                <LoadingOutlined v-if="deleteDialog.loading" />
+                                {{ t("TXT_CODE_d507abff") }}
+                            </button>
+                        </div>
+                    </div>
+                </DesktopWindow>
+            </Transition>
+        </Teleport>
     </div>
 </template>
 
@@ -769,6 +834,26 @@ onUnmounted(() => {
         &:hover:not(:disabled) {
             background: #4096ff;
             border-color: #4096ff;
+        }
+    }
+
+    &--default {
+        background: var(--desktop-window-titlebar-bg);
+        border: 1px solid var(--desktop-window-border);
+
+        &:hover:not(:disabled) {
+            background: var(--desktop-window-control-hover);
+        }
+    }
+
+    &--danger {
+        background: var(--color-red-5, #ff4d4f);
+        border-color: var(--color-red-5, #ff4d4f);
+        color: #fff;
+
+        &:hover:not(:disabled) {
+            background: var(--color-red-6, #ff7875);
+            border-color: var(--color-red-6, #ff7875);
         }
     }
 }
@@ -1089,5 +1174,68 @@ onUnmounted(() => {
         font-size: 12px;
         color: var(--desktop-window-text-secondary);
     }
+}
+
+// ─── Dialog Styles ───
+.dim-dialog-fade-enter-active,
+.dim-dialog-fade-leave-active {
+    transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.dim-dialog-fade-enter-from,
+.dim-dialog-fade-leave-to {
+    opacity: 0;
+    transform: scale(0.95);
+}
+
+.dim-dialog-content {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    background: transparent;
+}
+
+.dim-dialog__body {
+    padding: 16px 20px;
+    flex: 1;
+    overflow-y: auto;
+
+    &--column {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+    }
+}
+
+.dim-dialog__warn-icon {
+    font-size: 36px;
+    color: var(--color-warning, #faad14);
+}
+
+.dim-dialog__desc {
+    margin: 0;
+    color: var(--desktop-window-text);
+    font-size: 14px;
+    text-align: center;
+    line-height: 1.6;
+}
+
+.dim-dialog__path {
+    margin: 0;
+    color: var(--desktop-window-text-secondary);
+    font-size: 12px;
+    text-align: center;
+    line-height: 1.6;
+    word-break: break-all;
+}
+
+.dim-dialog__footer {
+    padding: 12px 20px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    border-top: 1px solid var(--desktop-window-border);
 }
 </style>
