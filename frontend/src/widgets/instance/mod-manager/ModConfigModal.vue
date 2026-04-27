@@ -46,7 +46,7 @@ const emit = defineEmits(["update:visible", "edit"]);
           :icon="SettingOutlined" :visible="visible" :minimized="false" :maximized="false" :active="true"
           :initial-width="600" :initial-height="400" :initial-x="windowWidth / 2 - 300"
           :initial-y="windowHeight / 2 - 200" :z-index="10001" :show-minimize="false" :show-maximize="false"
-          :resizable="true" @close="emit('update:visible', false)">
+          :resizable="false" @close="emit('update:visible', false)">
           <div class="desktop-modal-content">
             <List :loading="configLoading" :data-source="configFiles">
               <template #renderItem="{ item }">

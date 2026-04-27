@@ -165,7 +165,7 @@ const columns = computed(() => {
           :icon="AppstoreOutlined" :visible="visible" :minimized="false" :maximized="false" :active="true"
           :initial-width="900" :initial-height="600" :initial-x="windowWidth / 2 - 450"
           :initial-y="windowHeight / 2 - 300" :z-index="10001" :show-minimize="false" :show-maximize="false"
-          :resizable="true" @close="emit('update:visible', false)">
+          :resizable="false" @close="emit('update:visible', false)">
           <div class="desktop-modal-content">
             <a-typography class="mb-8" type="secondary">
               <a-typography-text>
