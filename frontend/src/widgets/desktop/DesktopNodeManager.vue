@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { t } from "@/lang/i18n";
-import { addNode, deleteNode, editNode, remoteNodeList } from "@/services/apis";
+import { addNode, connectNode, deleteNode, editNode, remoteNodeList } from "@/services/apis";
 import type { NodeStatus } from "@/types";
 import {
     CheckCircleOutlined,
@@ -10,15 +10,18 @@ import {
     EditOutlined,
     ExclamationCircleOutlined,
     PlusOutlined,
+    ReloadOutlined,
     SearchOutlined
 } from "@ant-design/icons-vue";
-import { computed, onMounted, reactive, ref } from "vue";
+import { computed, onMounted, onUnmounted, reactive, ref } from "vue";
 import DesktopWindow from "./DesktopWindow.vue";
 
 const { execute: fetchNodesApi, isLoading: loading } = remoteNodeList();
+const { execute: fetchNodesSilentApi } = remoteNodeList();
 const { execute: addNodeApiExec } = addNode();
 const { execute: editNodeApiExec } = editNode();
 const { execute: deleteNodeApiExec } = deleteNode();
+const { execute: connectNodeApiExec } = connectNode();
 
 const nodes = ref<NodeStatus[]>([]);
 const searchQuery = ref("");
@@ -42,6 +45,8 @@ const deletingNode = ref<NodeStatus | null>(null);
 const windowWidth = ref(window.innerWidth);
 const windowHeight = ref(window.innerHeight);
 
+let refreshTimer: ReturnType<typeof setInterval> | null = null;
+
 onMounted(() => {
     const updateWindowSize = () => {
         windowWidth.value = window.innerWidth;
@@ -49,6 +54,16 @@ onMounted(() => {
     };
     window.addEventListener('resize', updateWindowSize);
     fetchNodes();
+    refreshTimer = setInterval(() => {
+        fetchNodesSilent();
+    }, 3000);
+});
+
+onUnmounted(() => {
+    if (refreshTimer) {
+        clearInterval(refreshTimer);
+        refreshTimer = null;
+    }
 });
 
 const fetchNodes = async () => {
@@ -59,6 +74,17 @@ const fetchNodes = async () => {
         }
     } catch {
         nodes.value = [];
+    }
+};
+
+const fetchNodesSilent = async () => {
+    try {
+        const res = await fetchNodesSilentApi();
+        if (res?.value) {
+            nodes.value = res.value || [];
+        }
+    } catch {
+        // silent fail
     }
 };
 
@@ -183,6 +209,19 @@ const cancelDelete = () => {
     showDeleteConfirm.value = false;
     deletingNode.value = null;
 };
+
+const reconnectNode = async (node: NodeStatus) => {
+    try {
+        await connectNodeApiExec({
+            params: {
+                uuid: node.uuid
+            }
+        });
+        fetchNodes();
+    } catch {
+        // ignore
+    }
+};
 </script>
 
 <template>
@@ -238,6 +277,10 @@ const cancelDelete = () => {
                         <td class="dn-table__col--prefix">{{ node.prefix || "-" }}</td>
                         <td class="dn-table__col--actions">
                             <div class="dn-action-btns">
+                                <button class="dn-action-btn dn-action-btn--reconnect" :title="t('TXT_CODE_f8b28901')"
+                                    @click="reconnectNode(node)">
+                                    <ReloadOutlined />
+                                </button>
                                 <button class="dn-action-btn dn-action-btn--edit"
                                     :title="t('TXT_CODE_DESKTOP_NODES_EDIT')" @click="openEditDialog(node)">
                                     <EditOutlined />
@@ -571,6 +614,11 @@ const cancelDelete = () => {
     &:hover {
         background: var(--desktop-window-control-hover);
         color: var(--desktop-window-text);
+    }
+
+    &--reconnect:hover {
+        background: rgba(22, 119, 255, 0.15);
+        color: #1677ff;
     }
 
     &--delete:hover {
