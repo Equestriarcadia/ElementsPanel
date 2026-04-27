@@ -5,15 +5,22 @@ import { padZero } from "@/tools/common";
 import type { Schedule, ScheduleAction, ScheduleTaskForm } from "@/types";
 import { ScheduleActionType, ScheduleCreateType, ScheduleType } from "@/types/const";
 import {
+    ClockCircleOutlined,
     DeleteOutlined,
     EditOutlined,
+    LoadingOutlined,
     MinusCircleOutlined,
     PlusCircleOutlined
 } from "@ant-design/icons-vue";
 import { notification } from "ant-design-vue";
 import dayjs from "dayjs";
 import _ from "lodash";
-import { h, onMounted, reactive, ref } from "vue";
+import { h, onMounted, onUnmounted, reactive, ref } from "vue";
+import DesktopWindow from "./DesktopWindow.vue";
+
+const getPopupContainer = (triggerNode: HTMLElement) => {
+    return triggerNode.parentElement || document.body;
+};
 
 const props = defineProps<{
     instanceId: string;
@@ -37,6 +44,23 @@ const {
     parseTaskTime,
     createState
 } = useSchedule(props.instanceId, props.daemonId);
+
+// ─── Window size for centering dialogs ───
+const windowWidth = ref(window.innerWidth);
+const windowHeight = ref(window.innerHeight);
+
+const updateWindowSize = () => {
+    windowWidth.value = window.innerWidth;
+    windowHeight.value = window.innerHeight;
+};
+
+onMounted(() => {
+    window.addEventListener("resize", updateWindowSize);
+});
+
+onUnmounted(() => {
+    window.removeEventListener("resize", updateWindowSize);
+});
 
 // ─── Schedule List ───
 const scheduleList = ref<Schedule[]>([]);
@@ -251,97 +275,121 @@ onMounted(async () => {
     </div>
 
     <!-- New/Edit Dialog -->
-    <a-modal v-model:open="dialogOpen" centered width="660px" :mask-closable="false"
-        :title="isEditing ? t('TXT_CODE_1548649e') : t('TXT_CODE_3502273d')" :confirm-loading="isLoading"
-        :destroy-on-close="true" :ok-text="t('TXT_CODE_abfe9512')" @ok="submitForm" @cancel="dialogOpen = false">
-        <a-form layout="vertical">
-            <a-form-item :label="t('TXT_CODE_b290a4b0')">
-                <a-input v-model:value="formTask.name" :disabled="isEditing" :placeholder="t('TXT_CODE_b72d638d')" />
-            </a-form-item>
+    <Teleport to="body">
+        <Transition name="ds-dialog-fade">
+            <DesktopWindow v-if="dialogOpen" id="schedule-task-dialog"
+                :title="isEditing ? t('TXT_CODE_1548649e') : t('TXT_CODE_3502273d')" :icon="ClockCircleOutlined"
+                :visible="dialogOpen" :minimized="false" :maximized="false" :active="true" :initial-width="700"
+                :initial-height="520" :initial-x="windowWidth / 2 - 350" :initial-y="windowHeight / 2 - 260"
+                :z-index="10004" :show-minimize="false" :show-maximize="false" :resizable="false"
+                @close="dialogOpen = false">
+                <div class="ds-dialog-content">
+                    <a-form layout="vertical" class="ds-dialog-form">
+                        <a-form-item :label="t('TXT_CODE_b290a4b0')">
+                            <a-input v-model:value="formTask.name" :disabled="isEditing"
+                                :placeholder="t('TXT_CODE_b72d638d')" />
+                        </a-form-item>
 
-            <a-form-item :label="t('TXT_CODE_a62c99d1')">
-                <a-select v-model:value="formTask.type" :placeholder="t('TXT_CODE_3bb646e4')">
-                    <a-select-option v-for="(type, i) in ScheduleType" :key="i" :value="Number(i)">
-                        {{ type }}
-                    </a-select-option>
-                </a-select>
-            </a-form-item>
-
-            <!-- Interval -->
-            <template v-if="formTask.type === ScheduleCreateType.INTERVAL">
-                <a-form-item :label="t('TXT_CODE_3554dac0')">
-                    <a-row :gutter="[12, 12]">
-                        <a-col :span="8">
-                            <a-input v-model:value="formTask.cycle[2]" :placeholder="t('TXT_CODE_ba8ebc7')"
-                                :addon-after="t('TXT_CODE_4e2c7f64')" />
-                        </a-col>
-                        <a-col :span="8">
-                            <a-input v-model:value="formTask.cycle[1]" :placeholder="t('TXT_CODE_ba8ebc7')"
-                                :addon-after="t('TXT_CODE_a7e9ff0f')" />
-                        </a-col>
-                        <a-col :span="8">
-                            <a-input v-model:value="formTask.cycle[0]" :placeholder="t('TXT_CODE_ba8ebc7')"
-                                :addon-after="t('TXT_CODE_acabc771')" />
-                        </a-col>
-                    </a-row>
-                </a-form-item>
-                <a-form-item :label="t('TXT_CODE_d9cfab1b')">
-                    <a-input-number v-model:value="formTask.count" class="w-100"
-                        :placeholder="t('TXT_CODE_a59981f4')" />
-                </a-form-item>
-            </template>
-
-            <!-- Cycle -->
-            <template v-if="formTask.type === ScheduleCreateType.CYCLE">
-                <a-form-item :label="t('TXT_CODE_3554dac0')">
-                    <a-time-picker v-model:value="formTask.objTime" class="w-100" />
-                </a-form-item>
-                <a-form-item :label="t('TXT_CODE_76750199')">
-                    <a-checkbox-group v-model:value="formTask.weekend" :options="weeks" />
-                </a-form-item>
-                <a-form-item :label="t('TXT_CODE_d9cfab1b')">
-                    <a-input-number v-model:value="formTask.count" class="w-100"
-                        :placeholder="t('TXT_CODE_a59981f4')" />
-                </a-form-item>
-            </template>
-
-            <!-- Specify -->
-            <template v-if="formTask.type === ScheduleCreateType.SPECIFY">
-                <a-form-item :label="t('TXT_CODE_f3fe5c8e')">
-                    <a-date-picker v-model:value="formTask.objTime" show-time class="w-100" />
-                </a-form-item>
-            </template>
-
-            <!-- Actions -->
-            <a-form-item>
-                <div class="ds-actions-header">
-                    <span>{{ t("TXT_CODE_61811ac") }}</span>
-                    <a-button size="small" :icon="h(PlusCircleOutlined)" @click="addEmptyAction">
-                        {{ t("TXT_CODE_dfc17a0c") }}
-                    </a-button>
-                </div>
-                <div v-for="(action, index) in formTask.actions" :key="index" class="ds-action-row">
-                    <a-row :gutter="[8, 8]">
-                        <a-col :span="6">
-                            <a-select v-model:value="action.type" @change="action.payload = ''">
-                                <a-select-option v-for="(type, i) in ScheduleActionType" :key="i" :value="i">
+                        <a-form-item :label="t('TXT_CODE_a62c99d1')">
+                            <a-select v-model:value="formTask.type" :placeholder="t('TXT_CODE_3bb646e4')"
+                                :getPopupContainer="getPopupContainer">
+                                <a-select-option v-for="(type, i) in ScheduleType" :key="i" :value="Number(i)">
                                     {{ type }}
                                 </a-select-option>
                             </a-select>
-                        </a-col>
-                        <a-col :span="16">
-                            <a-input v-model:value="action.payload"
-                                :placeholder="getInputPlaceholder(action) || t('TXT_CODE_3b1cc020')"
-                                :disabled="!getInputPlaceholder(action)" />
-                        </a-col>
-                        <a-col :span="2">
-                            <a-button :icon="h(MinusCircleOutlined)" danger @click="delAction(index)" />
-                        </a-col>
-                    </a-row>
+                        </a-form-item>
+
+                        <!-- Interval -->
+                        <template v-if="formTask.type === ScheduleCreateType.INTERVAL">
+                            <a-form-item :label="t('TXT_CODE_3554dac0')">
+                                <a-row :gutter="[12, 12]">
+                                    <a-col :span="8">
+                                        <a-input v-model:value="formTask.cycle[2]" :placeholder="t('TXT_CODE_ba8ebc7')"
+                                            :addon-after="t('TXT_CODE_4e2c7f64')" />
+                                    </a-col>
+                                    <a-col :span="8">
+                                        <a-input v-model:value="formTask.cycle[1]" :placeholder="t('TXT_CODE_ba8ebc7')"
+                                            :addon-after="t('TXT_CODE_a7e9ff0f')" />
+                                    </a-col>
+                                    <a-col :span="8">
+                                        <a-input v-model:value="formTask.cycle[0]" :placeholder="t('TXT_CODE_ba8ebc7')"
+                                            :addon-after="t('TXT_CODE_acabc771')" />
+                                    </a-col>
+                                </a-row>
+                            </a-form-item>
+                            <a-form-item :label="t('TXT_CODE_d9cfab1b')">
+                                <a-input-number v-model:value="formTask.count" class="w-100"
+                                    :placeholder="t('TXT_CODE_a59981f4')" />
+                            </a-form-item>
+                        </template>
+
+                        <!-- Cycle -->
+                        <template v-if="formTask.type === ScheduleCreateType.CYCLE">
+                            <a-form-item :label="t('TXT_CODE_3554dac0')">
+                                <a-time-picker v-model:value="formTask.objTime" class="w-100"
+                                    :getPopupContainer="getPopupContainer" />
+                            </a-form-item>
+                            <a-form-item :label="t('TXT_CODE_76750199')">
+                                <a-checkbox-group v-model:value="formTask.weekend" :options="weeks" />
+                            </a-form-item>
+                            <a-form-item :label="t('TXT_CODE_d9cfab1b')">
+                                <a-input-number v-model:value="formTask.count" class="w-100"
+                                    :placeholder="t('TXT_CODE_a59981f4')" />
+                            </a-form-item>
+                        </template>
+
+                        <!-- Specify -->
+                        <template v-if="formTask.type === ScheduleCreateType.SPECIFY">
+                            <a-form-item :label="t('TXT_CODE_f3fe5c8e')">
+                                <a-date-picker v-model:value="formTask.objTime" show-time class="w-100"
+                                    :getPopupContainer="getPopupContainer" />
+                            </a-form-item>
+                        </template>
+
+                        <!-- Actions -->
+                        <a-form-item>
+                            <div class="ds-actions-header">
+                                <span>{{ t("TXT_CODE_61811ac") }}</span>
+                                <a-button size="small" :icon="h(PlusCircleOutlined)" @click="addEmptyAction">
+                                    {{ t("TXT_CODE_dfc17a0c") }}
+                                </a-button>
+                            </div>
+                            <div v-for="(action, index) in formTask.actions" :key="index" class="ds-action-row">
+                                <a-row :gutter="[8, 8]">
+                                    <a-col :span="6">
+                                        <a-select v-model:value="action.type" @change="action.payload = ''"
+                                            :getPopupContainer="getPopupContainer">
+                                            <a-select-option v-for="(type, i) in ScheduleActionType" :key="i"
+                                                :value="i">
+                                                {{ type }}
+                                            </a-select-option>
+                                        </a-select>
+                                    </a-col>
+                                    <a-col :span="16">
+                                        <a-input v-model:value="action.payload"
+                                            :placeholder="getInputPlaceholder(action) || t('TXT_CODE_6cbb84a9')"
+                                            :disabled="!getInputPlaceholder(action)" />
+                                    </a-col>
+                                    <a-col :span="2">
+                                        <a-button :icon="h(MinusCircleOutlined)" danger @click="delAction(index)" />
+                                    </a-col>
+                                </a-row>
+                            </div>
+                        </a-form-item>
+                    </a-form>
+                    <div class="ds-dialog-footer">
+                        <button class="ds-dialog-btn ds-dialog-btn--default" @click="dialogOpen = false">
+                            {{ t("TXT_CODE_a0451c97") }}
+                        </button>
+                        <button class="ds-dialog-btn ds-dialog-btn--primary" :disabled="isLoading" @click="submitForm">
+                            <LoadingOutlined v-if="isLoading" />
+                            {{ t("TXT_CODE_abfe9512") }}
+                        </button>
+                    </div>
                 </div>
-            </a-form-item>
-        </a-form>
-    </a-modal>
+            </DesktopWindow>
+        </Transition>
+    </Teleport>
 </template>
 
 <style lang="scss" scoped>
@@ -532,5 +580,79 @@ onMounted(async () => {
 
 .w-100 {
     width: 100%;
+}
+
+// ─── DesktopWindow Dialog Styles ───
+.ds-dialog-fade-enter-active,
+.ds-dialog-fade-leave-active {
+    transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.ds-dialog-fade-enter-from,
+.ds-dialog-fade-leave-to {
+    opacity: 0;
+    transform: scale(0.95);
+}
+
+.ds-dialog-content {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    background: transparent;
+    padding: 16px 20px 0;
+}
+
+.ds-dialog-form {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding-bottom: 12px;
+}
+
+.ds-dialog-footer {
+    padding: 12px 0;
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    border-top: 1px solid var(--desktop-window-border);
+    flex-shrink: 0;
+}
+
+.ds-dialog-btn {
+    padding: 7px 16px;
+    border: none;
+    border-radius: 6px;
+    font-size: 13px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.2s;
+    color: var(--desktop-window-text);
+    white-space: nowrap;
+
+    &:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+
+    &--primary {
+        background: var(--color-blue-5, #1677ff);
+        color: #fff;
+        border-color: var(--color-blue-5, #1677ff);
+
+        &:hover:not(:disabled) {
+            background: var(--color-blue-6, #4096ff);
+        }
+    }
+
+    &--default {
+        background: var(--desktop-window-titlebar-bg);
+        border: 1px solid var(--desktop-window-border);
+
+        &:hover:not(:disabled) {
+            background: var(--desktop-window-control-hover);
+        }
+    }
 }
 </style>
