@@ -171,6 +171,15 @@ const saveNode = async () => {
                 },
                 data: editData
             });
+            try {
+                await connectNodeApiExec({
+                    params: {
+                        uuid: editingNode.value.uuid
+                    }
+                });
+            } catch {
+                // ignore
+            }
         }
         showDialog.value = false;
         fetchNodes();
