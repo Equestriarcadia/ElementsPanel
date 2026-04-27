@@ -3,10 +3,15 @@ import { ref } from "vue";
 
 const TERMINAL_HISTORY_KEY = "TERMINAL_HISTORY_KEY";
 
-export const useCommandHistory = createGlobalState(() => {
-  const commandInputValue = ref<string>("");
-
+const useGlobalHistory = createGlobalState(() => {
   const history = ref<string[]>([]);
+  return { history };
+});
+
+export function useCommandHistory() {
+  const { history } = useGlobalHistory();
+
+  const commandInputValue = ref<string>("");
 
   const focusHistoryList = ref(false);
 
@@ -14,17 +19,17 @@ export const useCommandHistory = createGlobalState(() => {
 
   const setHistory = (text: string) => {
     if (!text) return;
-    const history = JSON.parse(localStorage.getItem(TERMINAL_HISTORY_KEY) || "[]") as string[];
-    const index = history.indexOf(text);
-    if (index !== -1) history.splice(index, 1);
-    history.unshift(text);
-    if (history.length > 30) history.pop();
-    localStorage.setItem(TERMINAL_HISTORY_KEY, JSON.stringify(history));
+    const stored = JSON.parse(localStorage.getItem(TERMINAL_HISTORY_KEY) || "[]") as string[];
+    const index = stored.indexOf(text);
+    if (index !== -1) stored.splice(index, 1);
+    stored.unshift(text);
+    if (stored.length > 30) stored.pop();
+    localStorage.setItem(TERMINAL_HISTORY_KEY, JSON.stringify(stored));
   };
 
   const getHistory = () => {
-    const history = JSON.parse(localStorage.getItem(TERMINAL_HISTORY_KEY) || "[]") as string[];
-    return history.filter((item) => item.startsWith(commandInputValue.value)).splice(0, 10);
+    const stored = JSON.parse(localStorage.getItem(TERMINAL_HISTORY_KEY) || "[]") as string[];
+    return stored.filter((item) => item.startsWith(commandInputValue.value)).splice(0, 10);
   };
 
   history.value = getHistory();
@@ -86,4 +91,4 @@ export const useCommandHistory = createGlobalState(() => {
     clickHistoryItem,
     handleHistorySelect
   };
-});
+}
