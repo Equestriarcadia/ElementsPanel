@@ -202,6 +202,7 @@ export const editNode = useDefineApi<
       apiKey?: string;
       ip?: string;
       port?: number;
+      prefix?: string;
       remarks?: string;
       setting?: any;
     };

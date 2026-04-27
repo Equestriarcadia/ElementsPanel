@@ -64,6 +64,7 @@ export interface NodeStatus {
   available: boolean;
   ip: string;
   port: number;
+  prefix: string;
   remarks: string;
   uuid: string;
 }

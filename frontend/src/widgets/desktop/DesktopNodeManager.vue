@@ -30,7 +30,8 @@ const form = reactive({
     ip: "",
     port: 24444,
     remarks: "",
-    apiKey: ""
+    apiKey: "",
+    prefix: ""
 });
 const formError = ref("");
 const saving = ref(false);
@@ -77,6 +78,7 @@ const openAddDialog = () => {
     form.port = 24444;
     form.remarks = "";
     form.apiKey = "";
+    form.prefix = "";
     formError.value = "";
     showDialog.value = true;
 };
@@ -87,6 +89,7 @@ const openEditDialog = (node: NodeStatus) => {
     form.ip = node.ip;
     form.port = node.port;
     form.remarks = node.remarks;
+    form.prefix = node.prefix || "";
     form.apiKey = ""; // API key is usually not returned, so we leave it empty for edit unless user wants to change it
     formError.value = "";
     showDialog.value = true;
@@ -130,7 +133,8 @@ const saveNode = async () => {
             const editData: any = {
                 ip: form.ip.trim(),
                 port: Number(form.port),
-                remarks: form.remarks.trim()
+                remarks: form.remarks.trim(),
+                prefix: form.prefix.trim()
             };
             if (form.apiKey.trim()) {
                 editData.apiKey = form.apiKey.trim();
@@ -203,17 +207,18 @@ const cancelDelete = () => {
                         <th class="dn-table__col--name">{{ t("TXT_CODE_DESKTOP_NODES_REMARKS") }}</th>
                         <th class="dn-table__col--ip">{{ t("TXT_CODE_DESKTOP_NODES_IP") }}</th>
                         <th class="dn-table__col--port">{{ t("TXT_CODE_DESKTOP_NODES_PORT") }}</th>
+                        <th class="dn-table__col--prefix">{{ t("TXT_CODE_693f31d6") }}</th>
                         <th class="dn-table__col--actions">{{ t("TXT_CODE_OPERATE") }}</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr v-if="loading">
-                        <td colspan="5" class="dn-table__empty">
+                        <td colspan="6" class="dn-table__empty">
                             <div class="dn-loading">{{ t("TXT_CODE_b197be11") }}</div>
                         </td>
                     </tr>
                     <tr v-else-if="filteredNodes.length === 0">
-                        <td colspan="5" class="dn-table__empty">
+                        <td colspan="6" class="dn-table__empty">
                             <div class="dn-empty">{{ t("TXT_CODE_DESKTOP_NODES_NO_RESULTS") }}</div>
                         </td>
                     </tr>
@@ -230,6 +235,7 @@ const cancelDelete = () => {
                         </td>
                         <td class="dn-table__col--ip">{{ node.ip }}</td>
                         <td class="dn-table__col--port">{{ node.port }}</td>
+                        <td class="dn-table__col--prefix">{{ node.prefix || "-" }}</td>
                         <td class="dn-table__col--actions">
                             <div class="dn-action-btns">
                                 <button class="dn-action-btn dn-action-btn--edit"
@@ -252,7 +258,7 @@ const cancelDelete = () => {
                 <DesktopWindow v-if="showDialog" id="node-edit-dialog"
                     :title="dialogMode === 'add' ? (t('TXT_CODE_DESKTOP_NODES_ADD')) : (t('TXT_CODE_DESKTOP_NODES_EDIT'))"
                     :icon="dialogMode === 'add' ? PlusOutlined : EditOutlined" :visible="showDialog" :minimized="false"
-                    :maximized="false" :active="true" :initial-width="420" :initial-height="400"
+                    :maximized="false" :active="true" :initial-width="420" :initial-height="485"
                     :initial-x="windowWidth / 2 - 210" :initial-y="windowHeight / 2 - 230" :z-index="10001"
                     :show-minimize="false" :show-maximize="false" :resizable="false" @close="closeDialog">
                     <div class="dn-dialog-content">
@@ -287,6 +293,16 @@ const cancelDelete = () => {
                                     :placeholder="dialogMode === 'edit' ? (t('TXT_CODE_DESKTOP_NODES_APIKEY_HELP')) : ''" />
                                 <span v-if="dialogMode === 'edit'" class="dn-form-hint">
                                     {{ t("TXT_CODE_DESKTOP_NODES_APIKEY_HELP") }}
+                                </span>
+                            </div>
+                            <div class="dn-form-group">
+                                <label class="dn-form-label">
+                                    {{ t("TXT_CODE_693f31d6") }}
+                                </label>
+                                <input v-model="form.prefix" class="dn-form-input"
+                                    :placeholder="t('TXT_CODE_693f31d6')" />
+                                <span class="dn-form-hint">
+                                    {{ t("TXT_CODE_3e93e31e") }}
                                 </span>
                             </div>
                             <div v-if="formError" class="dn-form-error">{{ formError }}</div>
@@ -497,6 +513,10 @@ const cancelDelete = () => {
 
     &__col--port {
         min-width: 80px;
+    }
+
+    &__col--prefix {
+        min-width: 100px;
     }
 
     &__col--actions {
