@@ -11,9 +11,11 @@ import {
     ExclamationCircleOutlined,
     PlusOutlined,
     ReloadOutlined,
-    SearchOutlined
+    SearchOutlined,
+    SettingOutlined
 } from "@ant-design/icons-vue";
 import { computed, onMounted, onUnmounted, reactive, ref } from "vue";
+import DesktopNodeAdvancedSettings from "./DesktopNodeAdvancedSettings.vue";
 import DesktopWindow from "./DesktopWindow.vue";
 
 const { execute: fetchNodesApi, isLoading: loading } = remoteNodeList();
@@ -41,6 +43,9 @@ const saving = ref(false);
 
 const showDeleteConfirm = ref(false);
 const deletingNode = ref<NodeStatus | null>(null);
+
+const showAdvancedSettings = ref(false);
+const advancedSettingsNode = ref<NodeStatus | null>(null);
 
 const windowWidth = ref(window.innerWidth);
 const windowHeight = ref(window.innerHeight);
@@ -231,6 +236,16 @@ const reconnectNode = async (node: NodeStatus) => {
         // ignore
     }
 };
+
+const openAdvancedSettings = (node: NodeStatus) => {
+    advancedSettingsNode.value = node;
+    showAdvancedSettings.value = true;
+};
+
+const closeAdvancedSettings = () => {
+    showAdvancedSettings.value = false;
+    advancedSettingsNode.value = null;
+};
 </script>
 
 <template>
@@ -293,6 +308,10 @@ const reconnectNode = async (node: NodeStatus) => {
                                 <button class="dn-action-btn dn-action-btn--edit"
                                     :title="t('TXT_CODE_DESKTOP_NODES_EDIT')" @click="openEditDialog(node)">
                                     <EditOutlined />
+                                </button>
+                                <button class="dn-action-btn dn-action-btn--advanced"
+                                    :title="t('TXT_CODE_DESKTOP_NODES_ADVANCED')" @click="openAdvancedSettings(node)">
+                                    <SettingOutlined />
                                 </button>
                                 <button class="dn-action-btn dn-action-btn--delete"
                                     :title="t('TXT_CODE_DESKTOP_NODES_DELETE')" @click="confirmDelete(node)">
@@ -402,6 +421,13 @@ const reconnectNode = async (node: NodeStatus) => {
                         </div>
                     </div>
                 </DesktopWindow>
+            </Transition>
+        </Teleport>
+
+        <Teleport to="body">
+            <Transition name="dn-dialog-fade">
+                <DesktopNodeAdvancedSettings v-if="showAdvancedSettings && advancedSettingsNode"
+                    :visible="showAdvancedSettings" :node="advancedSettingsNode" @close="closeAdvancedSettings" />
             </Transition>
         </Teleport>
     </div>
@@ -628,6 +654,11 @@ const reconnectNode = async (node: NodeStatus) => {
     &--reconnect:hover {
         background: rgba(22, 119, 255, 0.15);
         color: #1677ff;
+    }
+
+    &--advanced:hover {
+        background: rgba(250, 173, 20, 0.15);
+        color: #faad14;
     }
 
     &--delete:hover {
