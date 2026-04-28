@@ -16,6 +16,7 @@ export interface ComputedNodeInfo extends IPanelOverviewRemoteResponse {
   memText?: string;
   cpuChartData?: number[];
   memChartData?: number[];
+  brand?: string;
 }
 
 function computeResponseData(v: Ref<IPanelOverviewResponse | undefined>) {

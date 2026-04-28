@@ -220,10 +220,8 @@ defineExpose({ openDialog });
                 </a>
               </a-typography-text>
             </a-typography-paragraph>
-            <a-input
-              v-model:value="dialog.data.apiKey"
-              :placeholder="editMode ? t('TXT_CODE_dc570cf2') : t('TXT_CODE_fe25087f')"
-            />
+            <a-input v-model:value="dialog.data.apiKey"
+              :placeholder="editMode ? t('TXT_CODE_dc570cf2') : t('TXT_CODE_fe25087f')" />
           </a-form-item>
 
           <a-form-item :label="t('TXT_CODE_693f31d6')" name="prefix">
@@ -249,11 +247,7 @@ defineExpose({ openDialog });
                   </a-typography-text>
                 </a-typography-paragraph>
                 <a-select v-model:value="dialog.data.uploadSpeedRate" style="width: 100%">
-                  <a-select-option
-                    v-for="item in SPEED_RATE_OPTIONS"
-                    :key="item.value"
-                    :value="item.value"
-                  >
+                  <a-select-option v-for="item in SPEED_RATE_OPTIONS" :key="item.value" :value="item.value">
                     {{ item.label }}
                   </a-select-option>
                 </a-select>
@@ -267,11 +261,7 @@ defineExpose({ openDialog });
                   </a-typography-text>
                 </a-typography-paragraph>
                 <a-select v-model:value="dialog.data.downloadSpeedRate" style="width: 100%">
-                  <a-select-option
-                    v-for="item in SPEED_RATE_OPTIONS"
-                    :key="item.value"
-                    :value="item.value"
-                  >
+                  <a-select-option v-for="item in SPEED_RATE_OPTIONS" :key="item.value" :value="item.value">
                     {{ item.label }}
                   </a-select-option>
                 </a-select>
@@ -291,10 +281,8 @@ defineExpose({ openDialog });
               <a-form-item :label="t('TXT_CODE_daemon_outputBufferSize')" name="outputBufferSize">
                 <a-typography-paragraph>
                   <a-tooltip :title="t('TXT_CODE_daemon_outputBufferSizeInfo')" trigger="click">
-                    <a-typography-text
-                      type="secondary"
-                      style="display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor: pointer"
-                    >
+                    <a-typography-text type="secondary"
+                      style="display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor: pointer">
                       {{ t("TXT_CODE_daemon_outputBufferSizeInfo") }}
                     </a-typography-text>
                   </a-tooltip>
@@ -313,10 +301,7 @@ defineExpose({ openDialog });
               </a-form-item>
             </a-col>
             <a-col :span="12">
-              <a-form-item
-                :label="t('TXT_CODE_daemon_softShutdownSkipDocker')"
-                name="softShutdownSkipDocker"
-              >
+              <a-form-item :label="t('TXT_CODE_daemon_softShutdownSkipDocker')" name="softShutdownSkipDocker">
                 <a-typography-paragraph>
                   <a-typography-text type="secondary">
                     {{ t("TXT_CODE_daemon_softShutdownSkipDockerInfo") }}
@@ -326,10 +311,7 @@ defineExpose({ openDialog });
               </a-form-item>
             </a-col>
             <a-col :span="12">
-              <a-form-item
-                :label="t('TXT_CODE_daemon_softShutdownWaitSeconds')"
-                name="softShutdownWaitSeconds"
-              >
+              <a-form-item :label="t('TXT_CODE_daemon_softShutdownWaitSeconds')" name="softShutdownWaitSeconds">
                 <a-typography-paragraph>
                   <a-typography-text type="secondary">
                     {{ t("TXT_CODE_daemon_softShutdownWaitSecondsInfo") }}
@@ -354,10 +336,7 @@ defineExpose({ openDialog });
               </a-typography-text>
             </a-typography-paragraph>
             <a-card>
-              <NodeRemoteMappingEdit
-                v-if="dialog.data.remoteMappings"
-                v-model:value="dialog.data.remoteMappings"
-              />
+              <NodeRemoteMappingEdit v-if="dialog.data.remoteMappings" v-model:value="dialog.data.remoteMappings" />
               <a-typography-text v-else type="secondary">
                 {{ t("TXT_CODE_48c291c1") }}
               </a-typography-text>
@@ -369,12 +348,7 @@ defineExpose({ openDialog });
 
     <template #footer>
       <div class="justify-space-between">
-        <a-popconfirm
-          :title="t('TXT_CODE_fb267b0b')"
-          ok-text="Yes"
-          cancel-text="No"
-          @confirm="dialog.delete()"
-        >
+        <a-popconfirm :title="t('TXT_CODE_fb267b0b')" ok-text="Yes" cancel-text="No" @confirm="dialog.delete()">
           <a-button v-if="editMode" key="delete" danger>{{ t("TXT_CODE_8b937b23") }}</a-button>
         </a-popconfirm>
         <div class="right">

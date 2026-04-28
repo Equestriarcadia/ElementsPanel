@@ -360,14 +360,14 @@ const closeAdvancedSettings = () => {
                             <template v-if="node.available && nodeVersionMap[node.uuid]">
                                 <a-tooltip v-if="node.brand !== 'ElementsPanel'" :title="t('TXT_CODE_NODE_BRAND_ERR')">
                                     <span class="dn-badge-icon dn-badge-icon--warn">
-                                        <ExclamationCircleOutlined />
+                                        <InfoCircleOutlined />
                                     </span>
                                 </a-tooltip>
                                 <CheckCircleOutlined
                                     v-else-if="!hasVersionUpdate(specifiedDaemonVersion, nodeVersionMap[node.uuid])"
                                     class="dn-badge-icon dn-badge-icon--yes" />
                                 <a-tooltip v-else :title="t('TXT_CODE_e520908a')">
-                                    <span class="dn-badge-icon dn-badge-icon--warn">
+                                    <span class="dn-badge-icon dn-badge-icon--no">
                                         <InfoCircleOutlined />
                                     </span>
                                 </a-tooltip>

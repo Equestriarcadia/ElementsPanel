@@ -108,9 +108,14 @@ const detailList = (node: ComputedNodeInfo) => [
   {
     title: t("TXT_CODE_81634069"),
     value: node.version,
-    success: !hasVersionUpdate(specifiedDaemonVersion.value, node.version),
-    warn: hasVersionUpdate(specifiedDaemonVersion.value, node.version) && node.available,
-    warnText: t("TXT_CODE_e520908a")
+    success:
+      !hasVersionUpdate(specifiedDaemonVersion.value, node.version) &&
+      node.brand === "ElementsPanel",
+    warn:
+      (hasVersionUpdate(specifiedDaemonVersion.value, node.version) ||
+        node.brand !== "ElementsPanel") &&
+      node.available,
+    warnText: node.brand !== "ElementsPanel" ? t("TXT_CODE_NODE_BRAND_ERR") : t("TXT_CODE_e520908a")
   },
   {
     title: "Daemon ID",
@@ -202,26 +207,14 @@ onMounted(() => {
         </div>
       </template>
       <template v-if="remoteNode" #operator>
-        <span
-          v-for="operation in nodeOperations"
-          :key="operation.title"
-          size="default"
-          class="mr-2"
-        >
-          <IconBtn
-            :icon="operation.icon"
-            :title="operation.title"
-            @click="remoteNode && operation.click(remoteNode)"
-          ></IconBtn>
+        <span v-for="operation in nodeOperations" :key="operation.title" size="default" class="mr-2">
+          <IconBtn :icon="operation.icon" :title="operation.title" @click="remoteNode && operation.click(remoteNode)">
+          </IconBtn>
         </span>
       </template>
       <template v-if="remoteNode" #body>
         <a-row :gutter="[24, 0]" class="mt-2">
-          <a-col
-            v-for="detail in detailList(remoteNode)"
-            :key="detail.title + detail.value"
-            :span="6"
-          >
+          <a-col v-for="detail in detailList(remoteNode)" :key="detail.title + detail.value" :span="6">
             <a-typography-paragraph>
               <div :title="detail.onlyCopy ? detail.value : ''">
                 {{ detail.title }}
@@ -235,7 +228,9 @@ onMounted(() => {
                   <template #title>
                     {{ detail.warnText }}
                   </template>
-                  <span class="color-danger"><InfoCircleOutlined /> {{ detail.value }}</span>
+                  <span class="color-danger">
+                    <InfoCircleOutlined /> {{ detail.value }}
+                  </span>
                 </a-tooltip>
                 <span v-else-if="detail.loading">
                   <div class="flex mt-4">
@@ -243,22 +238,19 @@ onMounted(() => {
                   </div>
                 </span>
                 <span v-else-if="detail.success">
-                  <span class="color-success"><CheckCircleOutlined /> {{ detail.value }}</span>
+                  <span class="color-success">
+                    <CheckCircleOutlined /> {{ detail.value }}
+                  </span>
                 </span>
                 <span v-else style="white-space: pre-wrap">{{
                   String(detail.value ?? "").trim() ? detail.value : "--"
-                }}</span>
+                  }}</span>
               </div>
             </a-typography-paragraph>
           </a-col>
         </a-row>
-        <NodeSimpleChart
-          class="mt-8"
-          :cpu-usage="remoteNode.cpuInfo ?? ''"
-          :mem-usage="remoteNode.memText ?? ''"
-          :cpu-data="remoteNode.cpuChartData ?? []"
-          :mem-data="remoteNode.memChartData ?? []"
-        />
+        <NodeSimpleChart class="mt-8" :cpu-usage="remoteNode.cpuInfo ?? ''" :mem-usage="remoteNode.memText ?? ''"
+          :cpu-data="remoteNode.cpuChartData ?? []" :mem-data="remoteNode.memChartData ?? []" />
       </template>
     </CardPanel>
   </div>

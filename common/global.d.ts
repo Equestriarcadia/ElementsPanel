@@ -168,6 +168,7 @@ declare global {
     remoteMappings: IPanelOverviewRemoteMappingResponse[];
     available: boolean;
     remarks: string;
+    brand?: string;
     config: {
       language: string;
       uploadSpeedRate: number;
@@ -313,4 +314,5 @@ declare global {
   }
 }
 
-export {};
+export { };
+

@@ -36,6 +36,7 @@ router.get("/", permission({ level: ROLE.USER, token: false }), async (ctx) => {
       remoteInfo.prefix = remoteService.config.prefix;
       remoteInfo.available = remoteService.available;
       remoteInfo.remarks = remoteService.config.remarks;
+      remoteInfo.brand = remoteService.config.brand;
       remoteInfo.remoteMappings = remoteService.config.remoteMappings;
       return remoteInfo;
     }
