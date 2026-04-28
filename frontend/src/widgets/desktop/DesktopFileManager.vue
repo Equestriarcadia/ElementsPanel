@@ -778,7 +778,7 @@ onUnmounted(() => {
                     {{ t("TXT_CODE_a53573af") }}
                 </a-button>
 
-                <a-dropdown v-if="isMultiple">
+                <a-dropdown v-if="isMultiple" :get-popup-container="(trigger: any) => trigger.parentElement">
                     <template #overlay>
                         <a-menu mode="vertical" :items="menuList({
                             name: '',
@@ -796,7 +796,7 @@ onUnmounted(() => {
                     </a-button>
                 </a-dropdown>
 
-                <a-dropdown v-else>
+                <a-dropdown v-else :get-popup-container="(trigger: any) => trigger.parentElement">
                     <template #overlay>
                         <a-menu>
                             <a-menu-item key="newFile" @click="touchFile()">
@@ -910,7 +910,7 @@ onUnmounted(() => {
                                 </span>
                             </template>
                             <template v-if="column.key === 'action'">
-                                <a-dropdown>
+                                <a-dropdown :get-popup-container="(trigger: any) => trigger.parentElement">
                                     <template #overlay>
                                         <a-menu mode="vertical" :items="menuList(record as DataType)"></a-menu>
                                     </template>
@@ -1175,6 +1175,27 @@ onUnmounted(() => {
     color: var(--desktop-window-text);
     font-size: 13px;
     overflow: hidden;
+
+    :deep(.ant-dropdown-menu),
+    :deep(.ant-menu) {
+
+        .ant-dropdown-menu-item,
+        .ant-dropdown-menu-submenu-title,
+        .ant-menu-item,
+        .ant-menu-submenu-title {
+            height: 32px !important;
+            line-height: 32px !important;
+            padding-inline: 12px !important;
+            display: flex !important;
+            align-items: center !important;
+            margin-block: 2px !important;
+        }
+
+        .ant-menu-submenu-arrow,
+        .ant-dropdown-menu-submenu-arrow {
+            inset-inline-end: 8px !important;
+        }
+    }
 }
 
 .dfm-toolbar {

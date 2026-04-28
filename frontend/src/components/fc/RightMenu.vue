@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import type { CSSProperties } from "vue";
-import { ref, nextTick, computed } from "vue";
 import { useWindowSize } from "@vueuse/core";
 import type { ItemType } from "ant-design-vue";
+import type { CSSProperties } from "vue";
+import { computed, nextTick, ref } from "vue";
 
 const props = defineProps<{
   mouseX: number;
@@ -54,5 +54,44 @@ defineExpose({
   border-radius: 10px;
   overflow: hidden;
   visibility: hidden;
+
+  :deep(.ant-menu) {
+    border-inline-end: none;
+
+    .ant-menu-item,
+    .ant-menu-submenu-title {
+      height: 32px !important;
+      line-height: 32px !important;
+      margin-block: 2px !important;
+      padding-inline: 12px !important;
+      display: flex !important;
+      align-items: center !important;
+    }
+
+    .ant-menu-submenu-arrow {
+      inset-inline-end: 8px !important;
+    }
+  }
+}
+</style>
+
+<style lang="scss">
+.right-menu {
+  .ant-menu-submenu-popup {
+
+    .ant-menu-item,
+    .ant-menu-submenu-title {
+      height: 32px !important;
+      line-height: 32px !important;
+      margin-block: 2px !important;
+      padding-inline: 12px !important;
+      display: flex !important;
+      align-items: center !important;
+    }
+
+    .ant-menu-submenu-arrow {
+      inset-inline-end: 8px !important;
+    }
+  }
 }
 </style>
