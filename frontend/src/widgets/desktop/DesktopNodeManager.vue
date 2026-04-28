@@ -1,6 +1,9 @@
 <script setup lang="ts">
+import { useOverviewInfo } from "@/hooks/useOverviewInfo";
+import { makeSocketIo, SocketStatus } from "@/hooks/useSocketIo";
 import { t } from "@/lang/i18n";
 import { addNode, connectNode, deleteNode, editNode, remoteNodeList } from "@/services/apis";
+import { hasVersionUpdate } from "@/tools/version";
 import type { NodeStatus } from "@/types";
 import {
     CheckCircleOutlined,
@@ -9,6 +12,7 @@ import {
     DeleteOutlined,
     EditOutlined,
     ExclamationCircleOutlined,
+    InfoCircleOutlined,
     PlusOutlined,
     ReloadOutlined,
     SearchOutlined,
@@ -25,8 +29,53 @@ const { execute: editNodeApiExec } = editNode();
 const { execute: deleteNodeApiExec } = deleteNode();
 const { execute: connectNodeApiExec } = connectNode();
 
+const { state: allDaemonData } = useOverviewInfo();
+const specifiedDaemonVersion = computed(() => allDaemonData.value?.specifiedDaemonVersion);
+
 const nodes = ref<NodeStatus[]>([]);
 const searchQuery = ref("");
+
+const socketStatusMap = reactive<Record<string, SocketStatus>>({});
+
+const nodeVersionMap = computed<Record<string, string | undefined>>(() => {
+    const map: Record<string, string | undefined> = {};
+    const remotes = allDaemonData.value?.remote;
+    if (remotes) {
+        for (const remote of remotes) {
+            map[remote.uuid] = remote.version;
+        }
+    }
+    return map;
+});
+
+const testNodeSocket = async (node: NodeStatus) => {
+    if (!node.available) {
+        socketStatusMap[node.uuid] = SocketStatus.Error;
+        return;
+    }
+    try {
+        const addr = `${node.ip}:${node.port}`;
+        const socket = makeSocketIo(addr, node.prefix);
+        await new Promise<void>((resolve, reject) => {
+            socket.on("connect", () => {
+                socket.disconnect();
+                resolve();
+            });
+            socket.on("connect_error", (error) => {
+                reject(error);
+            });
+        });
+        socketStatusMap[node.uuid] = SocketStatus.Connected;
+    } catch {
+        socketStatusMap[node.uuid] = SocketStatus.Error;
+    }
+};
+
+const testAllSockets = async () => {
+    for (const node of nodes.value) {
+        await testNodeSocket(node).catch(() => { });
+    }
+};
 
 const showDialog = ref(false);
 const dialogMode = ref<"add" | "edit">("add");
@@ -59,8 +108,10 @@ onMounted(() => {
     };
     window.addEventListener('resize', updateWindowSize);
     fetchNodes();
+    testAllSockets();
     refreshTimer = setInterval(() => {
         fetchNodesSilent();
+        testAllSockets();
     }, 3000);
 });
 
@@ -79,6 +130,8 @@ const fetchNodes = async () => {
         }
     } catch {
         nodes.value = [];
+    } finally {
+        testAllSockets();
     }
 };
 
@@ -267,6 +320,8 @@ const closeAdvancedSettings = () => {
                 <thead>
                     <tr>
                         <th class="dn-table__col--status">{{ t("TXT_CODE_DESKTOP_NODES_STATUS") }}</th>
+                        <th class="dn-table__col--socket">{{ t("TXT_CODE_DESKTOP_NODES_SOCKET") }}</th>
+                        <th class="dn-table__col--version">{{ t("TXT_CODE_81634069") }}</th>
                         <th class="dn-table__col--name">{{ t("TXT_CODE_DESKTOP_NODES_REMARKS") }}</th>
                         <th class="dn-table__col--ip">{{ t("TXT_CODE_DESKTOP_NODES_IP") }}</th>
                         <th class="dn-table__col--port">{{ t("TXT_CODE_DESKTOP_NODES_PORT") }}</th>
@@ -276,12 +331,12 @@ const closeAdvancedSettings = () => {
                 </thead>
                 <tbody>
                     <tr v-if="loading">
-                        <td colspan="6" class="dn-table__empty">
+                        <td colspan="8" class="dn-table__empty">
                             <div class="dn-loading">{{ t("TXT_CODE_b197be11") }}</div>
                         </td>
                     </tr>
                     <tr v-else-if="filteredNodes.length === 0">
-                        <td colspan="6" class="dn-table__empty">
+                        <td colspan="8" class="dn-table__empty">
                             <div class="dn-empty">{{ t("TXT_CODE_DESKTOP_NODES_NO_RESULTS") }}</div>
                         </td>
                     </tr>
@@ -289,6 +344,30 @@ const closeAdvancedSettings = () => {
                         <td class="dn-table__col--status">
                             <CheckCircleOutlined v-if="node.available" class="dn-badge-icon dn-badge-icon--yes" />
                             <CloseCircleOutlined v-else class="dn-badge-icon dn-badge-icon--no" />
+                        </td>
+                        <td class="dn-table__col--socket">
+                            <CheckCircleOutlined v-if="socketStatusMap[node.uuid] === SocketStatus.Connected"
+                                class="dn-badge-icon dn-badge-icon--yes" />
+                            <a-tooltip v-else-if="socketStatusMap[node.uuid] === SocketStatus.Error"
+                                :title="t('TXT_CODE_6b4a27dd')">
+                                <span class="dn-badge-icon dn-badge-icon--no">
+                                    <InfoCircleOutlined />
+                                </span>
+                            </a-tooltip>
+                            <span v-else class="dn-badge-icon dn-badge-icon--dash">--</span>
+                        </td>
+                        <td class="dn-table__col--version">
+                            <template v-if="node.available && nodeVersionMap[node.uuid]">
+                                <CheckCircleOutlined
+                                    v-if="!hasVersionUpdate(specifiedDaemonVersion, nodeVersionMap[node.uuid])"
+                                    class="dn-badge-icon dn-badge-icon--yes" />
+                                <a-tooltip v-else :title="t('TXT_CODE_e520908a')">
+                                    <span class="dn-badge-icon dn-badge-icon--warn">
+                                        <InfoCircleOutlined />
+                                    </span>
+                                </a-tooltip>
+                            </template>
+                            <span v-else class="dn-badge-icon dn-badge-icon--dash">--</span>
                         </td>
                         <td class="dn-table__col--name">
                             <div class="dn-node-name">
@@ -577,8 +656,15 @@ const closeAdvancedSettings = () => {
     }
 
     &__col--status {
-        min-width: 60px;
-        text-align: center;
+        min-width: 40px;
+    }
+
+    &__col--socket {
+        min-width: 40px;
+    }
+
+    &__col--version {
+        min-width: 40px;
     }
 
     &__col--name {
@@ -623,6 +709,18 @@ const closeAdvancedSettings = () => {
 
     &--no {
         color: var(--color-red-5, #ff4d4f);
+    }
+
+    &--warn {
+        color: var(--color-warning, #faad14);
+    }
+
+    &--loading {
+        color: var(--desktop-window-text-muted);
+    }
+
+    &--dash {
+        color: var(--desktop-window-text-muted);
     }
 }
 
