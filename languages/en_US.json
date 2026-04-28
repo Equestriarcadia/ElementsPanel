@@ -3542,5 +3542,6 @@
   "TXT_CODE_DESKTOP_USERS_ASSIGNED": "Assigned",
   "TXT_CODE_DESKTOP_USERS_NO_ASSIGNED": "No instances assigned",
   "TXT_CODE_DESKTOP_USERS_BROWSE_INSTANCES": "Browse Instances",
-  "TXT_CODE_DESKTOP_USERS_ASSIGN_SUCCESS": "Instances assigned successfully"
+  "TXT_CODE_DESKTOP_USERS_ASSIGN_SUCCESS": "Instances assigned successfully",
+  "TXT_CODE_NODE_BRAND_ERR": "This node is an MCSManager node, which may cause compatibility issues."
 }

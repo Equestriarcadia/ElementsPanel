@@ -60,6 +60,7 @@ export interface IRemoteService {
   remarks?: string;
   apiKey?: string;
   remoteMappings?: RemoteMappingEntry[];
+  brand?: string;
 }
 
 // @Entity
@@ -70,6 +71,7 @@ export class RemoteServiceConfig {
   public remarks = "";
   public apiKey = "";
   public remoteMappings: RemoteMappingEntry[] = [];
+  public brand = "";
 
   connectOpts: Partial<SocketOptions & ManagerOptions> = {
     multiplex: false,

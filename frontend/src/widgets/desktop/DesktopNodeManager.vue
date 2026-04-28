@@ -358,8 +358,13 @@ const closeAdvancedSettings = () => {
                         </td>
                         <td class="dn-table__col--version">
                             <template v-if="node.available && nodeVersionMap[node.uuid]">
+                                <a-tooltip v-if="node.brand !== 'ElementsPanel'" :title="t('TXT_CODE_NODE_BRAND_ERR')">
+                                    <span class="dn-badge-icon dn-badge-icon--warn">
+                                        <ExclamationCircleOutlined />
+                                    </span>
+                                </a-tooltip>
                                 <CheckCircleOutlined
-                                    v-if="!hasVersionUpdate(specifiedDaemonVersion, nodeVersionMap[node.uuid])"
+                                    v-else-if="!hasVersionUpdate(specifiedDaemonVersion, nodeVersionMap[node.uuid])"
                                     class="dn-badge-icon dn-badge-icon--yes" />
                                 <a-tooltip v-else :title="t('TXT_CODE_e520908a')">
                                     <span class="dn-badge-icon dn-badge-icon--warn">

@@ -21,7 +21,8 @@ router.get("/remote_services_list", permission({ level: ROLE.ADMIN }), async (ct
       port: remoteService.config.port,
       prefix: remoteService.config.prefix,
       available: remoteService.available,
-      remarks: remoteService.config.remarks
+      remarks: remoteService.config.remarks,
+      brand: remoteService.config.brand
     });
   }
   ctx.body = result;
@@ -97,6 +98,7 @@ router.get("/remote_services", permission({ level: ROLE.ADMIN }), async (ctx) =>
       prefix: remoteService.config.prefix,
       available: remoteService.available,
       remarks: remoteService.config.remarks,
+      brand: remoteService.config.brand,
       instances: instancesInfo
     });
   }

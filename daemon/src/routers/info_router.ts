@@ -34,6 +34,7 @@ routerApp.on("info/overview", async (ctx) => {
 
   const info = {
     version: daemonVersion,
+    brand: "ElementsPanel",
     process: {
       cpu: process.cpuUsage().system,
       memory: process.memoryUsage().heapUsed,
@@ -80,7 +81,7 @@ routerApp.on("info/setting", async (ctx, data) => {
   if (language) {
     logger.warn($t("TXT_CODE_66e32091"), language);
     i18next.changeLanguage(language);
-    fs.remove(LOCAL_PRESET_LANG_PATH, () => {});
+    fs.remove(LOCAL_PRESET_LANG_PATH, () => { });
     globalConfiguration.config.language = language;
   }
   if (uploadSpeedRate != null && uploadSpeedRate >= 0) {

@@ -67,6 +67,7 @@ export interface NodeStatus {
   prefix: string;
   remarks: string;
   uuid: string;
+  brand?: string;
 }
 
 export interface Settings {

@@ -1,10 +1,10 @@
-import { io, Socket, SocketOptions, ManagerOptions } from "socket.io-client";
-import { RemoteServiceConfig } from "./entity_interface";
+import { InstanceStreamListener, removeTrail } from "mcsmanager-common";
+import { io, ManagerOptions, Socket, SocketOptions } from "socket.io-client";
+import { $t, i18next } from "../i18n";
 import { logger } from "../service/log";
 import RemoteRequest from "../service/remote_command";
-import { InstanceStreamListener, removeTrail } from "mcsmanager-common";
 import { systemConfig } from "../setting";
-import { $t, i18next } from "../i18n";
+import { RemoteServiceConfig } from "./entity_interface";
 
 export default class RemoteService {
   public static readonly STATUS_OK = 200;
@@ -74,8 +74,7 @@ export default class RemoteService {
   public async setLanguage(language?: string) {
     if (!language) language = i18next.language;
     logger.info(
-      `${$t("TXT_CODE_daemonInfo.setLanguage")} (${this.config.ip}:${this.config.port}/${
-        this.config.remarks
+      `${$t("TXT_CODE_daemonInfo.setLanguage")} (${this.config.ip}:${this.config.port}/${this.config.remarks
       }) language: ${language}`
     );
     return await new RemoteRequest(this).request("info/setting", {
@@ -94,6 +93,14 @@ export default class RemoteService {
       if (res === true) {
         this.available = true;
         await this.setLanguage();
+
+        try {
+          const info: any = await new RemoteRequest(this).request("info/overview");
+          this.config.brand = info?.brand || "";
+        } catch (error) {
+          this.config.brand = "";
+        }
+
         logger.info($t("TXT_CODE_daemonInfo.authSuccess", { v: daemonInfo }));
         return true;
       }
