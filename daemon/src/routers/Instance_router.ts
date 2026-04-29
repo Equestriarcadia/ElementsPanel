@@ -521,7 +521,29 @@ routerApp.on("instance/backup/restore", async (ctx, data) => {
     if (!instance) throw new Error($t("TXT_CODE_3bfb9e04"));
 
     if (instance.status() !== Instance.STATUS_STOP) {
-      throw new Error($t("TXT_CODE_INSTANCE_BACKUP_STOPPING"));
+      if (instance.status() === Instance.STATUS_BUSY) {
+        throw new Error($t("TXT_CODE_instanceConf.instanceBusy"));
+      }
+
+      if (
+        instance.status() === Instance.STATUS_RUNNING ||
+        instance.status() === Instance.STATUS_STARTING
+      ) {
+        instance.println("INFO", $t("TXT_CODE_INSTANCE_BACKUP_STOPPING"));
+        await instance.execPreset("stop");
+      }
+
+      let stopSuccess = false;
+      for (let i = 0; i < 60; i++) {
+        if (instance.status() === Instance.STATUS_STOP) {
+          stopSuccess = true;
+          break;
+        }
+        await new Promise((r) => setTimeout(r, 1000));
+      }
+      if (!stopSuccess) {
+        throw new Error($t("TXT_CODE_INSTANCE_BACKUP_STOP_TIMEOUT"));
+      }
     }
 
     let customBackupPath = globalConfiguration.config.instanceBackupPath;
@@ -537,25 +559,27 @@ routerApp.on("instance/backup/restore", async (ctx, data) => {
     instance.status(Instance.STATUS_BUSY);
     instance.println("INFO", $t("TXT_CODE_INSTANCE_BACKUP_RESTORING"));
 
-    const { decompress } = await import("../common/compress");
-    const destDir = instance.absoluteCwdPath();
+    // Start restoration in background
+    (async () => {
+      try {
+        const { decompress } = await import("../common/compress");
+        const destDir = instance.absoluteCwdPath();
+        await decompress(zipPath, destDir, instance.config.fileCode);
+        instance.println("INFO", $t("TXT_CODE_INSTANCE_BACKUP_RESTORE_SUCCESS"));
+      } catch (err: any) {
+        logger.error($t("TXT_CODE_INSTANCE_BACKUP_RESTORE_FAILED", { err: err.message }));
+        instance.println(
+          "ERROR",
+          $t("TXT_CODE_INSTANCE_BACKUP_RESTORE_FAILED", { err: err.message })
+        );
+      } finally {
+        instance.status(Instance.STATUS_STOP);
+      }
+    })();
 
-    // Restore logic: decompress to instance cwd
-    await decompress(zipPath, destDir, instance.config.fileCode);
-
-    instance.println("INFO", $t("TXT_CODE_INSTANCE_BACKUP_RESTORE_SUCCESS"));
     protocol.response(ctx, true);
   } catch (err: any) {
-    const instance = InstanceSubsystem.getInstance(instanceUuid);
-    if (instance) {
-      instance.println("ERROR", $t("TXT_CODE_INSTANCE_BACKUP_RESTORE_FAILED", { err: err.message }));
-    }
     protocol.responseError(ctx, err);
-  } finally {
-    const instance = InstanceSubsystem.getInstance(instanceUuid);
-    if (instance) {
-      instance.status(Instance.STATUS_STOP);
-    }
   }
 });
 

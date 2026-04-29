@@ -197,7 +197,7 @@ const handleRestore = (backupName: string) => {
                             backupName
                         }
                     });
-                    message.success(t("TXT_CODE_INSTANCE_BACKUP_RESTORE_SUCCESS"));
+                    message.success(t("TXT_CODE_INSTANCE_BACKUP_RESTORE_STARTED"));
                 } catch (error: any) {
                     message.error(error.message || t("TXT_CODE_INSTANCE_BACKUP_FAILED_RESTORE"));
                 }

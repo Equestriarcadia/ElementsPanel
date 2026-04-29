@@ -3553,7 +3553,7 @@
   "TXT_CODE_INSTANCE_BACKUP_TIME": "Backup Time",
   "TXT_CODE_INSTANCE_BACKUP_OPERATE": "Operate",
   "TXT_CODE_INSTANCE_BACKUP_START": "Starting instance backup...",
-  "TXT_CODE_INSTANCE_BACKUP_STOPPING": "Stopping instance for backup...",
+  "TXT_CODE_INSTANCE_BACKUP_STOPPING": "Stopping instance...",
   "TXT_CODE_INSTANCE_BACKUP_STOP_TIMEOUT": "Stop instance timeout, backup cancelled.",
   "TXT_CODE_INSTANCE_BACKUP_COMPRESSING": "Compressing instance files, please wait...",
   "TXT_CODE_INSTANCE_BACKUP_SUCCESS": "Instance backup successful! File: {{name}}",
@@ -3571,8 +3571,9 @@
   "TXT_CODE_INSTANCE_BACKUP_RESTORING": "Restoring backup...",
   "TXT_CODE_INSTANCE_BACKUP_RESTORE_SUCCESS": "Backup restored successfully!",
   "TXT_CODE_INSTANCE_BACKUP_RESTORE_FAILED": "Backup restoration failed: {{err}}",
+  "TXT_CODE_INSTANCE_BACKUP_RESTORE_STARTED": "Backup restoration task started.",
   "TXT_CODE_INSTANCE_BACKUP_DELETE_CONFIRM": "Are you sure you want to delete backup {name}?",
-  "TXT_CODE_INSTANCE_BACKUP_RESTORE_CONFIRM": "Are you sure you want to restore backup {name} to the current instance? This will overwrite existing files. Please ensure the instance is stopped.",
+  "TXT_CODE_INSTANCE_BACKUP_RESTORE_CONFIRM": "Are you sure you want to restore backup {name} to the current instance? This will overwrite existing files.",
   "TXT_CODE_INSTANCE_BACKUP_RESTORE": "Restore",
   "TXT_CODE_INSTANCE_BACKUP_DELETE": "Delete"
 }
