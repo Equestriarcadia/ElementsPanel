@@ -33,7 +33,8 @@ const DEFAULT_CONFIG = {
   outputBufferSize: 256,
   enableSoftShutdown: true,
   softShutdownSkipDocker: true,
-  softShutdownWaitSeconds: 10
+  softShutdownWaitSeconds: 10,
+  instanceBackupPath: ""
 };
 
 const SPEED_RATE_OPTIONS = [
@@ -328,6 +329,14 @@ defineExpose({ openDialog });
               </a-typography-text>
             </a-typography-paragraph>
             <a-input v-model:value="dialog.data.daemonPort" />
+          </a-form-item>
+          <a-form-item :label="t('TXT_CODE_INSTANCE_BACKUP_PATH')" name="instanceBackupPath">
+            <a-typography-paragraph>
+              <a-typography-text type="secondary">
+                {{ t("TXT_CODE_INSTANCE_BACKUP_PATH_HINT") }}
+              </a-typography-text>
+            </a-typography-paragraph>
+            <a-input v-model:value="dialog.data.instanceBackupPath" placeholder="data/backups" />
           </a-form-item>
           <a-form-item :label="t('TXT_CODE_bbe23ee7')" name="remoteMappings">
             <a-typography-paragraph>
