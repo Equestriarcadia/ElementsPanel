@@ -7,6 +7,7 @@ import {
   TYPE_STEAM_SERVER_UNIVERSAL,
   useInstanceInfo
 } from "@/hooks/useInstance";
+import { useOverviewInfo } from "@/hooks/useOverviewInfo";
 import { useServerConfig } from "@/hooks/useServerConfig";
 import { t } from "@/lang/i18n";
 import { modListApi } from "@/services/apis/modManager";
@@ -16,6 +17,7 @@ import {
   AppstoreAddOutlined,
   ArrowRightOutlined,
   BuildOutlined,
+  CloudDownloadOutlined,
   CodeOutlined,
   ControlOutlined,
   DashboardOutlined,
@@ -30,6 +32,7 @@ import type { RouteLocationPathRaw } from "vue-router";
 import { useLayoutCardTools } from "../../hooks/useCardTools";
 import { arrayFilter } from "../../tools/array";
 import EventConfig from "./dialogs/EventConfig.vue";
+import InstanceBackupModal from "./dialogs/InstanceBackupModal.vue";
 import InstanceDetail from "./dialogs/InstanceDetail.vue";
 import InstanceFundamentalDetail from "./dialogs/InstanceFundamentalDetail.vue";
 import JavaManager from "./dialogs/JavaManager.vue";
@@ -46,6 +49,7 @@ const eventConfigDialog = ref<InstanceType<typeof EventConfig>>();
 const pingConfigDialog = ref<InstanceType<typeof PingConfig>>();
 const instanceDetailsDialog = ref<InstanceType<typeof InstanceDetail>>();
 const instanceFundamentalDetailDialog = ref<InstanceType<typeof InstanceFundamentalDetail>>();
+const instanceBackupDialog = ref<InstanceType<typeof InstanceBackupModal>>();
 
 const { toPage: toOtherPager } = useAppRouters();
 
@@ -67,6 +71,7 @@ const { instanceInfo, execute, isGlobalTerminal } = useInstanceInfo({
 });
 
 const { serverConfigFiles, refresh: refreshServerConfig } = useServerConfig();
+const { state: overviewState } = useOverviewInfo();
 
 const folders = ref<string[]>([]);
 const foldersLoaded = ref(false);
@@ -240,6 +245,18 @@ const btns = computed(() => {
       click: () => {
         instanceFundamentalDetailDialog.value?.openDialog();
       }
+    },
+    {
+      title: t("TXT_CODE_INSTANCE_BACKUP"),
+      icon: CloudDownloadOutlined,
+      condition: () => {
+        if (isGlobalTerminal.value) return false;
+        const daemon = (overviewState.value?.remote?.find((v: any) => v.uuid === daemonId) as any);
+        return !!(daemon?.features?.instanceBackup);
+      },
+      click: () => {
+        instanceBackupDialog.value?.open();
+      }
     }
   ]);
 });
@@ -275,69 +292,32 @@ watch(instanceInfo, (cfg, oldCfg) => {
     </template>
   </CardPanel>
 
-  <TermConfig
-    ref="terminalConfigDialog"
-    :instance-info="instanceInfo"
-    :instance-id="instanceId"
-    :daemon-id="daemonId"
-    @update="refreshInstanceInfo"
-  />
+  <TermConfig ref="terminalConfigDialog" :instance-info="instanceInfo" :instance-id="instanceId" :daemon-id="daemonId"
+    @update="refreshInstanceInfo" />
 
-  <EventConfig
-    ref="eventConfigDialog"
-    :instance-info="instanceInfo"
-    :instance-id="instanceId"
-    :daemon-id="daemonId"
-    @update="refreshInstanceInfo"
-  />
+  <EventConfig ref="eventConfigDialog" :instance-info="instanceInfo" :instance-id="instanceId" :daemon-id="daemonId"
+    @update="refreshInstanceInfo" />
 
-  <PingConfig
-    ref="pingConfigDialog"
-    :instance-info="instanceInfo"
-    :instance-id="instanceId"
-    :daemon-id="daemonId"
-    @update="refreshInstanceInfo"
-  />
+  <PingConfig ref="pingConfigDialog" :instance-info="instanceInfo" :instance-id="instanceId" :daemon-id="daemonId"
+    @update="refreshInstanceInfo" />
 
-  <InstanceDetail
-    ref="instanceDetailsDialog"
-    :instance-info="instanceInfo"
-    :instance-id="instanceId"
-    :daemon-id="daemonId"
-    @update="refreshInstanceInfo"
-  />
+  <InstanceDetail ref="instanceDetailsDialog" :instance-info="instanceInfo" :instance-id="instanceId"
+    :daemon-id="daemonId" @update="refreshInstanceInfo" />
 
-  <InstanceFundamentalDetail
-    ref="instanceFundamentalDetailDialog"
-    :instance-info="instanceInfo"
-    :instance-id="instanceId"
-    :daemon-id="daemonId"
-    @update="refreshInstanceInfo"
-  />
+  <InstanceFundamentalDetail ref="instanceFundamentalDetailDialog" :instance-info="instanceInfo"
+    :instance-id="instanceId" :daemon-id="daemonId" @update="refreshInstanceInfo" />
 
-  <RconSettings
-    ref="rconSettingsDialog"
-    :instance-info="instanceInfo"
-    :instance-id="instanceId"
-    :daemon-id="daemonId"
-    @update="refreshInstanceInfo"
-  />
+  <RconSettings ref="rconSettingsDialog" :instance-info="instanceInfo" :instance-id="instanceId" :daemon-id="daemonId"
+    @update="refreshInstanceInfo" />
 
-  <McPingSettings
-    ref="mcSettingsDialog"
-    :instance-info="instanceInfo"
-    :instance-id="instanceId"
-    :daemon-id="daemonId"
-    @update="refreshInstanceInfo"
-  />
+  <McPingSettings ref="mcSettingsDialog" :instance-info="instanceInfo" :instance-id="instanceId" :daemon-id="daemonId"
+    @update="refreshInstanceInfo" />
 
-  <JavaManager
-    ref="javaManagerDialog"
-    :instance-info="instanceInfo"
-    :daemon-id="daemonId"
-    :instance-id="instanceId"
-    @update="refreshInstanceInfo"
-  />
+  <JavaManager ref="javaManagerDialog" :instance-info="instanceInfo" :daemon-id="daemonId" :instance-id="instanceId"
+    @update="refreshInstanceInfo" />
+
+  <InstanceBackupModal v-if="instanceId && daemonId" ref="instanceBackupDialog" :instance-uuid="instanceId"
+    :daemon-id="daemonId" @close="refreshInstanceInfo" />
 </template>
 
 <style lang="scss" scoped>

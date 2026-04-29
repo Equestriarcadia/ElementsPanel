@@ -103,7 +103,7 @@ export class InstanceBackupTask extends AsyncTask {
                 const percent = totalSize > 0 ? Math.floor((processedBytes / totalSize) * 100) : 0;
                 if (percent !== lastPercent) {
                     lastPercent = percent;
-                    const barLength = 50;
+                    const barLength = 30;
                     const filled = Math.floor((percent / 100) * barLength);
                     const empty = barLength - filled;
                     const bar = '[' + '#'.repeat(filled) + ' '.repeat(empty) + ']';
@@ -116,7 +116,7 @@ export class InstanceBackupTask extends AsyncTask {
                 const percent = Math.floor((progress.fs.processedBytes / totalSize) * 100);
                 if (percent !== lastPercent) {
                     lastPercent = percent;
-                    const barLength = 50;
+                    const barLength = 30;
                     const filled = Math.floor((percent / 100) * barLength);
                     const empty = barLength - filled;
                     const bar = '[' + '#'.repeat(filled) + ' '.repeat(empty) + ']';
