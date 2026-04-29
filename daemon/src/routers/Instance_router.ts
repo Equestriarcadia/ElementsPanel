@@ -1,5 +1,6 @@
 import fs from "fs-extra";
 import path from "path";
+import { globalConfiguration } from "../entity/config";
 import Instance from "../entity/instance/instance";
 import { $t } from "../i18n";
 import logger from "../service/log";
@@ -441,6 +442,115 @@ routerApp.on("instance/asynchronous", (ctx, data) => {
   }
 
   protocol.response(ctx, true);
+});
+
+routerApp.on("instance/backup/list", async (ctx, data) => {
+  const instanceUuid = data.instanceUuid;
+  try {
+    const instance = InstanceSubsystem.getInstance(instanceUuid);
+    if (!instance) throw new Error($t("TXT_CODE_3bfb9e04"));
+
+    let customBackupPath = globalConfiguration.config.instanceBackupPath;
+    if (!customBackupPath) {
+      customBackupPath = path.join(process.cwd(), "data/backups");
+    }
+    const instanceBackupDir = path.join(path.normalize(customBackupPath), instanceUuid);
+
+    if (!fs.existsSync(instanceBackupDir)) {
+      return protocol.response(ctx, []);
+    }
+
+    const files = await fs.readdir(instanceBackupDir);
+    const backups = [];
+    for (const file of files) {
+      if (file.endsWith(".zip")) {
+        const filePath = path.join(instanceBackupDir, file);
+        const stat = await fs.stat(filePath);
+        backups.push({
+          name: file,
+          size: stat.size,
+          time: new Date(stat.birthtimeMs || stat.ctimeMs).toLocaleString()
+        });
+      }
+    }
+    // Sort by create time desc
+    backups.sort((a, b) => {
+      const statA = fs.statSync(path.join(instanceBackupDir, a.name));
+      const statB = fs.statSync(path.join(instanceBackupDir, b.name));
+      return (statB.birthtimeMs || statB.ctimeMs) - (statA.birthtimeMs || statA.ctimeMs);
+    });
+    protocol.response(ctx, backups);
+  } catch (err: any) {
+    protocol.responseError(ctx, err);
+  }
+});
+
+routerApp.on("instance/backup/delete", async (ctx, data) => {
+  const instanceUuid = data.instanceUuid;
+  const backupName = data.backupName;
+  try {
+    const instance = InstanceSubsystem.getInstance(instanceUuid);
+    if (!instance) throw new Error($t("TXT_CODE_3bfb9e04"));
+
+    let customBackupPath = globalConfiguration.config.instanceBackupPath;
+    if (!customBackupPath) {
+      customBackupPath = path.join(process.cwd(), "data/backups");
+    }
+    const filePath = path.join(path.normalize(customBackupPath), instanceUuid, backupName);
+
+    if (fs.existsSync(filePath)) {
+      await fs.remove(filePath);
+    }
+    protocol.response(ctx, true);
+  } catch (err: any) {
+    protocol.responseError(ctx, err);
+  }
+});
+
+routerApp.on("instance/backup/restore", async (ctx, data) => {
+  const instanceUuid = data.instanceUuid;
+  const backupName = data.backupName;
+  try {
+    const instance = InstanceSubsystem.getInstance(instanceUuid);
+    if (!instance) throw new Error($t("TXT_CODE_3bfb9e04"));
+
+    if (instance.status() !== Instance.STATUS_STOP) {
+      throw new Error($t("TXT_CODE_INSTANCE_BACKUP_STOPPING"));
+    }
+
+    let customBackupPath = globalConfiguration.config.instanceBackupPath;
+    if (!customBackupPath) {
+      customBackupPath = path.join(process.cwd(), "data/backups");
+    }
+    const zipPath = path.join(path.normalize(customBackupPath), instanceUuid, backupName);
+
+    if (!fs.existsSync(zipPath)) {
+      throw new Error($t("TXT_CODE_Instance_router.accessFileErr"));
+    }
+
+    instance.status(Instance.STATUS_BUSY);
+    instance.println("INFO", $t("TXT_CODE_INSTANCE_BACKUP_RESTORING"));
+
+    const { decompress } = await import("../common/compress");
+    const destDir = instance.absoluteCwdPath();
+
+    // Restore logic: decompress to instance cwd
+    await decompress(zipPath, destDir, instance.config.fileCode);
+
+    instance.println("INFO", $t("TXT_CODE_INSTANCE_BACKUP_RESTORE_SUCCESS"));
+    protocol.response(ctx, true);
+  } catch (err: any) {
+    const instance = InstanceSubsystem.getInstance(instanceUuid);
+    if (instance) {
+      instance.println("ERROR", $t("TXT_CODE_INSTANCE_BACKUP_RESTORE_FAILED", { err: err.message }));
+    }
+    protocol.responseError(ctx, err);
+  } finally {
+    const instance = InstanceSubsystem.getInstance(instanceUuid);
+    if (instance) {
+      instance.status(Instance.STATUS_STOP);
+    }
+  }
 });
 
 // Terminate the execution of complex asynchronous tasks

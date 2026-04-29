@@ -578,4 +578,68 @@ router.post(
   }
 );
 
+// [Low-level Permission]
+// Get backup list
+router.get(
+  "/backup",
+  permission({ level: ROLE.USER }),
+  validator({ query: { daemonId: String, uuid: String } }),
+  async (ctx) => {
+    try {
+      const daemonId = String(ctx.query.daemonId);
+      const instanceUuid = String(ctx.query.uuid);
+      const remoteService = RemoteServiceSubsystem.getInstance(daemonId);
+      ctx.body = await new RemoteRequest(remoteService).request("instance/backup/list", {
+        instanceUuid
+      });
+    } catch (err) {
+      ctx.body = err;
+    }
+  }
+);
+
+// [Low-level Permission]
+// Delete backup
+router.delete(
+  "/backup",
+  permission({ level: ROLE.USER }),
+  validator({ query: { daemonId: String, uuid: String, backupName: String } }),
+  async (ctx) => {
+    try {
+      const daemonId = String(ctx.query.daemonId);
+      const instanceUuid = String(ctx.query.uuid);
+      const backupName = String(ctx.query.backupName);
+      const remoteService = RemoteServiceSubsystem.getInstance(daemonId);
+      ctx.body = await new RemoteRequest(remoteService).request("instance/backup/delete", {
+        instanceUuid,
+        backupName
+      });
+    } catch (err) {
+      ctx.body = err;
+    }
+  }
+);
+
+// [Low-level Permission]
+// Restore backup
+router.post(
+  "/backup/restore",
+  permission({ level: ROLE.USER }),
+  validator({ query: { daemonId: String, uuid: String, backupName: String } }),
+  async (ctx) => {
+    try {
+      const daemonId = String(ctx.query.daemonId);
+      const instanceUuid = String(ctx.query.uuid);
+      const backupName = String(ctx.query.backupName);
+      const remoteService = RemoteServiceSubsystem.getInstance(daemonId);
+      ctx.body = await new RemoteRequest(remoteService).request("instance/backup/restore", {
+        instanceUuid,
+        backupName
+      });
+    } catch (err) {
+      ctx.body = err;
+    }
+  }
+);
+
 export default router;
