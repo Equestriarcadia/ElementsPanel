@@ -293,7 +293,7 @@ onUnmounted(() => {
             <button class="ds-dialog-btn ds-dialog-btn--primary" :disabled="loading" @click="startBackup">
                 <SyncOutlined v-if="loading" spin />
                 <PlusCircleOutlined v-else />
-                {{ t("TXT_CODE_INSTANCE_BACKUP_START_BTN") }}
+                {{ t("TXT_CODE_INSTANCE_BACKUP_CREATE") }}
             </button>
         </div>
 
