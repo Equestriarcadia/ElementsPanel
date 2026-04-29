@@ -72,7 +72,7 @@ const instanceCounts = computed(() => {
 
 const getStatusText = (status: INSTANCE_STATUS_CODE): string => {
     const map: Record<INSTANCE_STATUS_CODE, string> = {
-        [INSTANCE_STATUS_CODE.BUSY]: t("TXT_CODE_DESKTOP_IM_BUSY"),
+        [INSTANCE_STATUS_CODE.BUSY]: t("TXT_CODE_342a04a9"),
         [INSTANCE_STATUS_CODE.STOPPED]: t("TXT_CODE_DESKTOP_IM_STOPPED"),
         [INSTANCE_STATUS_CODE.STOPPING]: t("TXT_CODE_DESKTOP_IM_STOPPING"),
         [INSTANCE_STATUS_CODE.STARTING]: t("TXT_CODE_DESKTOP_IM_STARTING"),
@@ -296,7 +296,7 @@ onUnmounted(() => {
                         </span>
                         <span class="ma-instance__name">{{
                             instance.nickname || t("TXT_CODE_DESKTOP_IM_UNNAMED")
-                            }}</span>
+                        }}</span>
                         <span class="ma-instance__badge" :class="getStatusClass(instance.status)">
                             {{ getStatusText(instance.status) }}
                         </span>
