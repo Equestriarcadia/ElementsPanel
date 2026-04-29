@@ -203,7 +203,7 @@ onUnmounted(() => {
                         </div>
                     </div>
                     <button class="ds-btn ds-btn--primary ds-btn--lg" @click="backupInfo = null">
-                        {{ t("TXT_CODE_BACK") }}
+                        {{ t("TXT_CODE_c14b2ea3") }}
                     </button>
                 </div>
                 <div v-else-if="taskStatus === -1" class="ds-backup-status">
@@ -211,7 +211,7 @@ onUnmounted(() => {
                     <p class="status-text">{{ t("TXT_CODE_INSTANCE_BACKUP_FAILED_TITLE") }}</p>
                     <p class="status-hint">{{ t("TXT_CODE_INSTANCE_BACKUP_FAILED_HINT") }}</p>
                     <button class="ds-btn ds-btn--primary ds-btn--lg" @click="backupInfo = null">
-                        {{ t("TXT_CODE_BACK") }}
+                        {{ t("TXT_CODE_c14b2ea3") }}
                     </button>
                 </div>
             </div>
