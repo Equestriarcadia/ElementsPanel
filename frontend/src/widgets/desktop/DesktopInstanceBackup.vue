@@ -52,6 +52,11 @@ const restoreDialog = ref({
     resolve: null as ((value: boolean) => void) | null
 });
 
+const backupConfirmDialog = ref({
+    show: false,
+    resolve: null as ((value: boolean) => void) | null
+});
+
 let timer: any = null;
 
 const fetchBackupList = async () => {
@@ -93,30 +98,39 @@ const fetchBackupList = async () => {
 
 const startBackup = async () => {
     if (taskStatus.value === 1 || loading.value) return;
-    loading.value = true;
-    try {
-        const { execute } = createAsyncTask();
-        const res = await execute({
-            params: {
-                daemonId: props.daemonId,
-                uuid: props.instanceUuid,
-                task_name: "instance_backup"
-            },
-            data: {
-                time: new Date().getTime(),
-                newInstanceName: ""
+    backupConfirmDialog.value = {
+        show: true,
+        resolve: async (val: boolean) => {
+            backupConfirmDialog.value.show = false;
+            if (val) {
+                if (taskStatus.value === 1 || loading.value) return;
+                loading.value = true;
+                try {
+                    const { execute } = createAsyncTask();
+                    const res = await execute({
+                        params: {
+                            daemonId: props.daemonId,
+                            uuid: props.instanceUuid,
+                            task_name: "instance_backup"
+                        },
+                        data: {
+                            time: new Date().getTime(),
+                            newInstanceName: ""
+                        }
+                    });
+                    if (res.value) {
+                        taskId.value = res.value.taskId;
+                        message.success(t("TXT_CODE_INSTANCE_BACKUP_STARTED"));
+                        startQuery();
+                    }
+                } catch (error: any) {
+                    message.error(error.message || t("TXT_CODE_INSTANCE_BACKUP_FAILED_START"));
+                } finally {
+                    loading.value = false;
+                }
             }
-        });
-        if (res.value) {
-            taskId.value = res.value.taskId;
-            message.success(t("TXT_CODE_INSTANCE_BACKUP_STARTED"));
-            startQuery();
         }
-    } catch (error: any) {
-        message.error(error.message || t("TXT_CODE_INSTANCE_BACKUP_FAILED_START"));
-    } finally {
-        loading.value = false;
-    }
+    };
 };
 
 const startQuery = () => {
@@ -349,6 +363,36 @@ onUnmounted(() => {
                             </button>
                             <button class="ds-dialog-btn ds-dialog-btn--primary"
                                 @click="restoreDialog.resolve && restoreDialog.resolve(true)">
+                                {{ t("TXT_CODE_d507abff") }}
+                            </button>
+                        </div>
+                    </div>
+                </DesktopWindow>
+            </Transition>
+        </Teleport>
+
+        <Teleport to="body">
+            <Transition name="ds-dialog-fade">
+                <DesktopWindow v-if="backupConfirmDialog.show" id="backup-confirm-dialog"
+                    :title="t('TXT_CODE_INSTANCE_BACKUP_CREATE')" :icon="ExclamationCircleOutlined"
+                    :visible="backupConfirmDialog.show" :minimized="false" :maximized="false" :active="true"
+                    :initial-width="400" :initial-height="200" :initial-x="windowWidth / 2 - 200"
+                    :initial-y="windowHeight / 2 - 100" :z-index="10006" :show-minimize="false" :show-maximize="false"
+                    :resizable="false" @close="backupConfirmDialog.resolve && backupConfirmDialog.resolve(false)">
+                    <div class="ds-dialog-content">
+                        <div class="ds-dialog__body ds-dialog__body--column">
+                            <ExclamationCircleOutlined class="ds-dialog__warn-icon" />
+                            <p class="ds-dialog__desc">
+                                {{ t("TXT_CODE_INSTANCE_BACKUP_CREATE_CONFIRM") }}
+                            </p>
+                        </div>
+                        <div class="ds-dialog__footer">
+                            <button class="ds-dialog-btn ds-dialog-btn--default"
+                                @click="backupConfirmDialog.resolve && backupConfirmDialog.resolve(false)">
+                                {{ t("TXT_CODE_a0451c97") }}
+                            </button>
+                            <button class="ds-dialog-btn ds-dialog-btn--primary"
+                                @click="backupConfirmDialog.resolve && backupConfirmDialog.resolve(true)">
                                 {{ t("TXT_CODE_d507abff") }}
                             </button>
                         </div>

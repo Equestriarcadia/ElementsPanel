@@ -3548,6 +3548,7 @@
   "TXT_CODE_INSTANCE_BACKUP_PATH": "Instance Backup Path",
   "TXT_CODE_INSTANCE_BACKUP_PATH_HINT": "Set the storage directory for instance backup archives",
   "TXT_CODE_INSTANCE_BACKUP_CREATE": "New Backup",
+  "TXT_CODE_INSTANCE_BACKUP_CREATE_CONFIRM": "Are you sure you want to create a new backup? This action will stop the instance!",
   "TXT_CODE_INSTANCE_BACKUP_LIST": "Backup List",
   "TXT_CODE_INSTANCE_BACKUP_NAME": "Backup Filename",
   "TXT_CODE_INSTANCE_BACKUP_TIME": "Backup Time",
