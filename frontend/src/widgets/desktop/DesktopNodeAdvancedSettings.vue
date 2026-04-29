@@ -202,19 +202,13 @@ const saveSettings = async () => {
                 <div class="dn-form-group">
                     <label class="dn-form-label">{{ t("TXT_CODE_daemon_enableSoftShutdown") }}</label>
                     <span class="dn-form-hint">{{ t("TXT_CODE_daemon_enableSoftShutdownInfo") }}</span>
-                    <label class="dn-switch">
-                        <input v-model="form.enableSoftShutdown" type="checkbox" class="dn-switch__input" />
-                        <span class="dn-switch__slider"></span>
-                    </label>
+                    <a-switch v-model:checked="form.enableSoftShutdown" />
                 </div>
 
                 <div class="dn-form-group">
                     <label class="dn-form-label">{{ t("TXT_CODE_daemon_softShutdownSkipDocker") }}</label>
                     <span class="dn-form-hint">{{ t("TXT_CODE_daemon_softShutdownSkipDockerInfo") }}</span>
-                    <label class="dn-switch">
-                        <input v-model="form.softShutdownSkipDocker" type="checkbox" class="dn-switch__input" />
-                        <span class="dn-switch__slider"></span>
-                    </label>
+                    <a-switch v-model:checked="form.softShutdownSkipDocker" />
                 </div>
 
                 <div class="dn-form-group">
@@ -347,48 +341,6 @@ const saveSettings = async () => {
     option {
         background: var(--desktop-window-bg);
         color: var(--desktop-window-text);
-    }
-}
-
-.dn-switch {
-    position: relative;
-    display: inline-block;
-    width: 40px;
-    height: 22px;
-    cursor: pointer;
-
-    &__input {
-        opacity: 0;
-        width: 0;
-        height: 0;
-
-        &:checked+.dn-switch__slider {
-            background: var(--color-blue-5, #1677ff);
-        }
-
-        &:checked+.dn-switch__slider::before {
-            transform: translateX(18px);
-        }
-    }
-
-    &__slider {
-        position: absolute;
-        inset: 0;
-        background: var(--desktop-window-border);
-        border-radius: 11px;
-        transition: background 0.2s;
-
-        &::before {
-            content: "";
-            position: absolute;
-            width: 16px;
-            height: 16px;
-            left: 3px;
-            bottom: 3px;
-            background: #fff;
-            border-radius: 50%;
-            transition: transform 0.2s;
-        }
     }
 }
 
