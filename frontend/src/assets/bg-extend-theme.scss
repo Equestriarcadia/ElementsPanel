@@ -23,25 +23,23 @@
 
   .ant-btn-default {
     background-color: var(--level-1-bg-color);
-    border: none;
+    backdrop-filter: blur(3px) !important;
   }
 
   .ant-btn-primary {
     background-color: var(--primary-btn-color);
-    border: none;
-
-    &:hover {
-      background-color: var(--primary-btn-color-hover);
-    }
+    backdrop-filter: blur(3px) !important;
   }
 
   .ant-btn-dangerous {
     background-color: var(--danger-btn-color);
-    border: none;
+    backdrop-filter: blur(3px) !important;
+  }
 
-    &:hover {
-      background-color: var(--danger-btn-color-hover);
-    }
+  .ant-input-affix-wrapper,
+  .ant-select-selector {
+    background-color: var(--level-1-bg-color) !important;
+    backdrop-filter: blur(3px) !important;
   }
 
   .ant-modal-content {
