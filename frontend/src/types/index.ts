@@ -68,6 +68,10 @@ export interface NodeStatus {
   remarks: string;
   uuid: string;
   brand?: string;
+  features?: {
+    instanceBackup?: boolean;
+    [key: string]: any;
+  };
 }
 
 export interface Settings {

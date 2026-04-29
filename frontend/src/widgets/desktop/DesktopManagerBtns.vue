@@ -5,6 +5,7 @@ import {
     TYPE_STEAM_SERVER_UNIVERSAL,
     useInstanceInfo
 } from "@/hooks/useInstance";
+import { useOverviewInfo } from "@/hooks/useOverviewInfo";
 import { useServerConfig } from "@/hooks/useServerConfig";
 import { t } from "@/lang/i18n";
 import { modListApi } from "@/services/apis/modManager";
@@ -49,6 +50,7 @@ const emit = defineEmits<{
 
 const { isAdmin, state } = useAppStateStore();
 const { toPage: toOtherPager } = useAppRouters();
+const { state: overviewState } = useOverviewInfo();
 
 const rconSettingsDialog = ref<InstanceType<typeof RconSettings>>();
 const mcSettingsDialog = ref<InstanceType<typeof McPingSettings>>();
@@ -217,7 +219,10 @@ const btns = computed(() => {
         {
             title: t("TXT_CODE_INSTANCE_BACKUP"),
             icon: CloudDownloadOutlined,
-            condition: () => !isGlobalTerminal.value,
+            condition: () => {
+                const daemon = overviewState.value?.remote?.find((v: any) => v.uuid === props.daemonId) as any;
+                return !isGlobalTerminal.value && daemon?.features?.instanceBackup;
+            },
             click: () => {
                 emit("open-backup");
             }

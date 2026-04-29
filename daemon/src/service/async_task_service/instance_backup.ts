@@ -49,9 +49,20 @@ export class InstanceBackupTask extends AsyncTask {
             this.instance.status(Instance.STATUS_BUSY);
             this.instance.println("INFO", $t("TXT_CODE_INSTANCE_BACKUP_COMPRESSING"));
 
-            const timestamp = new Date().getTime();
-            this.backupFileName = `${this.instance.config.nickname}_${this.instance.instanceUuid}_${timestamp}.zip`;
-            const targetZipPath = path.join(this.backupPath, this.backupFileName);
+            const now = new Date();
+            const dateStr = now.getFullYear() +
+                "-" + String(now.getMonth() + 1).padStart(2, '0') +
+                "-" + String(now.getDate()).padStart(2, '0') +
+                "_" + String(now.getHours()).padStart(2, '0') +
+                "-" + String(now.getMinutes()).padStart(2, '0') +
+                "-" + String(now.getSeconds()).padStart(2, '0');
+
+            const backupId = v4().split("-")[0];
+            this.backupFileName = `${backupId}-${dateStr}.zip`;
+
+            const instanceBackupDir = path.join(this.backupPath, this.instance.instanceUuid);
+            await fs.ensureDir(instanceBackupDir);
+            const targetZipPath = path.join(instanceBackupDir, this.backupFileName);
 
             const instanceCwd = this.instance.absoluteCwdPath();
             const files = await fs.readdir(instanceCwd);

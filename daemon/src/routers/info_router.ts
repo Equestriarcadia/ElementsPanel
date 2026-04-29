@@ -61,6 +61,9 @@ routerApp.on("info/overview", async (ctx) => {
       softShutdownWaitSeconds: globalConfiguration.config.softShutdownWaitSeconds,
       instanceBackupPath: globalConfiguration.config.instanceBackupPath
     },
+    features: {
+      instanceBackup: true
+    },
     dockerPlatforms
   };
   protocol.response(ctx, info);
