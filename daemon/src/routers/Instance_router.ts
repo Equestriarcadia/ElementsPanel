@@ -437,6 +437,12 @@ routerApp.on("instance/asynchronous", (ctx, data) => {
 
   // Instance backup task
   if (taskName === "instance_backup" && instance) {
+    const tasks = TaskCenter.getTasks(InstanceBackupTask.TYPE);
+    for (const t of tasks) {
+      if (t.toObject().instanceUuid === instanceUuid && t.status() === 1) {
+        return protocol.response(ctx, t.toObject());
+      }
+    }
     const task = createInstanceBackupTask(instance);
     return protocol.response(ctx, task.toObject());
   }

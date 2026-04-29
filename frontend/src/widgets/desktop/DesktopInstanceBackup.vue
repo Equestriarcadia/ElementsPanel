@@ -8,7 +8,6 @@ import {
     restoreBackup
 } from "@/services/apis/instance";
 import {
-    CheckCircleOutlined,
     CloudDownloadOutlined,
     DeleteOutlined,
     ExclamationCircleOutlined,
@@ -18,8 +17,9 @@ import {
     RollbackOutlined,
     SyncOutlined
 } from "@ant-design/icons-vue";
-import { message, Modal } from "ant-design-vue";
+import { message } from "ant-design-vue";
 import { onMounted, onUnmounted, ref } from "vue";
+import DesktopWindow from "./DesktopWindow.vue";
 
 const props = defineProps<{
     instanceUuid: string;
@@ -37,11 +37,43 @@ const backupInfo = ref<any>(null);
 const backupList = ref<{ name: string; size: number; time: string }[]>([]);
 const listLoading = ref(false);
 
+const windowWidth = ref(window.innerWidth);
+const windowHeight = ref(window.innerHeight);
+
+const deleteDialog = ref({
+    show: false,
+    name: "",
+    resolve: null as ((value: boolean) => void) | null
+});
+
+const restoreDialog = ref({
+    show: false,
+    name: "",
+    resolve: null as ((value: boolean) => void) | null
+});
+
 let timer: any = null;
 
 const fetchBackupList = async () => {
     listLoading.value = true;
     try {
+        const { execute: queryTask } = queryAsyncTask();
+        const taskRes = await queryTask({
+            params: {
+                daemonId: props.daemonId,
+                uuid: props.instanceUuid,
+                task_name: "instance_backup"
+            },
+            data: {
+                taskId: ""
+            }
+        });
+        if (taskRes.value && taskRes.value.status === 1) {
+            taskStatus.value = 1;
+            taskId.value = taskRes.value.taskId;
+            startQuery();
+        }
+
         const { execute } = getBackupList();
         const res = await execute({
             params: {
@@ -60,6 +92,7 @@ const fetchBackupList = async () => {
 };
 
 const startBackup = async () => {
+    if (taskStatus.value === 1 || loading.value) return;
     loading.value = true;
     try {
         const { execute } = createAsyncTask();
@@ -109,6 +142,10 @@ const startQuery = () => {
                     clearInterval(timer);
                     timer = null;
                     fetchBackupList();
+                    if (taskStatus.value === 0) {
+                        message.success(t("TXT_CODE_INSTANCE_BACKUP_COMPLETED"));
+                        backupInfo.value = null;
+                    }
                 }
             }
         } catch (error) {
@@ -119,48 +156,54 @@ const startQuery = () => {
 };
 
 const handleDelete = (backupName: string) => {
-    Modal.confirm({
-        title: t("TXT_CODE_INSTANCE_BACKUP_DELETE"),
-        content: t("TXT_CODE_INSTANCE_BACKUP_DELETE_CONFIRM", { name: backupName }),
-        onOk: async () => {
-            try {
-                const { execute } = deleteBackup();
-                await execute({
-                    params: {
-                        daemonId: props.daemonId,
-                        uuid: props.instanceUuid,
-                        backupName
-                    }
-                });
-                message.success(t("TXT_CODE_28190dbc"));
-                fetchBackupList();
-            } catch (error: any) {
-                message.error(error.message || t("TXT_CODE_INSTANCE_BACKUP_FAILED_DELETE"));
+    deleteDialog.value = {
+        show: true,
+        name: backupName,
+        resolve: async (val: boolean) => {
+            deleteDialog.value.show = false;
+            if (val) {
+                try {
+                    const { execute } = deleteBackup();
+                    await execute({
+                        params: {
+                            daemonId: props.daemonId,
+                            uuid: props.instanceUuid,
+                            backupName
+                        }
+                    });
+                    message.success(t("TXT_CODE_28190dbc"));
+                    fetchBackupList();
+                } catch (error: any) {
+                    message.error(error.message || t("TXT_CODE_INSTANCE_BACKUP_FAILED_DELETE"));
+                }
             }
         }
-    });
+    };
 };
 
 const handleRestore = (backupName: string) => {
-    Modal.confirm({
-        title: t("TXT_CODE_INSTANCE_BACKUP_RESTORE"),
-        content: t("TXT_CODE_INSTANCE_BACKUP_RESTORE_CONFIRM", { name: backupName }),
-        onOk: async () => {
-            try {
-                const { execute } = restoreBackup();
-                await execute({
-                    params: {
-                        daemonId: props.daemonId,
-                        uuid: props.instanceUuid,
-                        backupName
-                    }
-                });
-                message.success(t("TXT_CODE_INSTANCE_BACKUP_RESTORE_SUCCESS"));
-            } catch (error: any) {
-                message.error(error.message || t("TXT_CODE_INSTANCE_BACKUP_FAILED_RESTORE"));
+    restoreDialog.value = {
+        show: true,
+        name: backupName,
+        resolve: async (val: boolean) => {
+            restoreDialog.value.show = false;
+            if (val) {
+                try {
+                    const { execute } = restoreBackup();
+                    await execute({
+                        params: {
+                            daemonId: props.daemonId,
+                            uuid: props.instanceUuid,
+                            backupName
+                        }
+                    });
+                    message.success(t("TXT_CODE_INSTANCE_BACKUP_RESTORE_SUCCESS"));
+                } catch (error: any) {
+                    message.error(error.message || t("TXT_CODE_INSTANCE_BACKUP_FAILED_RESTORE"));
+                }
             }
         }
-    });
+    };
 };
 
 const formatSize = (bytes: number) => {
@@ -171,46 +214,39 @@ const formatSize = (bytes: number) => {
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
 };
 
+const updateWindowSize = () => {
+    windowWidth.value = window.innerWidth;
+    windowHeight.value = window.innerHeight;
+};
+
 onMounted(() => {
+    window.addEventListener("resize", updateWindowSize);
     fetchBackupList();
 });
 
 onUnmounted(() => {
     if (timer) clearInterval(timer);
+    window.removeEventListener("resize", updateWindowSize);
 });
 </script>
 
 <template>
     <div class="ds-backup">
         <div class="ds-backup-body">
-            <div v-if="taskStatus === 1 || (taskStatus !== 0 && backupInfo)" class="ds-backup-content">
+            <div v-if="taskStatus !== 0" class="ds-backup-content">
                 <div v-if="taskStatus === 1" class="ds-backup-status">
                     <LoadingOutlined class="status-icon status-icon--loading" />
                     <p class="status-text">{{ t("TXT_CODE_INSTANCE_BACKUP_IN_PROGRESS") }}</p>
                     <p class="status-hint">{{ t("TXT_CODE_INSTANCE_BACKUP_PROGRESS_HINT") }}</p>
                 </div>
-                <div v-else-if="taskStatus === 0 && backupInfo" class="ds-backup-status">
-                    <CheckCircleOutlined class="status-icon status-icon--success" />
-                    <p class="status-text">{{ t("TXT_CODE_INSTANCE_BACKUP_COMPLETED") }}</p>
-                    <div class="backup-details">
-                        <div class="detail-item">
-                            <span class="detail-label">{{ t("TXT_CODE_INSTANCE_BACKUP_FILE") }}:</span>
-                            <span class="detail-value">{{ backupInfo.backupFileName }}</span>
-                        </div>
-                        <div class="detail-item">
-                            <span class="detail-label">{{ t("TXT_CODE_INSTANCE_BACKUP_PATH") }}:</span>
-                            <span class="detail-value">{{ backupInfo.backupPath }}</span>
-                        </div>
-                    </div>
-                    <button class="ds-btn ds-btn--primary ds-btn--lg" @click="backupInfo = null">
-                        {{ t("TXT_CODE_c14b2ea3") }}
-                    </button>
-                </div>
                 <div v-else-if="taskStatus === -1" class="ds-backup-status">
                     <ExclamationCircleOutlined class="status-icon status-icon--error" />
                     <p class="status-text">{{ t("TXT_CODE_INSTANCE_BACKUP_FAILED_TITLE") }}</p>
                     <p class="status-hint">{{ t("TXT_CODE_INSTANCE_BACKUP_FAILED_HINT") }}</p>
-                    <button class="ds-btn ds-btn--primary ds-btn--lg" @click="backupInfo = null">
+                    <button class="ds-btn ds-btn--primary ds-btn--lg" @click="
+                        backupInfo = null;
+                    taskStatus = 0;
+                    ">
                         {{ t("TXT_CODE_c14b2ea3") }}
                     </button>
                 </div>
@@ -253,13 +289,73 @@ onUnmounted(() => {
                 </div>
             </div>
         </div>
-        <div v-if="taskStatus !== 1 && !backupInfo" class="ds-backup-footer">
+        <div v-if="taskStatus === 0" class="ds-backup-footer">
             <button class="ds-dialog-btn ds-dialog-btn--primary" :disabled="loading" @click="startBackup">
                 <SyncOutlined v-if="loading" spin />
                 <PlusCircleOutlined v-else />
                 {{ t("TXT_CODE_INSTANCE_BACKUP_START_BTN") }}
             </button>
         </div>
+
+        <Teleport to="body">
+            <Transition name="ds-dialog-fade">
+                <DesktopWindow v-if="deleteDialog.show" id="backup-delete-dialog" :title="t('TXT_CODE_71155575')"
+                    :icon="ExclamationCircleOutlined" :visible="deleteDialog.show" :minimized="false" :maximized="false"
+                    :active="true" :initial-width="400" :initial-height="200" :initial-x="windowWidth / 2 - 200"
+                    :initial-y="windowHeight / 2 - 100" :z-index="10006" :show-minimize="false" :show-maximize="false"
+                    :resizable="false" @close="deleteDialog.resolve && deleteDialog.resolve(false)">
+                    <div class="ds-dialog-content">
+                        <div class="ds-dialog__body ds-dialog__body--column">
+                            <ExclamationCircleOutlined class="ds-dialog__warn-icon" />
+                            <p class="ds-dialog__desc">
+                                {{ t("TXT_CODE_INSTANCE_BACKUP_DELETE_CONFIRM", { name: deleteDialog.name }) }}
+                            </p>
+                        </div>
+                        <div class="ds-dialog__footer">
+                            <button class="ds-dialog-btn ds-dialog-btn--default"
+                                @click="deleteDialog.resolve && deleteDialog.resolve(false)">
+                                {{ t("TXT_CODE_a0451c97") }}
+                            </button>
+                            <button class="ds-dialog-btn ds-dialog-btn--primary"
+                                style="background: var(--color-red-5); border-color: var(--color-red-5);"
+                                @click="deleteDialog.resolve && deleteDialog.resolve(true)">
+                                {{ t("TXT_CODE_d507abff") }}
+                            </button>
+                        </div>
+                    </div>
+                </DesktopWindow>
+            </Transition>
+        </Teleport>
+
+        <Teleport to="body">
+            <Transition name="ds-dialog-fade">
+                <DesktopWindow v-if="restoreDialog.show" id="backup-restore-dialog"
+                    :title="t('TXT_CODE_INSTANCE_BACKUP_RESTORE')" :icon="ExclamationCircleOutlined"
+                    :visible="restoreDialog.show" :minimized="false" :maximized="false" :active="true"
+                    :initial-width="400" :initial-height="250" :initial-x="windowWidth / 2 - 200"
+                    :initial-y="windowHeight / 2 - 110" :z-index="10006" :show-minimize="false" :show-maximize="false"
+                    :resizable="false" @close="restoreDialog.resolve && restoreDialog.resolve(false)">
+                    <div class="ds-dialog-content">
+                        <div class="ds-dialog__body ds-dialog__body--column">
+                            <ExclamationCircleOutlined class="ds-dialog__warn-icon" />
+                            <p class="ds-dialog__desc">
+                                {{ t("TXT_CODE_INSTANCE_BACKUP_RESTORE_CONFIRM", { name: restoreDialog.name }) }}
+                            </p>
+                        </div>
+                        <div class="ds-dialog__footer">
+                            <button class="ds-dialog-btn ds-dialog-btn--default"
+                                @click="restoreDialog.resolve && restoreDialog.resolve(false)">
+                                {{ t("TXT_CODE_a0451c97") }}
+                            </button>
+                            <button class="ds-dialog-btn ds-dialog-btn--primary"
+                                @click="restoreDialog.resolve && restoreDialog.resolve(true)">
+                                {{ t("TXT_CODE_d507abff") }}
+                            </button>
+                        </div>
+                    </div>
+                </DesktopWindow>
+            </Transition>
+        </Teleport>
     </div>
 </template>
 
@@ -354,6 +450,15 @@ onUnmounted(() => {
 
         &:hover:not(:disabled) {
             background: var(--color-blue-6, #4096ff);
+        }
+    }
+
+    &--default {
+        background: var(--desktop-window-titlebar-bg);
+        border: 1px solid var(--desktop-window-border);
+
+        &:hover:not(:disabled) {
+            background: var(--desktop-window-control-hover);
         }
     }
 }
@@ -511,6 +616,59 @@ onUnmounted(() => {
         line-height: 1.6;
         margin: 0;
     }
+}
+
+.ds-dialog-fade-enter-active,
+.ds-dialog-fade-leave-active {
+    transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.ds-dialog-fade-enter-from,
+.ds-dialog-fade-leave-to {
+    opacity: 0;
+    transform: scale(0.95);
+}
+
+.ds-dialog-content {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    background: transparent;
+}
+
+.ds-dialog__body {
+    padding: 16px 20px;
+    flex: 1;
+    overflow-y: auto;
+
+    &--column {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+    }
+}
+
+.ds-dialog__warn-icon {
+    font-size: 36px;
+    color: var(--color-warning, #faad14);
+}
+
+.ds-dialog__desc {
+    margin: 0;
+    color: var(--desktop-window-text);
+    font-size: 14px;
+    text-align: center;
+    line-height: 1.6;
+}
+
+.ds-dialog__footer {
+    padding: 12px 20px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    border-top: 1px solid var(--desktop-window-border);
 }
 
 .ds-backup-status {
