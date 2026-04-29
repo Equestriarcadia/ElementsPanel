@@ -228,7 +228,7 @@ onMounted(() => {
                   <template #title>
                     {{ detail.warnText }}
                   </template>
-                  <span class="color-danger">
+                  <span :class="remoteNode?.brand !== 'ElementsPanel' ? 'color-warning' : 'color-danger'">
                     <InfoCircleOutlined /> {{ detail.value }}
                   </span>
                 </a-tooltip>
@@ -244,7 +244,7 @@ onMounted(() => {
                 </span>
                 <span v-else style="white-space: pre-wrap">{{
                   String(detail.value ?? "").trim() ? detail.value : "--"
-                  }}</span>
+                }}</span>
               </div>
             </a-typography-paragraph>
           </a-col>
