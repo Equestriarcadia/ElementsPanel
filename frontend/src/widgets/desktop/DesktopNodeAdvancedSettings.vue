@@ -31,6 +31,7 @@ export interface AdvancedSettingsData {
     enableSoftShutdown: boolean;
     softShutdownSkipDocker: boolean;
     softShutdownWaitSeconds: number;
+    instanceBackupPath: string;
     daemonPort: number;
     remoteMappings: IPanelOverviewRemoteMappingResponse[];
 }
@@ -58,6 +59,7 @@ const form = reactive<AdvancedSettingsData>({
     enableSoftShutdown: true,
     softShutdownSkipDocker: true,
     softShutdownWaitSeconds: 10,
+    instanceBackupPath: "",
     daemonPort: 24444,
     remoteMappings: []
 });
@@ -70,6 +72,7 @@ const resetForm = () => {
     form.enableSoftShutdown = true;
     form.softShutdownSkipDocker = true;
     form.softShutdownWaitSeconds = 10;
+    form.instanceBackupPath = "";
     form.daemonPort = 24444;
     form.remoteMappings = [];
 };
@@ -92,6 +95,7 @@ const fetchNodeConfig = async () => {
                 form.enableSoftShutdown = cfg.enableSoftShutdown;
                 form.softShutdownSkipDocker = cfg.softShutdownSkipDocker;
                 form.softShutdownWaitSeconds = cfg.softShutdownWaitSeconds;
+                form.instanceBackupPath = cfg.instanceBackupPath;
                 form.daemonPort = cfg.port;
             }
             if (nodeInfo?.remoteMappings) {
@@ -140,7 +144,8 @@ const saveSettings = async () => {
                     outputBufferSize: form.outputBufferSize,
                     enableSoftShutdown: form.enableSoftShutdown,
                     softShutdownSkipDocker: form.softShutdownSkipDocker,
-                    softShutdownWaitSeconds: form.softShutdownWaitSeconds
+                    softShutdownWaitSeconds: form.softShutdownWaitSeconds,
+                    instanceBackupPath: form.instanceBackupPath
                 },
                 daemonPort: form.daemonPort,
                 remoteMappings: form.remoteMappings
@@ -221,6 +226,13 @@ const saveSettings = async () => {
                     <label class="dn-form-label">{{ t("TXT_CODE_cd1f9ef7") }}</label>
                     <span class="dn-form-hint">{{ t("TXT_CODE_75ef0619") }}</span>
                     <input v-model.number="form.daemonPort" type="number" class="dn-form-input" />
+                </div>
+
+                <div class="dn-form-group">
+                    <label class="dn-form-label">{{ t("TXT_CODE_INSTANCE_BACKUP_PATH") }}</label>
+                    <span class="dn-form-hint">{{ t("TXT_CODE_INSTANCE_BACKUP_PATH_HINT") }}</span>
+                    <input v-model="form.instanceBackupPath" type="text" class="dn-form-input"
+                        placeholder="data/backups" />
                 </div>
 
                 <div class="dn-form-group">

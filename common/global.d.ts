@@ -182,6 +182,7 @@ declare global {
       enableSoftShutdown: boolean;
       softShutdownSkipDocker: boolean;
       softShutdownWaitSeconds: number;
+      instanceBackupPath: string;
     };
     dockerPlatforms?: string[];
   }

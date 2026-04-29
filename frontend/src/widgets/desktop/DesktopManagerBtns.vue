@@ -12,6 +12,7 @@ import { useAppStateStore } from "@/stores/useAppStateStore";
 import {
     AppstoreAddOutlined,
     BuildOutlined,
+    CloudDownloadOutlined,
     CodeOutlined,
     ControlOutlined,
     DashboardOutlined,
@@ -43,6 +44,7 @@ const emit = defineEmits<{
     (e: "open-term-config"): void;
     (e: "open-mc-ping"): void;
     (e: "open-java-manager"): void;
+    (e: "open-backup"): void;
 }>();
 
 const { isAdmin, state } = useAppStateStore();
@@ -210,6 +212,14 @@ const btns = computed(() => {
                 state.settings.allowChangeCmd,
             click: () => {
                 instanceFundamentalDetailDialog.value?.openDialog();
+            }
+        },
+        {
+            title: t("TXT_CODE_INSTANCE_BACKUP"),
+            icon: CloudDownloadOutlined,
+            condition: () => !isGlobalTerminal.value,
+            click: () => {
+                emit("open-backup");
             }
         }
     ]);

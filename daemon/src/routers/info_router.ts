@@ -58,7 +58,8 @@ routerApp.on("info/overview", async (ctx) => {
       outputBufferSize: globalConfiguration.config.outputBufferSize,
       enableSoftShutdown: globalConfiguration.config.enableSoftShutdown,
       softShutdownSkipDocker: globalConfiguration.config.softShutdownSkipDocker,
-      softShutdownWaitSeconds: globalConfiguration.config.softShutdownWaitSeconds
+      softShutdownWaitSeconds: globalConfiguration.config.softShutdownWaitSeconds,
+      instanceBackupPath: globalConfiguration.config.instanceBackupPath
     },
     dockerPlatforms
   };
@@ -78,6 +79,7 @@ routerApp.on("info/setting", async (ctx, data) => {
   const enableSoftShutdown = toBoolean(data.enableSoftShutdown);
   const softShutdownSkipDocker = toBoolean(data.softShutdownSkipDocker);
   const softShutdownWaitSeconds = toNumber(data.softShutdownWaitSeconds);
+  const instanceBackupPath = toText(data.instanceBackupPath);
   if (language) {
     logger.warn($t("TXT_CODE_66e32091"), language);
     i18next.changeLanguage(language);
@@ -114,6 +116,9 @@ routerApp.on("info/setting", async (ctx, data) => {
   }
   if (softShutdownWaitSeconds != null && softShutdownWaitSeconds >= 1 && softShutdownWaitSeconds <= 600) {
     globalConfiguration.config.softShutdownWaitSeconds = softShutdownWaitSeconds;
+  }
+  if (instanceBackupPath != null) {
+    globalConfiguration.config.instanceBackupPath = instanceBackupPath;
   }
   globalConfiguration.store();
   protocol.response(ctx, true);

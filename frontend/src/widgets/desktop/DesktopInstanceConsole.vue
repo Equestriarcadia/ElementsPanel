@@ -58,6 +58,7 @@ const emit = defineEmits<{
     (e: "open-term-config", instanceId: string, daemonId: string): void;
     (e: "open-mc-ping", instanceId: string, daemonId: string): void;
     (e: "open-java-manager", instanceId: string, daemonId: string): void;
+    (e: "open-backup", instanceId: string, daemonId: string): void;
 }>();
 
 const { state, isAdmin } = useAppStateStore();
@@ -268,7 +269,7 @@ const instanceOperations = computed(() =>
             },
             props: {},
             condition: () => !!instanceInfo.value?.config?.category
-        }
+        },
     ])
 );
 
@@ -492,7 +493,8 @@ onUnmounted(() => {
             @open-event-config="emit('open-event-config', instanceId, daemonId)"
             @open-term-config="emit('open-term-config', instanceId, daemonId)"
             @open-mc-ping="emit('open-mc-ping', instanceId, daemonId)"
-            @open-java-manager="emit('open-java-manager', instanceId, daemonId)" />
+            @open-java-manager="emit('open-java-manager', instanceId, daemonId)"
+            @open-backup="emit('open-backup', instanceId, daemonId)" />
     </div>
 </template>
 

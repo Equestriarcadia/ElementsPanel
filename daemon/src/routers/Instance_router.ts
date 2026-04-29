@@ -12,6 +12,10 @@ import ProcessInfoCommand from "../entity/commands/process_info";
 import { ProcessConfig } from "../entity/instance/process_config";
 import { TaskCenter } from "../service/async_task_service";
 import {
+  createInstanceBackupTask,
+  InstanceBackupTask
+} from "../service/async_task_service/instance_backup";
+import {
   createQuickInstallTask,
   QuickInstallTask
 } from "../service/async_task_service/quick_install";
@@ -155,7 +159,7 @@ routerApp.on("instance/detail", async (ctx, data) => {
     try {
       // Parts that may be wrong due to file permissions, avoid affecting the acquisition of the entire configuration
       processInfo = await instance.forceExec(new ProcessInfoCommand());
-    } catch (err: any) {}
+    } catch (err: any) { }
     protocol.msg(ctx, "instance/detail", {
       instanceUuid: instance.instanceUuid,
       started: instance.startCount,
@@ -364,7 +368,7 @@ routerApp.on("instance/delete", (ctx, data) => {
         nickname: instance.config.nickname
       });
       InstanceSubsystem.removeInstance(instanceUuid, deleteFile);
-    } catch (err: any) {}
+    } catch (err: any) { }
   }
   protocol.msg(ctx, "instance/delete", { instanceUuids, instances });
 });
@@ -389,7 +393,7 @@ routerApp.on("instance/asynchronous", (ctx, data) => {
   if (taskName === "install_instance" && instance) {
     instance
       .execPreset("install", parameter)
-      .then(() => {})
+      .then(() => { })
       .catch((err) => {
         logger.error(
           $t("TXT_CODE_Instance_router.performTasksErr", {
@@ -406,7 +410,7 @@ routerApp.on("instance/asynchronous", (ctx, data) => {
   if (taskName === "update" && instance) {
     instance
       .execPreset("update", parameter)
-      .then(() => {})
+      .then(() => { })
       .catch((err) => {
         logger.error(
           $t("TXT_CODE_Instance_router.performTasksErr", {
@@ -427,6 +431,12 @@ routerApp.on("instance/asynchronous", (ctx, data) => {
     const targetLink = String(parameter.targetLink);
     logger.info(`Quick install: Name: ${newInstanceName} | Download: ${targetLink}`);
     const task = createQuickInstallTask(targetLink, newInstanceName, parameter.setupInfo);
+    return protocol.response(ctx, task.toObject());
+  }
+
+  // Instance backup task
+  if (taskName === "instance_backup" && instance) {
+    const task = createInstanceBackupTask(instance);
     return protocol.response(ctx, task.toObject());
   }
 
@@ -452,8 +462,8 @@ routerApp.on("instance/stop_asynchronous", (ctx, data) => {
   if (task && task.stop) {
     task
       .stop(instance)
-      .then(() => {})
-      .catch((err) => {});
+      .then(() => { })
+      .catch((err) => { });
   } else {
     return protocol.error(
       ctx,
@@ -470,7 +480,8 @@ routerApp.on("instance/query_asynchronous", (ctx, data) => {
   const taskId = data.parameter.taskId as string | undefined;
   const taskName = data.taskName as string;
   const taskNameTypeMap: IJson<string> = {
-    quick_install: QuickInstallTask.TYPE
+    quick_install: QuickInstallTask.TYPE,
+    instance_backup: InstanceBackupTask.TYPE
   };
   const type = String(taskNameTypeMap[taskName] || QuickInstallTask.TYPE);
   if (!taskId) {

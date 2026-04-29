@@ -20,6 +20,7 @@ class Config {
   public language = "en_us";
   public defaultInstancePath = "";
   public defaultJavaDataPath = "";
+  public instanceBackupPath = "data/backups";
   public allocatablePortRange = [10010, 65500];
   public currentAllocatablePort = 10010;
   public portAssignInterval = 5;
@@ -78,3 +79,4 @@ const globalConfiguration = new GlobalConfiguration();
 const globalEnv = new GlobalEnv();
 
 export { Config, globalConfiguration, globalEnv };
+

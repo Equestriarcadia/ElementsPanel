@@ -12,6 +12,7 @@ import DesktopFileEditor from "@/widgets/desktop/DesktopFileEditor.vue";
 import DesktopFileManager from "@/widgets/desktop/DesktopFileManager.vue";
 import DesktopIcon from "@/widgets/desktop/DesktopIcon.vue";
 import DesktopImageViewer from "@/widgets/desktop/DesktopImageViewer.vue";
+import DesktopInstanceBackup from "@/widgets/desktop/DesktopInstanceBackup.vue";
 import DesktopInstanceConsole from "@/widgets/desktop/DesktopInstanceConsole.vue";
 import DesktopInstanceManager from "@/widgets/desktop/DesktopInstanceManager.vue";
 import DesktopJavaManager from "@/widgets/desktop/DesktopJavaManager.vue";
@@ -38,6 +39,7 @@ import {
     BuildOutlined,
     CloseOutlined,
     CloseSquareOutlined,
+    CloudDownloadOutlined,
     ClusterOutlined,
     CodeOutlined,
     ControlOutlined,
@@ -285,7 +287,8 @@ const ICON_MAP: Record<string, Component> = {
     "new-instance": markRaw(DesktopOutlined),
     "user-info": markRaw(UserOutlined),
     "mc-ping": markRaw(UsergroupDeleteOutlined),
-    "mod-manager": markRaw(UsbOutlined)
+    "mod-manager": markRaw(UsbOutlined),
+    "backup": markRaw(CloudDownloadOutlined)
 };
 
 const loadDesktopLayout = async () => {
@@ -721,6 +724,40 @@ const openModManagerWindow = (instanceId: string, daemonId: string) => {
     saveDesktopLayout();
 };
 
+const openBackupWindow = (instanceId: string, daemonId: string) => {
+    const windowId = `backup-${instanceId}`;
+    const existing = windows.get(windowId);
+
+    if (existing) {
+        existing.minimized = false;
+        existing.visible = true;
+        focusWindow(windowId);
+        return;
+    }
+
+    windowOffset = (windowOffset + 1) % 8;
+    const offsetX = 120 + windowOffset * 30;
+    const offsetY = 80 + windowOffset * 30;
+
+    windows.set(windowId, {
+        id: windowId,
+        title: t("TXT_CODE_INSTANCE_BACKUP"),
+        icon: markRaw(CloudDownloadOutlined),
+        visible: true,
+        minimized: false,
+        maximized: false,
+        zIndex: ++nextZIndex,
+        content: "backup",
+        initialX: offsetX,
+        initialY: offsetY,
+        initialWidth: 700,
+        initialHeight: 500,
+        instanceId: instanceId,
+        daemonId: daemonId
+    });
+    saveDesktopLayout();
+};
+
 const openNewInstanceWindow = () => {
     const windowId = "new-instance";
     const existing = windows.get(windowId);
@@ -1042,7 +1079,13 @@ const username = computed(() => appState.userInfo?.userName || "User");
                                 @open-server-config="openServerConfigWindow" @open-file-manager="openFileManagerWindow"
                                 @open-mod-manager="openModManagerWindow" @open-schedule="openScheduleWindow"
                                 @open-event-config="openEventConfigWindow" @open-term-config="openTermConfigWindow"
-                                @open-mc-ping="openMcPingWindow" @open-java-manager="openJavaManagerWindow" />
+                                @open-mc-ping="openMcPingWindow" @open-java-manager="openJavaManagerWindow"
+                                @open-backup="openBackupWindow" />
+
+                            <DesktopInstanceBackup
+                                v-else-if="win.content === 'backup' && win.instanceId && win.daemonId" :visible="true"
+                                :instance-uuid="win.instanceId" :daemon-id="win.daemonId"
+                                @close="closeWindow(win.id)" />
 
                             <DesktopServerConfig
                                 v-else-if="win.content === 'server-config' && win.instanceId && win.daemonId && win.type"
