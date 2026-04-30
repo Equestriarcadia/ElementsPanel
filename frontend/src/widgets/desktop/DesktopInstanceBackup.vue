@@ -33,7 +33,6 @@ const emit = defineEmits<{
 const loading = ref(false);
 const taskId = ref<string | null>(null);
 const taskStatus = ref<number>(0);
-const backupInfo = ref<any>(null);
 const backupList = ref<{ name: string; size: number; time: string }[]>([]);
 const listLoading = ref(false);
 
@@ -151,14 +150,12 @@ const startQuery = () => {
             });
             if (res.value) {
                 taskStatus.value = res.value.status;
-                backupInfo.value = res.value.detail;
                 if (taskStatus.value !== 1) {
                     clearInterval(timer);
                     timer = null;
                     fetchBackupList();
                     if (taskStatus.value === 0) {
                         message.success(t("TXT_CODE_INSTANCE_BACKUP_COMPLETED"));
-                        backupInfo.value = null;
                     }
                 }
             }
@@ -247,21 +244,7 @@ onUnmounted(() => {
 <template>
     <div class="ds-backup">
         <div class="ds-backup-body">
-            <div v-if="taskStatus === -1" class="ds-backup-content">
-                <div class="ds-backup-status">
-                    <ExclamationCircleOutlined class="status-icon status-icon--error" />
-                    <p class="status-text">{{ t("TXT_CODE_INSTANCE_BACKUP_FAILED_TITLE") }}</p>
-                    <p class="status-hint">{{ t("TXT_CODE_INSTANCE_BACKUP_FAILED_HINT") }}</p>
-                    <button class="ds-btn ds-btn--primary ds-btn--lg" @click="
-                        backupInfo = null;
-                    taskStatus = 0;
-                    ">
-                        {{ t("TXT_CODE_c14b2ea3") }}
-                    </button>
-                </div>
-            </div>
-
-            <div v-else class="ds-backup-list-container">
+            <div class="ds-backup-list-container">
                 <div class="list-header">
                     <HistoryOutlined />
                     {{ t("TXT_CODE_INSTANCE_BACKUP_LIST") }}
@@ -408,45 +391,6 @@ onUnmounted(() => {
     overflow: hidden;
 }
 
-.ds-btn {
-    background: var(--desktop-window-titlebar-bg);
-    border: 1px solid var(--desktop-window-border);
-    border-radius: 6px;
-    color: var(--desktop-window-text);
-    padding: 4px 12px;
-    font-size: 12px;
-    cursor: pointer;
-    transition: all 0.2s;
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-
-    &:hover:not(:disabled) {
-        background: var(--desktop-window-control-hover);
-    }
-
-    &:disabled {
-        opacity: 0.5;
-        cursor: not-allowed;
-    }
-
-    &--primary {
-        color: #fff;
-        background: var(--color-blue-5, #1677ff);
-        border-color: var(--color-blue-5, #1677ff);
-
-        &:hover:not(:disabled) {
-            background: var(--color-blue-6, #4096ff);
-        }
-    }
-
-    &--lg {
-        padding: 8px 24px;
-        font-size: 14px;
-        margin-top: 16px;
-    }
-}
-
 .ds-backup-body {
     flex: 1;
     overflow-y: auto;
@@ -500,13 +444,6 @@ onUnmounted(() => {
             background: var(--desktop-window-control-hover);
         }
     }
-}
-
-.ds-backup-content {
-    max-width: 500px;
-    width: 100%;
-    text-align: center;
-    margin: auto;
 }
 
 .ds-backup-list-container {
@@ -708,68 +645,5 @@ onUnmounted(() => {
     justify-content: flex-end;
     gap: 8px;
     border-top: 1px solid var(--desktop-window-border);
-}
-
-.ds-backup-status {
-    .status-icon {
-        font-size: 64px;
-        margin-bottom: 20px;
-
-        &--loading {
-            color: var(--color-blue-5);
-        }
-
-        &--success {
-            color: #52c41a;
-        }
-
-        &--error {
-            color: #ff4d4f;
-        }
-    }
-
-    .status-text {
-        font-size: 18px;
-        font-weight: 600;
-        margin-bottom: 12px;
-        color: var(--desktop-window-text);
-    }
-
-    .status-hint {
-        font-size: 14px;
-        color: var(--desktop-window-text-muted);
-    }
-
-    .backup-details {
-        margin-top: 24px;
-        padding: 16px;
-        background: var(--desktop-window-titlebar-bg);
-        border: 1px solid var(--desktop-window-border);
-        border-radius: 8px;
-        text-align: left;
-
-        .detail-item {
-            margin-bottom: 8px;
-            display: flex;
-            flex-direction: column;
-
-            &:last-child {
-                margin-bottom: 0;
-            }
-        }
-
-        .detail-label {
-            font-weight: 600;
-            font-size: 12px;
-            color: var(--desktop-window-text-muted);
-            margin-bottom: 2px;
-        }
-
-        .detail-value {
-            font-size: 13px;
-            word-break: break-all;
-            color: var(--desktop-window-text);
-        }
-    }
 }
 </style>

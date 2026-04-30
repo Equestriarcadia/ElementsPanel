@@ -32,7 +32,6 @@ const visible = ref(false);
 const loading = ref(false);
 const taskId = ref<string | null>(null);
 const taskStatus = ref<number>(0);
-const backupInfo = ref<any>(null);
 const backupList = ref<{ name: string; size: number; time: string }[]>([]);
 const listLoading = ref(false);
 let timer: any = null;
@@ -61,7 +60,6 @@ const fetchBackupList = async () => {
 
         if (currentTask) {
             taskStatus.value = currentTask.status;
-            backupInfo.value = currentTask.detail;
             if (taskStatus.value === 1) {
                 taskId.value = currentTask.taskId;
                 startQuery();
@@ -141,14 +139,12 @@ const startQuery = () => {
             });
             if (res.value) {
                 taskStatus.value = res.value.status;
-                backupInfo.value = res.value.detail;
                 if (taskStatus.value !== 1) {
                     clearInterval(timer);
                     timer = null;
                     fetchBackupList();
                     if (taskStatus.value === 0) {
                         message.success(t("TXT_CODE_INSTANCE_BACKUP_COMPLETED"));
-                        backupInfo.value = null;
                     }
                 }
             }
@@ -236,18 +232,7 @@ defineExpose({ open });
 <template>
     <a-modal v-model:open="visible" :title="t('TXT_CODE_INSTANCE_BACKUP')" width="800px" :footer="null" @cancel="close">
         <div class="instance-backup-container">
-            <div v-if="taskStatus === -1" class="backup-status">
-                <div class="status-failed">
-                    <ExclamationCircleOutlined class="status-icon error" />
-                    <span class="status-text">{{ t("TXT_CODE_INSTANCE_BACKUP_FAILED_TITLE") }}</span>
-                    <span class="status-hint">{{ t("TXT_CODE_INSTANCE_BACKUP_FAILED_HINT") }}</span>
-                    <a-button type="primary" @click="() => { backupInfo = null; taskStatus = 0; }">
-                        {{ t("TXT_CODE_c14b2ea3") }}
-                    </a-button>
-                </div>
-            </div>
-
-            <div v-else class="backup-list-area">
+            <div class="backup-list-area">
                 <div class="list-header">
                     <HistoryOutlined />
                     <span>{{ t("TXT_CODE_INSTANCE_BACKUP_LIST") }}</span>
@@ -305,33 +290,6 @@ defineExpose({ open });
     display: flex;
     flex-direction: column;
     gap: 20px;
-}
-
-.backup-status {
-    text-align: center;
-    padding: 40px 20px;
-
-    .status-icon {
-        font-size: 48px;
-        margin-bottom: 16px;
-
-        &.error {
-            color: #ff4d4f;
-        }
-    }
-
-    .status-text {
-        font-size: 18px;
-        font-weight: 500;
-        display: block;
-        margin-bottom: 8px;
-    }
-
-    .status-hint {
-        color: #999;
-        display: block;
-        margin-bottom: 20px;
-    }
 }
 
 .list-header {
