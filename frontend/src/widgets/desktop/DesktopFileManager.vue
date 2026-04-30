@@ -542,6 +542,16 @@ const dragSelectStart = ref({ x: 0, y: 0 });
 const dragSelectRect = ref({ x: 0, y: 0, w: 0, h: 0 });
 const dragSelectVisible = ref(false);
 
+const dataSourceMap = computed(() => {
+    const map = new Map<string, DataType>();
+    if (dataSource.value) {
+        for (const item of dataSource.value) {
+            map.set(item.name, item);
+        }
+    }
+    return map;
+});
+
 const getTableBodyEl = (): HTMLElement | null => {
     return document.querySelector('.dfm .ant-table-tbody');
 };
@@ -601,7 +611,22 @@ const onTableMouseDown = (e: MouseEvent) => {
     e.stopPropagation();
 };
 
+let dragSelectRafId: number | null = null;
+
 const onTableMouseMove = (e: MouseEvent) => {
+    if (!isDragSelecting.value) return;
+
+    if (dragSelectRafId !== null) {
+        cancelAnimationFrame(dragSelectRafId);
+    }
+
+    dragSelectRafId = requestAnimationFrame(() => {
+        dragSelectRafId = null;
+        performDragSelection(e);
+    });
+};
+
+const performDragSelection = (e: MouseEvent) => {
     if (!isDragSelecting.value) return;
 
     const wrapper = getTableWrapperEl();
@@ -631,26 +656,29 @@ const onTableMouseMove = (e: MouseEvent) => {
     const rows = getRowEls();
     const newlySelected: string[] = [];
     const newlySelectedRows: DataType[] = [];
+    const map = dataSourceMap.value;
 
-    rows.forEach((row) => {
+    for (let i = 0; i < rows.length; i++) {
+        const row = rows[i];
         const rowRect = row.getBoundingClientRect();
         const rowRelTop = rowRect.top - wrapperRect.top;
         const rowRelBottom = rowRect.bottom - wrapperRect.top;
 
         if (rowRelBottom > selRect.top && rowRelTop < selRect.bottom) {
             const key = getRowDataKey(row);
-            if (key && dataSource.value) {
-                const found = dataSource.value.find(d => d.name === key);
+            if (key) {
+                const found = map.get(key);
                 if (found) {
                     newlySelected.push(key);
                     newlySelectedRows.push(found);
                 }
             }
         }
-    });
+    }
 
-    selectedRowKeys.value = newlySelected;
-    if (selectionData.value) {
+    const prevSelected = selectedRowKeys.value;
+    if (prevSelected.length !== newlySelected.length || prevSelected.some((k, i) => k !== newlySelected[i])) {
+        selectedRowKeys.value = newlySelected;
         selectionData.value = newlySelectedRows;
     }
 };
@@ -659,6 +687,10 @@ const onTableMouseUp = () => {
     if (isDragSelecting.value) {
         isDragSelecting.value = false;
         dragSelectVisible.value = false;
+        if (dragSelectRafId !== null) {
+            cancelAnimationFrame(dragSelectRafId);
+            dragSelectRafId = null;
+        }
     }
 };
 
@@ -696,8 +728,9 @@ const handleKeyboardShortcut = (e: KeyboardEvent) => {
         e.preventDefault();
         if (!dataSource.value || dataSource.value.length === 0) return;
         const allKeys = dataSource.value.map(d => d.name);
+        const allRows = [...dataSource.value];
         selectedRowKeys.value = allKeys;
-        selectionData.value = [...dataSource.value];
+        selectionData.value = allRows;
         return;
     }
 
@@ -738,6 +771,10 @@ onMounted(async () => {
 onUnmounted(() => {
     if (task) clearInterval(task);
     task = undefined;
+    if (dragSelectRafId !== null) {
+        cancelAnimationFrame(dragSelectRafId);
+        dragSelectRafId = null;
+    }
     document.removeEventListener('mousemove', onTableMouseMove);
     document.removeEventListener('mouseup', onTableMouseUp);
     document.removeEventListener('keydown', handleKeyboardShortcut);
