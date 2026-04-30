@@ -162,22 +162,13 @@ export class InstanceBackupTask extends AsyncTask {
                 }
             }, 200);
             
-            archive.on('progress', (progress) => {
-                const percent = Math.floor((progress.fs.processedBytes / totalSize) * 100);
-                if (percent !== lastPercent) {
-                    lastPercent = percent;
-                    const barLength = 30;
-                    const filled = Math.floor((percent / 100) * barLength);
-                    const empty = barLength - filled;
-                    const bar = '[' + '#'.repeat(filled) + ' '.repeat(empty) + ']';
-                    const progressText = `${progressPrefix}${bar} ${percent}%`;
-                    this.instance.print(progressText);
-                }
-            });
-            
             await new Promise<void>((resolve, reject) => {
                 output.on('close', () => {
                     clearInterval(progressInterval);
+                    const barLength = 30;
+                    const bar = '[' + '#'.repeat(barLength) + ']';
+                    const progressText = `${progressPrefix}${bar} 100%`;
+                    this.instance.print(progressText);
                     resolve();
                 });
                 archive.on('error', (err) => {
