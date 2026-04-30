@@ -2,8 +2,11 @@ import path from "path";
 
 export class GitignoreMatcher {
   private rules: { pattern: string; negate: boolean; dirOnly: boolean; anchored: boolean; hasSlash: boolean; regex: RegExp }[] = [];
+  private whitelistMode: boolean;
 
-  constructor(content: string, private baseDir: string) {
+  constructor(content: string, private baseDir: string, whitelistMode: boolean = false) {
+    this.whitelistMode = whitelistMode;
+
     const lines = content.split(/\r?\n/);
     for (const rawLine of lines) {
       const line = rawLine.trim();
@@ -97,7 +100,7 @@ export class GitignoreMatcher {
   public isIgnored(filePath: string, isDirectory: boolean = false): boolean {
     const normalizedPath = filePath.replace(/\\/g, '/');
 
-    let ignored = false;
+    let ignored = this.whitelistMode;
 
     for (const rule of this.rules) {
       if (rule.dirOnly && !isDirectory) continue;
@@ -111,18 +114,22 @@ export class GitignoreMatcher {
       } else {
         const basename = path.basename(normalizedPath);
         if (rule.regex.test(basename)) {
-          ignored = !rule.negate;
+          ignored = this.whitelistMode ? rule.negate : !rule.negate;
           continue;
         }
         testPath = normalizedPath;
       }
 
       if (rule.regex.test(testPath)) {
-        ignored = !rule.negate;
+        ignored = this.whitelistMode ? rule.negate : !rule.negate;
       }
     }
 
     return ignored;
+  }
+
+  public isWhitelistMode(): boolean {
+    return this.whitelistMode;
   }
 
   public getRules(): { pattern: string; negate: boolean; dirOnly: boolean; anchored: boolean }[] {

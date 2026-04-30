@@ -73,9 +73,28 @@ export class InstanceBackupTask extends AsyncTask {
 
             if (await fs.pathExists(epbaklstPath)) {
                 const content = await fs.readFile(epbaklstPath, "utf-8");
-                gitignoreMatcher = new GitignoreMatcher(content, instanceCwd);
+                const lines = content.split(/\r?\n/);
+                const firstLine = lines.length > 0 ? lines[0].trim() : "";
+                
+                let whitelistMode = false;
+                if (firstLine.startsWith("$")) {
+                    const directive = firstLine.toLowerCase();
+                    if (directive === "$white") {
+                        whitelistMode = true;
+                    } else if (directive === "$black") {
+                        whitelistMode = false;
+                    } else {
+                        whitelistMode = false;
+                    }
+                } else {
+                    whitelistMode = false;
+                }
+
+                gitignoreMatcher = new GitignoreMatcher(content, instanceCwd, whitelistMode);
                 const rules = gitignoreMatcher.getRules();
             }
+
+            const whitelistMode = gitignoreMatcher ? gitignoreMatcher.isWhitelistMode() : false;
 
             const allFiles: { filePath: string; stat: fs.Stats }[] = [];
             let totalSize = 0;
@@ -86,7 +105,7 @@ export class InstanceBackupTask extends AsyncTask {
                     const fullPath = path.join(dir, entry.name);
                     const relPath = path.join(relativePath, entry.name);
                     if (entry.isDirectory()) {
-                        if (gitignoreMatcher && gitignoreMatcher.isIgnored(relPath, true)) {
+                        if (!whitelistMode && gitignoreMatcher && gitignoreMatcher.isIgnored(relPath, true)) {
                             blacklistedCount++;
                             continue;
                         }
