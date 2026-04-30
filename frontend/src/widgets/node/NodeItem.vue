@@ -83,6 +83,7 @@ const detailList = (node: ComputedNodeInfo) => [
     value: node.available ? t("TXT_CODE_823bfe63") : t("TXT_CODE_66ce073e"),
     warn: node.available === false,
     success: node.available === true,
+    danger: node.available === false,
     warnText: t("TXT_CODE_1c2efd38")
   },
   {
@@ -94,6 +95,7 @@ const detailList = (node: ComputedNodeInfo) => [
     warn: socketStatus.value === SocketStatus.Error,
     success: socketStatus.value === SocketStatus.Connected,
     loading: socketStatus.value === SocketStatus.Connecting,
+    danger: socketStatus.value === SocketStatus.Error,
     warnText: t("TXT_CODE_6b4a27dd")
   },
   {
@@ -228,7 +230,8 @@ onMounted(() => {
                   <template #title>
                     {{ detail.warnText }}
                   </template>
-                  <span :class="remoteNode?.brand !== 'ElementsPanel' ? 'color-warning' : 'color-danger'">
+                  <span
+                    :class="detail.danger ? 'color-danger' : remoteNode?.brand !== 'ElementsPanel' ? 'color-warning' : 'color-danger'">
                     <InfoCircleOutlined /> {{ detail.value }}
                   </span>
                 </a-tooltip>
