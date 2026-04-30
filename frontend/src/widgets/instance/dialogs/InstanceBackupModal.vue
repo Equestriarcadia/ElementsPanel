@@ -52,11 +52,19 @@ const fetchBackupList = async () => {
                 taskId: ""
             }
         });
-        if (taskRes.value) {
-            taskStatus.value = taskRes.value.status;
-            backupInfo.value = taskRes.value.detail;
+
+        let currentTask = null;
+        if (Array.isArray(taskRes.value)) {
+            currentTask = taskRes.value.find((t: any) => t.detail?.instanceUuid === props.instanceUuid);
+        } else if (taskRes.value && taskRes.value.detail?.instanceUuid === props.instanceUuid) {
+            currentTask = taskRes.value;
+        }
+
+        if (currentTask) {
+            taskStatus.value = currentTask.status;
+            backupInfo.value = currentTask.detail;
             if (taskStatus.value === 1) {
-                taskId.value = taskRes.value.taskId;
+                taskId.value = currentTask.taskId;
                 startQuery();
             }
         } else {
