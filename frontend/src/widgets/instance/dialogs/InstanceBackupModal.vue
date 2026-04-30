@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { t } from "@/lang/i18n";
+import { fileContent, touchFile } from "@/services/apis/fileManager";
 import {
     createAsyncTask,
     deleteBackup,
@@ -10,6 +11,7 @@ import {
 import {
     CloudDownloadOutlined,
     DeleteOutlined,
+    EditOutlined,
     ExclamationCircleOutlined,
     PlusCircleOutlined,
     RollbackOutlined,
@@ -17,6 +19,7 @@ import {
 } from "@ant-design/icons-vue";
 import { message, Modal } from "ant-design-vue";
 import { h, onUnmounted, ref } from "vue";
+import FileEditor from "./FileEditor.vue";
 
 const props = defineProps<{
     instanceUuid: string;
@@ -33,6 +36,7 @@ const taskId = ref<string | null>(null);
 const taskStatus = ref<number>(0);
 const backupList = ref<{ name: string; size: number; time: string }[]>([]);
 const listLoading = ref(false);
+const fileEditorDialog = ref<InstanceType<typeof FileEditor>>();
 let timer: any = null;
 
 const fetchBackupList = async () => {
@@ -202,6 +206,59 @@ const handleRestore = (backupName: string) => {
     });
 };
 
+const handleEditEpbaklst = async () => {
+    const filePath = ".epbaklst";
+    const fileName = ".epbaklst";
+    try {
+        const { execute: readFile } = fileContent();
+        const res = await readFile({
+            params: {
+                daemonId: props.daemonId,
+                uuid: props.instanceUuid
+            },
+            data: {
+                target: filePath
+            }
+        });
+        fileEditorDialog.value?.openDialog(filePath, fileName);
+    } catch {
+        Modal.confirm({
+            title: t("TXT_CODE_INSTANCE_BACKUP_EDIT_EPBAKLST"),
+            icon: () => h(ExclamationCircleOutlined),
+            content: t("TXT_CODE_INSTANCE_BACKUP_EPBAKLST_CREATE_CONFIRM"),
+            onOk: async () => {
+                try {
+                    const { execute: createFile } = touchFile();
+                    await createFile({
+                        params: {
+                            daemonId: props.daemonId,
+                            uuid: props.instanceUuid
+                        },
+                        data: {
+                            target: filePath
+                        }
+                    });
+                    const { execute: writeFile } = fileContent();
+                    await writeFile({
+                        params: {
+                            daemonId: props.daemonId,
+                            uuid: props.instanceUuid
+                        },
+                        data: {
+                            target: filePath,
+                            text: "$black\n\n# $black = 黑名单匹配；$white = 白名单匹配\n# 该文件使用 .gitignore 语法\n# ---\n# $black = blacklist matching; $white = whitelist matching\n# This file uses .gitignore syntax\n"
+                        }
+                    });
+                    message.success(t("TXT_CODE_INSTANCE_BACKUP_EPBAKLST_CREATED"));
+                    fileEditorDialog.value?.openDialog(filePath, fileName);
+                } catch (error: any) {
+                    message.error(error.message);
+                }
+            }
+        });
+    }
+};
+
 const formatSize = (bytes: number) => {
     if (bytes === 0) return "0 B";
     const k = 1024;
@@ -271,6 +328,12 @@ defineExpose({ open });
                 </a-spin>
             </div>
             <div class="backup-footer">
+                <a-button @click="handleEditEpbaklst">
+                    <template #icon>
+                        <EditOutlined />
+                    </template>
+                    {{ t("TXT_CODE_INSTANCE_BACKUP_EDIT_EPBAKLST") }}
+                </a-button>
                 <a-button type="primary" :loading="loading" @click="startBackup">
                     <template #icon>
                         <PlusCircleOutlined />
@@ -280,6 +343,9 @@ defineExpose({ open });
             </div>
         </div>
     </a-modal>
+
+    <FileEditor v-if="daemonId && instanceUuid" ref="fileEditorDialog" :daemon-id="daemonId"
+        :instance-id="instanceUuid" />
 </template>
 
 <style scoped lang="scss">
@@ -331,5 +397,6 @@ defineExpose({ open });
     display: flex;
     justify-content: flex-end;
     padding-top: 16px;
+    gap: 8px;
 }
 </style>
