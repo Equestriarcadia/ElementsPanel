@@ -282,7 +282,7 @@ defineExpose({ open });
                 </a-spin>
             </div>
             <div class="backup-footer">
-                <a-button type="primary" :loading="loading" @click="startBackup">
+                <a-button v-if="taskStatus !== 1" type="primary" :loading="loading" @click="startBackup">
                     <template #icon>
                         <PlusCircleOutlined />
                     </template>
