@@ -13,7 +13,6 @@ import {
     DeleteOutlined,
     EditOutlined,
     ExclamationCircleOutlined,
-    HistoryOutlined,
     LoadingOutlined,
     PlusCircleOutlined,
     RollbackOutlined,
@@ -310,7 +309,6 @@ onUnmounted(() => {
         <div class="ds-backup-body">
             <div class="ds-backup-list-container">
                 <div class="list-header">
-                    <HistoryOutlined />
                     {{ t("TXT_CODE_INSTANCE_BACKUP_LIST") }}
                     <SyncOutlined :spin="listLoading" class="refresh-btn" @click="fetchBackupList" />
                 </div>

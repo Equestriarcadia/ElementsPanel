@@ -11,7 +11,6 @@ import {
     CloudDownloadOutlined,
     DeleteOutlined,
     ExclamationCircleOutlined,
-    HistoryOutlined,
     PlusCircleOutlined,
     RollbackOutlined,
     SyncOutlined
@@ -234,8 +233,6 @@ defineExpose({ open });
         <div class="instance-backup-container">
             <div class="backup-list-area">
                 <div class="list-header">
-                    <HistoryOutlined />
-                    <span>{{ t("TXT_CODE_INSTANCE_BACKUP_LIST") }}</span>
                     <a-button type="text" :loading="listLoading" @click="fetchBackupList" class="refresh-btn">
                         <template #icon>
                             <SyncOutlined />
