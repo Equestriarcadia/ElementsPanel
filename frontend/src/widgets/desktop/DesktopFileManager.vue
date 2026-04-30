@@ -536,7 +536,7 @@ const handleRowClick = (e: MouseEvent, record: DataType) => {
     lastClickedIndex.value = index;
 };
 
-const tableBodyRef = ref<HTMLElement | null>(null);
+const dfmRootRef = ref<HTMLElement | null>(null);
 const isDragSelecting = ref(false);
 const dragSelectStart = ref({ x: 0, y: 0 });
 const dragSelectRect = ref({ x: 0, y: 0, w: 0, h: 0 });
@@ -553,11 +553,13 @@ const dataSourceMap = computed(() => {
 });
 
 const getTableBodyEl = (): HTMLElement | null => {
-    return document.querySelector('.dfm .ant-table-tbody');
+    if (!dfmRootRef.value) return null;
+    return dfmRootRef.value.querySelector('.ant-table-tbody');
 };
 
 const getRowEls = (): NodeListOf<HTMLElement> => {
-    return document.querySelectorAll('.dfm .ant-table-tbody tr.ant-table-row');
+    if (!dfmRootRef.value) return document.querySelectorAll('');
+    return dfmRootRef.value.querySelectorAll('.ant-table-tbody tr.ant-table-row');
 };
 
 const getRowDataKey = (rowEl: HTMLElement): string | null => {
@@ -565,7 +567,8 @@ const getRowDataKey = (rowEl: HTMLElement): string | null => {
 };
 
 const getTableWrapperEl = (): HTMLElement | null => {
-    return document.querySelector('.dfm-table-wrapper');
+    if (!dfmRootRef.value) return null;
+    return dfmRootRef.value.querySelector('.dfm-table-wrapper');
 };
 
 const onTableMouseDown = (e: MouseEvent) => {
@@ -793,7 +796,7 @@ onUnmounted(() => {
 </script>
 
 <template>
-    <div class="dfm">
+    <div ref="dfmRootRef" class="dfm">
         <div class="dfm-toolbar">
             <div class="dfm-toolbar__left">
                 <a-input v-model:value.trim.lazy="operationForm.name" :placeholder="t('TXT_CODE_7cad42a5')" allow-clear
