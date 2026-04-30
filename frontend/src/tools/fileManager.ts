@@ -16,6 +16,7 @@ import {
   FileWordOutlined,
   FileZipOutlined,
   FolderOutlined,
+  FunnelPlotOutlined,
   Html5Outlined,
   IeOutlined,
   PlaySquareOutlined,
@@ -156,6 +157,7 @@ const fileType = new Map([
   ["SH", CodeOutlined],
   ["MD", FileMarkdownOutlined],
   ["GITIGNORE", BranchesOutlined],
+  ["EPBAKLST", FunnelPlotOutlined],
 
   ["APK", AndroidOutlined],
   ["URL", IeOutlined],
