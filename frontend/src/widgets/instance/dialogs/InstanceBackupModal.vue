@@ -52,10 +52,15 @@ const fetchBackupList = async () => {
                 taskId: ""
             }
         });
-        if (taskRes.value && taskRes.value.status === 1) {
-            taskStatus.value = 1;
-            taskId.value = taskRes.value.taskId;
-            startQuery();
+        if (taskRes.value) {
+            taskStatus.value = taskRes.value.status;
+            backupInfo.value = taskRes.value.detail;
+            if (taskStatus.value === 1) {
+                taskId.value = taskRes.value.taskId;
+                startQuery();
+            }
+        } else {
+            taskStatus.value = 0;
         }
 
         const { execute } = getBackupList();
