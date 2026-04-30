@@ -248,25 +248,29 @@ const overwriteDialog = ref({
     show: false,
     count: 0,
     fileName: "",
-    all: { value: false },
-    overwrite: { value: false },
-    resolve: null as ((value: boolean) => void) | null
+    all: false,
+    overwrite: false,
+    resolve: null as ((value: { confirmed: boolean; all: boolean; overwrite: boolean }) => void) | null
 });
+
+const createOverwriteHandler = () => {
+    return (params: { count: number; fileName: string }) => {
+        return new Promise<{ confirmed: boolean; all: boolean; overwrite: boolean }>((resolve) => {
+            overwriteDialog.value = {
+                show: true,
+                count: params.count,
+                fileName: params.fileName,
+                all: false,
+                overwrite: false,
+                resolve
+            };
+        });
+    };
+};
 
 const handleUploadConfirmOk = () => {
     if (uploadConfirmDialog.value.files) {
-        selectedFiles([...uploadConfirmDialog.value.files], undefined, (params) => {
-            return new Promise<boolean>((resolve) => {
-                overwriteDialog.value = {
-                    show: true,
-                    count: params.count,
-                    fileName: params.fileName,
-                    all: params.all,
-                    overwrite: params.overwrite,
-                    resolve
-                };
-            });
-        });
+        selectedFiles([...uploadConfirmDialog.value.files], undefined, createOverwriteHandler());
     }
     uploadConfirmDialog.value.show = false;
 };
@@ -277,14 +281,22 @@ const handleUploadConfirmCancel = () => {
 
 const handleOverwriteOk = () => {
     if (overwriteDialog.value.resolve) {
-        overwriteDialog.value.resolve(true);
+        overwriteDialog.value.resolve({
+            confirmed: true,
+            all: overwriteDialog.value.all,
+            overwrite: overwriteDialog.value.overwrite
+        });
     }
     overwriteDialog.value.show = false;
 };
 
 const handleOverwriteCancel = () => {
     if (overwriteDialog.value.resolve) {
-        overwriteDialog.value.resolve(false);
+        overwriteDialog.value.resolve({
+            confirmed: false,
+            all: overwriteDialog.value.all,
+            overwrite: overwriteDialog.value.overwrite
+        });
     }
     overwriteDialog.value.show = false;
 };
@@ -296,18 +308,7 @@ const onFileSelect = (info: UploadChangeParam) => {
     if (!fileList.value) return;
     const files = [...fileList.value].map((v) => v.originFileObj as File);
     fileList.value = [];
-    selectedFiles(files, undefined, (params) => {
-        return new Promise<boolean>((resolve) => {
-            overwriteDialog.value = {
-                show: true,
-                count: params.count,
-                fileName: params.fileName,
-                all: params.all,
-                overwrite: params.overwrite,
-                resolve
-            };
-        });
-    });
+    selectedFiles(files, undefined, createOverwriteHandler());
 };
 
 const editFile = (fileName: string) => {
@@ -1112,10 +1113,10 @@ onUnmounted(() => {
                             <p class="dfm-dialog__desc">{{ t("TXT_CODE_58a55f17", { name: overwriteDialog.fileName }) }}
                             </p>
                             <div class="dfm-overwrite-options">
-                                <a-checkbox v-model:checked="overwriteDialog.overwrite.value">
+                                <a-checkbox v-model:checked="overwriteDialog.overwrite">
                                     {{ t("TXT_CODE_5bf41818") }}
                                 </a-checkbox>
-                                <a-checkbox v-if="overwriteDialog.count > 1" v-model:checked="overwriteDialog.all.value"
+                                <a-checkbox v-if="overwriteDialog.count > 1" v-model:checked="overwriteDialog.all"
                                     style="margin-left: 5px">
                                     {{ t("TXT_CODE_5445f34b", { num: overwriteDialog.count - 1 }) }}
                                 </a-checkbox>

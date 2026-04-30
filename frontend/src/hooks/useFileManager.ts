@@ -579,12 +579,22 @@ export const useFileManager = (instanceId: string = "", daemonId: string = "", s
 
   const spinning = ref(false);
 
-  const selectedFiles = async (files: File[], overridePath?: string, overwriteDialogHandler?: (params: {
+  type OverwriteDialogResult = {
+    confirmed: boolean;
+    all: boolean;
+    overwrite: boolean;
+  };
+
+  type OverwriteDialogHandler = (params: {
     count: number;
     fileName: string;
-    all: { value: boolean };
-    overwrite: { value: boolean };
-  }) => Promise<boolean>) => {
+  }) => Promise<OverwriteDialogResult>;
+
+  const selectedFiles = async (
+    files: File[],
+    overridePath?: string,
+    overwriteDialogHandler?: OverwriteDialogHandler
+  ) => {
     const { state: missionCfg, execute: getUploadMissionCfg } = uploadAddress();
     const fileSet = new Set(files.map((f) => ({ file: f, overwrite: false })));
     const existingFiles: typeof fileSet = new Set();
@@ -596,17 +606,17 @@ export const useFileManager = (instanceId: string = "", daemonId: string = "", s
     }
 
     for (const f of existingFiles) {
-      const all = ref(false);
-      const overwrite = ref(false);
-      const confirmPromise = new Promise<boolean>((onComplete) => {
-        if (overwriteDialogHandler) {
-          overwriteDialogHandler({
-            count: existingFiles.size,
-            fileName: f.file.name,
-            all,
-            overwrite
-          }).then(onComplete);
-        } else {
+      let confirmResult: OverwriteDialogResult;
+
+      if (overwriteDialogHandler) {
+        confirmResult = await overwriteDialogHandler({
+          count: existingFiles.size,
+          fileName: f.file.name
+        });
+      } else {
+        confirmResult = await new Promise<OverwriteDialogResult>((resolve) => {
+          const allRef = ref(false);
+          const overwriteRef = ref(false);
           Modal.confirm({
             title: t("TXT_CODE_99ca8563"),
             icon: createVNode(ExclamationCircleOutlined),
@@ -615,38 +625,46 @@ export const useFileManager = (instanceId: string = "", daemonId: string = "", s
               {
                 count: existingFiles.size,
                 fileName: f.file.name,
-                all: all,
-                overwrite: overwrite,
-                "onUpdate:all": (val: boolean) => (all.value = val),
-                "onUpdate:overwrite": (val: boolean) => (overwrite.value = val)
+                all: allRef,
+                overwrite: overwriteRef,
+                "onUpdate:all": (val: boolean) => (allRef.value = val),
+                "onUpdate:overwrite": (val: boolean) => (overwriteRef.value = val)
               },
               null
             ),
             okText: t("TXT_CODE_ae09d79d"),
             cancelText: t("TXT_CODE_518528d0"),
             onOk() {
-              onComplete(true);
+              resolve({
+                confirmed: true,
+                all: allRef.value,
+                overwrite: overwriteRef.value
+              });
             },
             onCancel() {
-              onComplete(false);
+              resolve({
+                confirmed: false,
+                all: allRef.value,
+                overwrite: overwriteRef.value
+              });
             }
           });
-        }
-      });
-      if (await confirmPromise) {
-        if (all.value) {
-          for (const f of existingFiles) {
-            f.overwrite = overwrite.value;
+        });
+      }
+
+      if (confirmResult.confirmed) {
+        if (confirmResult.all) {
+          for (const ef of existingFiles) {
+            ef.overwrite = confirmResult.overwrite;
           }
           break;
         }
-        f.overwrite = overwrite.value;
+        f.overwrite = confirmResult.overwrite;
         existingFiles.delete(f);
       } else {
-        // skip
-        if (all.value) {
-          for (const f of existingFiles) {
-            fileSet.delete(f);
+        if (confirmResult.all) {
+          for (const ef of existingFiles) {
+            fileSet.delete(ef);
           }
           break;
         }
