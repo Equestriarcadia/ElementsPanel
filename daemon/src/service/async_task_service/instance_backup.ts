@@ -99,19 +99,27 @@ export class InstanceBackupTask extends AsyncTask {
             const allFiles: { filePath: string; stat: fs.Stats }[] = [];
             let totalSize = 0;
 
-            async function walkDir(dir: string, relativePath: string = "") {
+            async function walkDir(dir: string, relativePath: string = "", whitelistedParent: boolean = false) {
                 const entries = await fs.readdir(dir, { withFileTypes: true });
                 for (const entry of entries) {
                     const fullPath = path.join(dir, entry.name);
                     const relPath = path.join(relativePath, entry.name);
                     if (entry.isDirectory()) {
-                        if (!whitelistMode && gitignoreMatcher && gitignoreMatcher.isIgnored(relPath, true)) {
-                            blacklistedCount++;
-                            continue;
+                        let dirWhitelisted = whitelistedParent;
+                        if (!dirWhitelisted && gitignoreMatcher) {
+                            const dirIgnored = gitignoreMatcher.isIgnored(relPath, true);
+                            if (whitelistMode) {
+                                dirWhitelisted = !dirIgnored;
+                            } else {
+                                if (dirIgnored) {
+                                    blacklistedCount++;
+                                    continue;
+                                }
+                            }
                         }
-                        await walkDir(fullPath, relPath);
+                        await walkDir(fullPath, relPath, dirWhitelisted);
                     } else {
-                        if (gitignoreMatcher && gitignoreMatcher.isIgnored(relPath, false)) {
+                        if (!whitelistedParent && gitignoreMatcher && gitignoreMatcher.isIgnored(relPath, false)) {
                             blacklistedCount++;
                             continue;
                         }
