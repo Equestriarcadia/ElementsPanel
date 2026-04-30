@@ -239,7 +239,7 @@ router.all(
 // query asynchronous task status
 router.all(
   "/query_asynchronous",
-  permission({ level: ROLE.ADMIN, speedLimit: false }),
+  permission({ level: ROLE.USER, speedLimit: false }),
   validator({
     query: { daemonId: String, uuid: String }
   }),
@@ -250,9 +250,12 @@ router.all(
       const taskName = String(ctx.query.task_name);
       const parameter = ctx.request.body;
       const taskId = parameter.taskId;
-      // Must have administrator to query all asynchronous tasks
-      if (!taskId && !isTopPermissionByUuid(getUserUuid(ctx))) {
-        throw new Error("Unauthorized access");
+      // If no taskId specified, non-admin users get empty result
+      if (!taskId) {
+        if (!isTopPermissionByUuid(getUserUuid(ctx))) {
+          ctx.body = [];
+          return;
+        }
       }
       const remoteService = RemoteServiceSubsystem.getInstance(daemonId);
       ctx.body = await new RemoteRequest(remoteService).request("instance/query_asynchronous", {
