@@ -1,12 +1,9 @@
-import { exec } from "node:child_process";
 import fs from "node:fs";
-import { promisify } from "util";
+import path from "node:path";
 import Instance from "../entity/instance/instance";
 import { $t } from "../i18n";
 import { ConsumerQueue } from "../utils/queue";
 import { sleep } from "../utils/sleep";
-
-const execPromise = promisify(exec);
 
 interface IDiskLimitItem {
   instance: Instance;
@@ -14,7 +11,6 @@ interface IDiskLimitItem {
   maxSpace: number;
 }
 
-// du -s --block-size=1M /docker-volumes/app1-logs | cut -f1
 class DiskLimitService {
   private readonly queue = new ConsumerQueue<IDiskLimitItem>(2048);
   private task: NodeJS.Timeout | null = null;
@@ -82,10 +78,11 @@ class DiskLimitService {
       instance.info.storageLimit = maxSpace;
       return;
     }
-    const command = `du -s --block-size=1M "${workspace}"`;
-    const { stdout } = await execPromise(command);
 
-    const diskUsageSizeMb = Number(String(stdout.split("/")[0]).replaceAll("\t", "").trim());
+    // Use Node.js native recursive directory size calculation instead of `du` command,
+    // because `du` is not available on Windows.
+    const diskUsageSizeBytes = await getDirectorySizeBytes(workspace);
+    const diskUsageSizeMb = Math.ceil(diskUsageSizeBytes / (1024 * 1024));
 
     if (isNaN(Number(diskUsageSizeMb))) {
       instance.info.storageUsage = 0;
@@ -129,6 +126,34 @@ export function convertBytesToGB(bytes: number) {
 
 export function convertGBToBytes(gb: number) {
   return Number((gb * 1024 * 1024 * 1024).toFixed(2));
+}
+
+/**
+ * Cross-platform function to calculate directory size in bytes.
+ * Recursively walks the directory tree using Node.js fs,
+ * which works on both Windows and Linux without external commands.
+ */
+async function getDirectorySizeBytes(dirPath: string): Promise<number> {
+  let totalSize = 0;
+  try {
+    const entries = await fs.promises.readdir(dirPath, { withFileTypes: true });
+    for (const entry of entries) {
+      const fullPath = path.join(dirPath, entry.name);
+      if (entry.isDirectory()) {
+        totalSize += await getDirectorySizeBytes(fullPath);
+      } else if (entry.isFile()) {
+        try {
+          const stat = await fs.promises.stat(fullPath);
+          totalSize += stat.size;
+        } catch {
+          // skip files we cannot stat (permission issues, etc.)
+        }
+      }
+    }
+  } catch {
+    // if we can't read the directory, return 0
+  }
+  return totalSize;
 }
 
 export default new DiskLimitService();
