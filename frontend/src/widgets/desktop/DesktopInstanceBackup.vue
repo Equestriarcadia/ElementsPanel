@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { t } from "@/lang/i18n";
+import { fileContent, touchFile } from "@/services/apis/fileManager";
 import {
     createAsyncTask,
     deleteBackup,
@@ -10,6 +11,7 @@ import {
 import {
     CloudDownloadOutlined,
     DeleteOutlined,
+    EditOutlined,
     ExclamationCircleOutlined,
     HistoryOutlined,
     LoadingOutlined,
@@ -28,6 +30,7 @@ const props = defineProps<{
 
 const emit = defineEmits<{
     (e: "close"): void;
+    (e: "open-file-editor", filePath: string, fileName: string): void;
 }>();
 
 const loading = ref(false);
@@ -52,6 +55,11 @@ const restoreDialog = ref({
 });
 
 const backupConfirmDialog = ref({
+    show: false,
+    resolve: null as ((value: boolean) => void) | null
+});
+
+const epbaklstConfirmDialog = ref({
     show: false,
     resolve: null as ((value: boolean) => void) | null
 });
@@ -192,6 +200,62 @@ const handleDelete = (backupName: string) => {
     };
 };
 
+const handleEditEpbaklst = async () => {
+    const filePath = ".epbaklst";
+    const fileName = ".epbaklst";
+    try {
+        const { execute: readFile } = fileContent();
+        const res = await readFile({
+            params: {
+                daemonId: props.daemonId,
+                uuid: props.instanceUuid
+            },
+            data: {
+                target: filePath
+            }
+        });
+        if (res.value !== undefined) {
+            emit("open-file-editor", filePath, fileName);
+        }
+    } catch {
+        epbaklstConfirmDialog.value = {
+            show: true,
+            resolve: async (val: boolean) => {
+                epbaklstConfirmDialog.value.show = false;
+                if (val) {
+                    try {
+                        const { execute: createFile } = touchFile();
+                        await createFile({
+                            params: {
+                                daemonId: props.daemonId,
+                                uuid: props.instanceUuid
+                            },
+                            data: {
+                                target: filePath
+                            }
+                        });
+                        const { execute: writeFile } = fileContent();
+                        await writeFile({
+                            params: {
+                                daemonId: props.daemonId,
+                                uuid: props.instanceUuid
+                            },
+                            data: {
+                                target: filePath,
+                                text: "$black\n\n# $black = 黑名单匹配；$white = 白名单匹配\n# 该文件使用 .gitignore 语法\n# ---\n# $black = blacklist matching; $white = whitelist matching\n# This file uses .gitignore syntax\n"
+                            }
+                        });
+                        message.success(t("TXT_CODE_INSTANCE_BACKUP_EPBAKLST_CREATED"));
+                        emit("open-file-editor", filePath, fileName);
+                    } catch (error: any) {
+                        message.error(error.message);
+                    }
+                }
+            }
+        };
+    }
+};
+
 const handleRestore = (backupName: string) => {
     restoreDialog.value = {
         show: true,
@@ -282,6 +346,10 @@ onUnmounted(() => {
             </div>
         </div>
         <div class="ds-backup-footer">
+            <button class="ds-dialog-btn ds-dialog-btn--default" :disabled="loading" @click="handleEditEpbaklst">
+                <EditOutlined />
+                {{ t("TXT_CODE_INSTANCE_BACKUP_EDIT_EPBAKLST") }}
+            </button>
             <button class="ds-dialog-btn ds-dialog-btn--primary" :disabled="loading" @click="startBackup">
                 <SyncOutlined v-if="loading" spin />
                 <PlusCircleOutlined v-else />
@@ -341,6 +409,36 @@ onUnmounted(() => {
                             </button>
                             <button class="ds-dialog-btn ds-dialog-btn--primary"
                                 @click="restoreDialog.resolve && restoreDialog.resolve(true)">
+                                {{ t("TXT_CODE_d507abff") }}
+                            </button>
+                        </div>
+                    </div>
+                </DesktopWindow>
+            </Transition>
+        </Teleport>
+
+        <Teleport to="body">
+            <Transition name="ds-dialog-fade">
+                <DesktopWindow v-if="epbaklstConfirmDialog.show" id="backup-epbaklst-confirm-dialog"
+                    :title="t('TXT_CODE_INSTANCE_BACKUP_EDIT_EPBAKLST')" :icon="ExclamationCircleOutlined"
+                    :visible="epbaklstConfirmDialog.show" :minimized="false" :maximized="false" :active="true"
+                    :initial-width="400" :initial-height="200" :initial-x="windowWidth / 2 - 200"
+                    :initial-y="windowHeight / 2 - 100" :z-index="10007" :show-minimize="false" :show-maximize="false"
+                    :resizable="false" @close="epbaklstConfirmDialog.resolve && epbaklstConfirmDialog.resolve(false)">
+                    <div class="ds-dialog-content">
+                        <div class="ds-dialog__body ds-dialog__body--column">
+                            <ExclamationCircleOutlined class="ds-dialog__warn-icon" />
+                            <p class="ds-dialog__desc">
+                                {{ t("TXT_CODE_INSTANCE_BACKUP_EPBAKLST_CREATE_CONFIRM") }}
+                            </p>
+                        </div>
+                        <div class="ds-dialog__footer">
+                            <button class="ds-dialog-btn ds-dialog-btn--default"
+                                @click="epbaklstConfirmDialog.resolve && epbaklstConfirmDialog.resolve(false)">
+                                {{ t("TXT_CODE_a0451c97") }}
+                            </button>
+                            <button class="ds-dialog-btn ds-dialog-btn--primary"
+                                @click="epbaklstConfirmDialog.resolve && epbaklstConfirmDialog.resolve(true)">
                                 {{ t("TXT_CODE_d507abff") }}
                             </button>
                         </div>

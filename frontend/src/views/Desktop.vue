@@ -1084,8 +1084,8 @@ const username = computed(() => appState.userInfo?.userName || "User");
 
                             <DesktopInstanceBackup
                                 v-else-if="win.content === 'backup' && win.instanceId && win.daemonId" :visible="true"
-                                :instance-uuid="win.instanceId" :daemon-id="win.daemonId"
-                                @close="closeWindow(win.id)" />
+                                :instance-uuid="win.instanceId" :daemon-id="win.daemonId" @close="closeWindow(win.id)"
+                                @open-file-editor="(filePath: string, fileName: string) => openFileEditorWindow(win.instanceId!, win.daemonId!, filePath, fileName)" />
 
                             <DesktopServerConfig
                                 v-else-if="win.content === 'server-config' && win.instanceId && win.daemonId && win.type"
