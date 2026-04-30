@@ -911,7 +911,7 @@ onUnmounted(() => {
                                 </span>
                             </template>
                             <template v-if="column.key === 'action'">
-                                <a-dropdown :get-popup-container="(trigger: any) => trigger.parentElement">
+                                <a-dropdown>
                                     <template #overlay>
                                         <a-menu mode="vertical" :items="menuList(record as DataType)"></a-menu>
                                     </template>
