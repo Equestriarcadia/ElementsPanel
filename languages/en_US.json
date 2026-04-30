@@ -3574,5 +3574,6 @@
   "TXT_CODE_INSTANCE_BACKUP_DELETE_CONFIRM": "Are you sure you want to delete backup {name}?",
   "TXT_CODE_INSTANCE_BACKUP_RESTORE_CONFIRM": "Are you sure you want to restore backup {name} to the current instance? This will overwrite existing files.",
   "TXT_CODE_INSTANCE_BACKUP_RESTORE": "Restore",
-  "TXT_CODE_INSTANCE_BACKUP_DELETE": "Delete"
+  "TXT_CODE_INSTANCE_BACKUP_DELETE": "Delete",
+  "TXT_CODE_INSTANCE_BACKUP_EXCLUDED": "{{num}} files/directories excluded by .epbaklst rules"
 }

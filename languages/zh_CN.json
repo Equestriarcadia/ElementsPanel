@@ -3574,5 +3574,6 @@
   "TXT_CODE_INSTANCE_BACKUP_DELETE_CONFIRM": "确定要删除备份 {name} 吗？",
   "TXT_CODE_INSTANCE_BACKUP_RESTORE_CONFIRM": "确定要将备份 {name} 恢复到当前实例吗？此操作将停止实例并覆盖现有文件！",
   "TXT_CODE_INSTANCE_BACKUP_RESTORE": "恢复",
-  "TXT_CODE_INSTANCE_BACKUP_DELETE": "删除"
+  "TXT_CODE_INSTANCE_BACKUP_DELETE": "删除",
+  "TXT_CODE_INSTANCE_BACKUP_EXCLUDED": "已有 {{num}} 个文件/目录被 .epbaklst 规则排除"
 }

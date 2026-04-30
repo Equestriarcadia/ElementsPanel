@@ -2,6 +2,7 @@ import archiver from "archiver";
 import fs from "fs-extra";
 import path from "path";
 import { v4 } from "uuid";
+import { GitignoreMatcher } from "../../common/gitignore_matcher";
 import { globalConfiguration } from "../../entity/config";
 import Instance from "../../entity/instance/instance";
 import { $t } from "../../i18n";
@@ -65,26 +66,48 @@ export class InstanceBackupTask extends AsyncTask {
             const targetZipPath = path.join(instanceBackupDir, this.backupFileName);
 
             const instanceCwd = this.instance.absoluteCwdPath();
-            
+
+            const epbaklstPath = path.join(instanceCwd, ".epbaklst");
+            let gitignoreMatcher: GitignoreMatcher | null = null;
+            let blacklistedCount = 0;
+
+            if (await fs.pathExists(epbaklstPath)) {
+                const content = await fs.readFile(epbaklstPath, "utf-8");
+                gitignoreMatcher = new GitignoreMatcher(content, instanceCwd);
+                const rules = gitignoreMatcher.getRules();
+            }
+
             const allFiles: { filePath: string; stat: fs.Stats }[] = [];
             let totalSize = 0;
-            
+
             async function walkDir(dir: string, relativePath: string = "") {
                 const entries = await fs.readdir(dir, { withFileTypes: true });
                 for (const entry of entries) {
                     const fullPath = path.join(dir, entry.name);
                     const relPath = path.join(relativePath, entry.name);
                     if (entry.isDirectory()) {
+                        if (gitignoreMatcher && gitignoreMatcher.isIgnored(relPath, true)) {
+                            blacklistedCount++;
+                            continue;
+                        }
                         await walkDir(fullPath, relPath);
                     } else {
+                        if (gitignoreMatcher && gitignoreMatcher.isIgnored(relPath, false)) {
+                            blacklistedCount++;
+                            continue;
+                        }
                         const stat = await fs.stat(fullPath);
                         allFiles.push({ filePath: relPath, stat });
                         totalSize += stat.size;
                     }
                 }
             }
-            
+
             await walkDir(instanceCwd);
+
+            if (gitignoreMatcher && blacklistedCount > 0) {
+                this.instance.println("INFO", $t("TXT_CODE_INSTANCE_BACKUP_EXCLUDED", { num: String(blacklistedCount) }));
+            }
             
             const output = fs.createWriteStream(targetZipPath);
             const archive = archiver('zip', { zlib: { level: 9 } });
