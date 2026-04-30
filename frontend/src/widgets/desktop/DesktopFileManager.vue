@@ -698,9 +698,16 @@ const windowWidth = ref(window.innerWidth);
 const windowHeight = ref(window.innerHeight);
 
 const handleKeyboardShortcut = (e: KeyboardEvent) => {
-    const tag = (e.target as HTMLElement)?.tagName;
-    if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
-    if ((e.target as HTMLElement)?.isContentEditable) return;
+    const target = e.target as HTMLElement;
+    const tag = target?.tagName;
+    const isInput = tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT';
+    const isContentEditable = target?.isContentEditable;
+
+    const isTableCheckbox = isInput && tag === 'INPUT' && (target as HTMLInputElement)?.type === 'checkbox' && target.closest('.dfm .ant-table');
+    const isDfmInput = isInput && target.closest('.dfm-dialog-content');
+
+    if (isInput && !isTableCheckbox && !isDfmInput) return;
+    if (isContentEditable && !isTableCheckbox) return;
 
     const isCtrl = e.ctrlKey || e.metaKey;
 
