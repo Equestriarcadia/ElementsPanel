@@ -9,6 +9,7 @@ import { routerApp } from "../service/router";
 import InstanceSubsystem from "../service/system_instance";
 
 import { arrayUnique, toNumber } from "mcsmanager-common";
+import { decompressWithProgress } from "../common/compress";
 import ProcessInfoCommand from "../entity/commands/process_info";
 import { ProcessConfig } from "../entity/instance/process_config";
 import { TaskCenter } from "../service/async_task_service";
@@ -562,11 +563,24 @@ routerApp.on("instance/backup/restore", async (ctx, data) => {
     // Start restoration in background
     (async () => {
       try {
-        const { decompress } = await import("../common/compress");
         const destDir = instance.absoluteCwdPath();
-        await decompress(zipPath, destDir, instance.config.fileCode);
+        const progressPrefix = `\x1b[K\r`;
+        let lastPercent = -1;
+        await decompressWithProgress(zipPath, destDir, (percent: number) => {
+          if (percent !== lastPercent) {
+            lastPercent = percent;
+            const barLength = 30;
+            const filled = Math.floor((percent / 100) * barLength);
+            const empty = barLength - filled;
+            const bar = '[' + '#'.repeat(filled) + ' '.repeat(empty) + ']';
+            const progressText = `${progressPrefix}${bar} ${percent}%`;
+            instance.print(progressText);
+          }
+        }, instance.config.fileCode);
+        instance.print("\n");
         instance.println("INFO", $t("TXT_CODE_INSTANCE_BACKUP_RESTORE_SUCCESS"));
       } catch (err: any) {
+        instance.print("\n");
         logger.error($t("TXT_CODE_INSTANCE_BACKUP_RESTORE_FAILED", { err: err.message }));
         instance.println(
           "ERROR",

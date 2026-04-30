@@ -2,6 +2,7 @@ import { exec } from "child_process";
 import fs from "fs-extra";
 import { t } from "i18next";
 import { ProcessWrapper } from "mcsmanager-common";
+import StreamZip from "node-stream-zip";
 import path from "path";
 import { promisify } from "util";
 import { GOLANG_ZIP_PATH, SEVEN_ZIP_PATH, ZIP_TIMEOUT_SECONDS } from "../const";
@@ -80,6 +81,99 @@ export async function decompress(
     }
   } else {
     return await tryUnzip();
+  }
+}
+
+/**
+ * Decompress a zip file with progress tracking
+ */
+export async function decompressWithProgress(
+  zipPath: string,
+  dest: string,
+  onProgress?: (percent: number) => void,
+  fileCode?: string
+): Promise<boolean> {
+  if (!checkFileName(zipPath) || !checkFileName(dest))
+    throw new Error(COMPRESS_ERROR_MSG.invalidName);
+
+  await fs.ensureDir(dest);
+
+  const zip = new StreamZip.async({ file: zipPath });
+
+  try {
+    const entries = await zip.entries();
+    const entryList = Object.values(entries);
+
+    let totalSize = 0;
+    for (const entry of entryList) {
+      if (!entry.isDirectory) {
+        totalSize += entry.size;
+      }
+    }
+
+    let processedSize = 0;
+    let lastPercent = -1;
+
+    for (const entry of entryList) {
+      if (entry.isDirectory) {
+        await fs.ensureDir(path.join(dest, entry.name));
+        continue;
+      }
+
+      const targetPath = path.join(dest, entry.name);
+      await fs.ensureDir(path.dirname(targetPath));
+
+      const readStream = await zip.stream(entry.name);
+      const writeStream = fs.createWriteStream(targetPath);
+
+      await new Promise<void>((resolve, reject) => {
+        readStream.on("data", (chunk: Buffer) => {
+          readStream.pause();
+          processedSize += chunk.length;
+
+          if (onProgress && totalSize > 0) {
+            const percent = Math.floor((processedSize / totalSize) * 100);
+            if (percent !== lastPercent) {
+              lastPercent = percent;
+              onProgress(percent);
+            }
+          }
+
+          setImmediate(() => {
+            readStream.resume();
+          });
+        });
+
+        writeStream.on("finish", () => {
+          resolve();
+        });
+
+        writeStream.on("error", (err: Error) => {
+          reject(err);
+        });
+
+        readStream.on("error", (err: Error) => {
+          reject(err);
+        });
+
+        readStream.pipe(writeStream);
+      });
+    }
+
+    if (onProgress && totalSize > 0) {
+      onProgress(100);
+    }
+
+    return true;
+  } catch (error: any) {
+    logger.error($t("TXT_CODE_842929d0", { message: error.message }));
+    throw new Error(
+      $t("TXT_CODE_f0512848", {
+        message: error?.message
+      })
+    );
+  } finally {
+    await zip.close();
   }
 }
 
