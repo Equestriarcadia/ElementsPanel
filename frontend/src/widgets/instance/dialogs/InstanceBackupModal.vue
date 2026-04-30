@@ -12,7 +12,6 @@ import {
     DeleteOutlined,
     ExclamationCircleOutlined,
     HistoryOutlined,
-    LoadingOutlined,
     PlusCircleOutlined,
     RollbackOutlined,
     SyncOutlined
@@ -237,13 +236,8 @@ defineExpose({ open });
 <template>
     <a-modal v-model:open="visible" :title="t('TXT_CODE_INSTANCE_BACKUP')" width="800px" :footer="null" @cancel="close">
         <div class="instance-backup-container">
-            <div v-if="taskStatus !== 0" class="backup-status">
-                <div v-if="taskStatus === 1" class="status-in-progress">
-                    <LoadingOutlined spin class="status-icon" />
-                    <span class="status-text">{{ t("TXT_CODE_INSTANCE_BACKUP_IN_PROGRESS") }}</span>
-                    <span class="status-hint">{{ t("TXT_CODE_INSTANCE_BACKUP_PROGRESS_HINT") }}</span>
-                </div>
-                <div v-else-if="taskStatus === -1" class="status-failed">
+            <div v-if="taskStatus === -1" class="backup-status">
+                <div class="status-failed">
                     <ExclamationCircleOutlined class="status-icon error" />
                     <span class="status-text">{{ t("TXT_CODE_INSTANCE_BACKUP_FAILED_TITLE") }}</span>
                     <span class="status-hint">{{ t("TXT_CODE_INSTANCE_BACKUP_FAILED_HINT") }}</span>
@@ -295,7 +289,7 @@ defineExpose({ open });
                 </a-spin>
             </div>
             <div class="backup-footer">
-                <a-button v-if="taskStatus !== 1" type="primary" :loading="loading" @click="startBackup">
+                <a-button type="primary" :loading="loading" @click="startBackup">
                     <template #icon>
                         <PlusCircleOutlined />
                     </template>

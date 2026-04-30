@@ -247,13 +247,8 @@ onUnmounted(() => {
 <template>
     <div class="ds-backup">
         <div class="ds-backup-body">
-            <div v-if="taskStatus !== 0" class="ds-backup-content">
-                <div v-if="taskStatus === 1" class="ds-backup-status">
-                    <LoadingOutlined class="status-icon status-icon--loading" />
-                    <p class="status-text">{{ t("TXT_CODE_INSTANCE_BACKUP_IN_PROGRESS") }}</p>
-                    <p class="status-hint">{{ t("TXT_CODE_INSTANCE_BACKUP_PROGRESS_HINT") }}</p>
-                </div>
-                <div v-else-if="taskStatus === -1" class="ds-backup-status">
+            <div v-if="taskStatus === -1" class="ds-backup-content">
+                <div class="ds-backup-status">
                     <ExclamationCircleOutlined class="status-icon status-icon--error" />
                     <p class="status-text">{{ t("TXT_CODE_INSTANCE_BACKUP_FAILED_TITLE") }}</p>
                     <p class="status-hint">{{ t("TXT_CODE_INSTANCE_BACKUP_FAILED_HINT") }}</p>
@@ -303,7 +298,7 @@ onUnmounted(() => {
                 </div>
             </div>
         </div>
-        <div v-if="taskStatus === 0" class="ds-backup-footer">
+        <div class="ds-backup-footer">
             <button class="ds-dialog-btn ds-dialog-btn--primary" :disabled="loading" @click="startBackup">
                 <SyncOutlined v-if="loading" spin />
                 <PlusCircleOutlined v-else />
