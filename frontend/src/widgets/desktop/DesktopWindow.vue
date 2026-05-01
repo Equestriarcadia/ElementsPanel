@@ -105,7 +105,19 @@ const onMouseDownTitlebar = (e: MouseEvent) => {
     e.preventDefault();
 };
 
+const isOutsideBrowser = (e: MouseEvent) => {
+    return e.clientX <= 0 || e.clientX >= window.innerWidth - 1 ||
+        e.clientY <= 0 || e.clientY >= window.innerHeight - 1;
+};
+
 const onMouseMove = (e: MouseEvent) => {
+    if (isOutsideBrowser(e)) {
+        if (isDragging.value || isResizing.value) {
+            onMouseUp();
+        }
+        return;
+    }
+
     if (isDragging.value && props.maximized && !isDragThresholdMet.value) {
         const dx = e.clientX - dragStartPos.value.x;
         const dy = e.clientY - dragStartPos.value.y;

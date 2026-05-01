@@ -21,6 +21,7 @@ const emit = defineEmits<{
 
 const editorText = ref("");
 const isLoading = ref(true);
+const editorRoot = ref<HTMLElement | null>(null);
 
 let useKeyboardEventsHooks: ReturnType<typeof useKeyboardEvents> | null = null;
 
@@ -28,6 +29,9 @@ const initKeydownListener = () => {
     useKeyboardEventsHooks = useKeyboardEvents(
         { ctrl: true, alt: false, caseSensitive: false, key: "s" },
         async () => {
+            if (editorRoot.value && !editorRoot.value.contains(document.activeElement)) {
+                return;
+            }
             try {
                 await submitRequest();
                 message.success(t("TXT_CODE_8f47d95"));
@@ -102,7 +106,7 @@ onMounted(() => {
 </script>
 
 <template>
-    <div class="dfe">
+    <div ref="editorRoot" class="dfe">
         <div class="dfe-toolbar">
             <div class="dfe-toolbar__left">
                 <span class="dfe-filename">{{ fileName }}</span>

@@ -51,8 +51,17 @@ const onMouseDown = (e: MouseEvent) => {
     e.preventDefault();
 };
 
+const isOutsideBrowser = (e: MouseEvent) => {
+    return e.clientX <= 0 || e.clientX >= window.innerWidth - 1 ||
+        e.clientY <= 0 || e.clientY >= window.innerHeight - 1;
+};
+
 const onMouseMove = (e: MouseEvent) => {
     if (!isDragging.value) return;
+    if (isOutsideBrowser(e)) {
+        isDragging.value = false;
+        return;
+    }
     pos.x = e.clientX - dragStart.x;
     pos.y = e.clientY - dragStart.y;
 };
