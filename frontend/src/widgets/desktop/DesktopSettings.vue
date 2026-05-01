@@ -398,6 +398,16 @@ limitations under the License.`;
                         </div>
 
                         <div class="ds-form-group">
+                            <label class="ds-label">{{ t("TXT_CODE_ALLOW_JAVA_MANAGER") }}</label>
+                            <p class="ds-desc">{{ t("TXT_CODE_ALLOW_JAVA_MANAGER_DESC") }}</p>
+                            <select v-model="(formData as any).allowJavaManager" class="ds-select">
+                                <option v-for="item in allYesNo" :key="String(item.value)" :value="item.value">{{
+                                    item.label }}
+                                </option>
+                            </select>
+                        </div>
+
+                        <div class="ds-form-group">
                             <label class="ds-label">{{ t("TXT_CODE_1d67c9c6") }}</label>
                             <p class="ds-desc">{{ t("TXT_CODE_745fc959") }}</p>
                             <select v-model="(formData as any).loginCheckIp" class="ds-select">

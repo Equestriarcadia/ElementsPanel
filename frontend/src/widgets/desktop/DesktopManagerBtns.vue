@@ -155,7 +155,8 @@ const btns = computed(() => {
             },
             condition: () =>
                 (instanceInfo.value?.config.type.includes(TYPE_MINECRAFT_JAVA) &&
-                    instanceInfo.value?.config.processType === "general") ??
+                    instanceInfo.value?.config.processType === "general" &&
+                    (state.settings.allowJavaManager || isAdmin.value)) ??
                 false
         },
         {
