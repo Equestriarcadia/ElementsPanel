@@ -534,6 +534,13 @@ const handleRowClick = (e: MouseEvent, record: DataType) => {
     selectedRowKeys.value = [key];
     selectionData.value = [record];
     lastClickedIndex.value = index;
+    const rowEl = (e.currentTarget as HTMLElement)?.closest('tr');
+    if (rowEl) {
+        if (!rowEl.hasAttribute('tabindex')) {
+            rowEl.setAttribute('tabindex', '-1');
+        }
+        rowEl.focus({ preventScroll: true });
+    }
 };
 
 let lastShortcutKey = "";
@@ -705,7 +712,7 @@ const windowWidth = ref(window.innerWidth);
 const windowHeight = ref(window.innerHeight);
 
 const handleKeyboardShortcut = (e: KeyboardEvent) => {
-    if (dfmRootRef.value && !dfmRootRef.value.contains(document.activeElement)) {
+    if (dfmRootRef.value && !dfmRootRef.value.contains(e.target as Node)) {
         return;
     }
 
