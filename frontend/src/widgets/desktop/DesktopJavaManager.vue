@@ -1,12 +1,14 @@
 <script setup lang="ts">
-import { useAddJavaDialog, useDownloadJavaDialog } from "@/components/fc";
+import { useScreen } from "@/hooks/useScreen";
 import { t } from "@/lang/i18n";
 import { updateInstanceConfig } from "@/services/apis/instance";
 import { addJava, deleteJava, downloadJava, getJavaList, usingJava } from "@/services/apis/javaManager";
 import { parseTimestamp } from "@/tools/time";
 import type { AntColumnsType } from "@/types/ant";
-import type { JavaInfo, JavaRuntime } from "@/types/javaManager";
+import type { AddJavaConfigItem, DownloadJavaConfigItem, JavaInfo, JavaRuntime } from "@/types/javaManager";
 import {
+    AppstoreOutlined,
+    BuildOutlined,
     DeleteOutlined,
     DownloadOutlined,
     PlusOutlined,
@@ -14,6 +16,7 @@ import {
 } from "@ant-design/icons-vue";
 import { message } from "ant-design-vue";
 import { h, ref, type Ref } from "vue";
+import DesktopWindow from "./DesktopWindow.vue";
 
 const props = defineProps<{
     instanceId: string;
@@ -23,6 +26,8 @@ const props = defineProps<{
 const emit = defineEmits<{
     (e: "close"): void;
 }>();
+
+const { isPhone } = useScreen();
 
 const columns: AntColumnsType[] = [
     {
@@ -76,49 +81,130 @@ const refreshJavaList = async (out: boolean = false) => {
     }
 };
 
-const handleDownloadJava = async () => {
-    const installedList = javaList.value?.map((item) => item.info.fullname) ?? [];
-    const data = await useDownloadJavaDialog(installedList);
-    if (!data) return;
+const windowWidth = ref(window.innerWidth);
+const windowHeight = ref(window.innerHeight);
 
-    try {
-        await downloadJava().execute({
-            params: {
-                daemonId: props.daemonId ?? "",
-                instanceId: props.instanceId ?? ""
-            },
-            data: {
-                name: data.name,
-                version: data.version
-            }
-        });
-        message.success(t("TXT_CODE_5e7a4c02"));
-        await refreshJavaList();
-    } catch (err: any) {
-        message.error(err.message);
-    }
-    await refreshJavaList();
-};
+const addJavaDialog = ref({
+    show: false,
+    data: { name: "", path: "" } as AddJavaConfigItem,
+    resolve: null as ((value: AddJavaConfigItem | undefined) => void) | null
+});
 
 const handleAddJava = async () => {
-    const data = await useAddJavaDialog();
-    if (!data) return;
+    addJavaDialog.value.data = { name: "", path: "" };
 
-    try {
-        await addJava().execute({
-            params: {
-                daemonId: props.daemonId ?? ""
-            },
-            data: {
-                name: data.name,
-                path: data.path
-            }
-        });
-    } catch (err: any) {
-        message.error(err.message);
+    return new Promise<AddJavaConfigItem | undefined>((resolve) => {
+        addJavaDialog.value.show = true;
+        addJavaDialog.value.resolve = resolve;
+    }).then(async (data) => {
+        if (!data) return;
+        try {
+            await addJava().execute({
+                params: {
+                    daemonId: props.daemonId ?? ""
+                },
+                data: {
+                    name: data.name,
+                    path: data.path
+                }
+            });
+        } catch (err: any) {
+            message.error(err.message);
+        }
+        message.success(t("TXT_CODE_10f0f8d"));
+        await refreshJavaList();
+    });
+};
+
+const confirmAddJava = () => {
+    const { data, resolve } = addJavaDialog.value;
+    if (!data.name || !data.path) {
+        message.warning(t("TXT_CODE_b5095a15"));
+        return;
     }
-    message.success(t("TXT_CODE_10f0f8d"));
-    await refreshJavaList();
+    addJavaDialog.value.show = false;
+    if (resolve) resolve({ name: data.name, path: data.path });
+    addJavaDialog.value.resolve = null;
+};
+
+const cancelAddJava = () => {
+    const { resolve } = addJavaDialog.value;
+    addJavaDialog.value.show = false;
+    if (resolve) resolve(undefined);
+    addJavaDialog.value.resolve = null;
+};
+
+const JAVA_OPTIONS: DownloadJavaConfigItem[] = [
+    { name: "zulu", version: "8" },
+    { name: "zulu", version: "11" },
+    { name: "zulu", version: "15" },
+    { name: "zulu", version: "17" },
+    { name: "zulu", version: "21" },
+    { name: "zulu", version: "25" }
+];
+
+const downloadJavaDialog = ref({
+    show: false,
+    installedList: [] as string[],
+    selectedIndex: null as number | null,
+    resolve: null as ((value: DownloadJavaConfigItem | undefined) => void) | null
+});
+
+const selectedDownloadItem = ref<DownloadJavaConfigItem | null>(null);
+
+const handleDownloadJava = async () => {
+    const installedList = javaList.value?.map((item) => item.info.fullname) ?? [];
+    downloadJavaDialog.value.installedList = installedList;
+    downloadJavaDialog.value.selectedIndex = null;
+    selectedDownloadItem.value = null;
+
+    return new Promise<DownloadJavaConfigItem | undefined>((resolve) => {
+        downloadJavaDialog.value.show = true;
+        downloadJavaDialog.value.resolve = resolve;
+    }).then(async (data) => {
+        if (!data) return;
+        try {
+            await downloadJava().execute({
+                params: {
+                    daemonId: props.daemonId ?? "",
+                    instanceId: props.instanceId ?? ""
+                },
+                data: {
+                    name: data.name,
+                    version: data.version
+                }
+            });
+            message.success(t("TXT_CODE_5e7a4c02"));
+            await refreshJavaList();
+        } catch (err: any) {
+            message.error(err.message);
+        }
+        await refreshJavaList();
+    });
+};
+
+const handleSelectDownloadItem = (index: number) => {
+    downloadJavaDialog.value.selectedIndex = index;
+    selectedDownloadItem.value = JAVA_OPTIONS[index];
+};
+
+const confirmDownloadJava = () => {
+    const { resolve } = downloadJavaDialog.value;
+    const item = selectedDownloadItem.value;
+    if (!item) {
+        message.warning(t("TXT_CODE_b5095a15"));
+        return;
+    }
+    downloadJavaDialog.value.show = false;
+    if (resolve) resolve({ name: item.name, version: item.version });
+    downloadJavaDialog.value.resolve = null;
+};
+
+const cancelDownloadJava = () => {
+    const { resolve } = downloadJavaDialog.value;
+    downloadJavaDialog.value.show = false;
+    if (resolve) resolve(undefined);
+    downloadJavaDialog.value.resolve = null;
 };
 
 const handleDeleteJava = async (info: JavaInfo) => {
@@ -156,8 +242,13 @@ const handleUsingJava = async (info: JavaInfo) => {
     await refreshJavaList();
 };
 
-// Refresh on mount
 refreshJavaList();
+
+const updateWindowSize = () => {
+    windowWidth.value = window.innerWidth;
+    windowHeight.value = window.innerHeight;
+};
+window.addEventListener('resize', updateWindowSize);
 </script>
 
 <template>
@@ -212,6 +303,79 @@ refreshJavaList();
                 {{ t("TXT_CODE_31e92ef3") }}
             </button>
         </div>
+
+        <Teleport to="body">
+            <Transition name="dfm-dialog-fade">
+                <DesktopWindow v-if="addJavaDialog.show" id="java-manager-add-dialog" :title="t('TXT_CODE_8900e7ee')"
+                    :icon="BuildOutlined" :visible="addJavaDialog.show" :minimized="false" :maximized="false"
+                    :active="true" :initial-width="420" :initial-height="315" :initial-x="windowWidth / 2 - 210"
+                    :initial-y="windowHeight / 2 - 140" :z-index="10002" :show-minimize="false" :show-maximize="false"
+                    :resizable="false" @close="cancelAddJava">
+                    <div class="djava-dialog-content">
+                        <div class="djava-dialog__body">
+                            <a-form layout="vertical">
+                                <a-form-item :label="t('TXT_CODE_3f36206f')">
+                                    <a-input v-model:value="addJavaDialog.data.name"
+                                        :placeholder="t('TXT_CODE_4ea93630')" />
+                                </a-form-item>
+                                <a-form-item :label="t('TXT_CODE_43422ed3')">
+                                    <a-input v-model:value="addJavaDialog.data.path"
+                                        :placeholder="t('TXT_CODE_4ea93630')" />
+                                </a-form-item>
+                            </a-form>
+                        </div>
+                        <div class="djava-dialog__footer">
+                            <button class="djava-btn djava-btn--default" @click="cancelAddJava">
+                                {{ t("TXT_CODE_a0451c97") }}
+                            </button>
+                            <button class="djava-btn djava-btn--primary" @click="confirmAddJava">
+                                {{ t("TXT_CODE_d507abff") }}
+                            </button>
+                        </div>
+                    </div>
+                </DesktopWindow>
+            </Transition>
+        </Teleport>
+
+        <Teleport to="body">
+            <Transition name="dfm-dialog-fade">
+                <DesktopWindow v-if="downloadJavaDialog.show" id="java-manager-download-dialog"
+                    :title="t('TXT_CODE_84588601')" :icon="DownloadOutlined" :visible="downloadJavaDialog.show"
+                    :minimized="false" :maximized="false" :active="true" :initial-width="700" :initial-height="460"
+                    :initial-x="windowWidth / 2 - 350" :initial-y="windowHeight / 2 - 230" :z-index="10002"
+                    :show-minimize="false" :show-maximize="false" :resizable="false" @close="cancelDownloadJava">
+                    <div class="djava-dialog-content">
+                        <div class="djava-dialog__body">
+                            <div class="djava-download-grid">
+                                <div v-for="(item, index) in JAVA_OPTIONS" :key="`${item.name}-${item.version}`"
+                                    class="djava-download-card"
+                                    :class="{ 'djava-download-card--selected': downloadJavaDialog.selectedIndex === index }"
+                                    @click="handleSelectDownloadItem(index)">
+                                    <div class="djava-download-card__cover">
+                                        <AppstoreOutlined class="djava-download-card__icon" />
+                                    </div>
+                                    <div class="djava-download-card__info">
+                                        <a-typography-text strong>
+                                            Java {{ item.version.toUpperCase() }}
+                                        </a-typography-text>
+                                        <a-tag color="blue">{{ item.name.toUpperCase() }}</a-tag>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="djava-dialog__footer">
+                            <button class="djava-btn djava-btn--default" @click="cancelDownloadJava">
+                                {{ t("TXT_CODE_a0451c97") }}
+                            </button>
+                            <button class="djava-btn djava-btn--primary"
+                                :disabled="downloadJavaDialog.selectedIndex === null" @click="confirmDownloadJava">
+                                {{ t("TXT_CODE_d507abff") }}
+                            </button>
+                        </div>
+                    </div>
+                </DesktopWindow>
+            </Transition>
+        </Teleport>
     </div>
 </template>
 
@@ -282,6 +446,101 @@ refreshJavaList();
         &:hover:not(:disabled) {
             background: rgba(22, 119, 255, 0.2);
         }
+
+        &--primary:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+    }
+
+    &--default {
+        background: var(--desktop-window-titlebar-bg);
+        border: 1px solid var(--desktop-window-border);
+
+        &:hover:not(:disabled) {
+            background: var(--desktop-window-control-hover);
+        }
+    }
+}
+
+.dfm-dialog-fade-enter-active,
+.dfm-dialog-fade-leave-active {
+    transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.dfm-dialog-fade-enter-from,
+.dfm-dialog-fade-leave-to {
+    opacity: 0;
+    transform: scale(0.95);
+}
+
+.djava-dialog-content {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    background: transparent;
+}
+
+.djava-dialog__body {
+    padding: 16px 20px;
+    flex: 1;
+    overflow-y: auto;
+}
+
+.djava-dialog__footer {
+    padding: 12px 20px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    border-top: 1px solid var(--desktop-window-border);
+    flex-shrink: 0;
+}
+
+.djava-download-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    justify-content: flex-start;
+}
+
+.djava-download-card {
+    width: 140px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border-radius: 12px;
+    border: 1px solid var(--desktop-window-border);
+    overflow: hidden;
+    background: var(--desktop-window-titlebar-bg);
+
+    &:hover {
+        border-color: #1890ff;
+    }
+
+    &--selected {
+        border-color: #1890ff;
+        background: linear-gradient(135deg, rgba(24, 144, 255, 0.1), rgba(24, 144, 255, 0.05));
+    }
+
+    &__cover {
+        padding: 16px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background: linear-gradient(135deg, var(--desktop-window-control-hover) 0%, var(--desktop-window-border) 100%);
+    }
+
+    &__icon {
+        font-size: 48px;
+        line-height: 1;
+    }
+
+    &__info {
+        padding: 12px;
+        text-align: center;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 4px;
     }
 }
 </style>
