@@ -50,7 +50,7 @@ onMounted(() => {
             {{ card.title }}
         </template>
         <template #operator>
-            <a-tooltip :title="t('TXT_CODE_b1e2e1b4')">
+            <a-tooltip :title="t('TXT_CODE_7333c7f7')">
                 <a-button type="text" size="small" @click="clearHistory">
                     <DeleteOutlined />
                 </a-button>
