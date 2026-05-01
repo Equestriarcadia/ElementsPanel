@@ -707,9 +707,7 @@ const handleKeyboardShortcut = (e: KeyboardEvent) => {
     const isContentEditable = target?.isContentEditable;
 
     const isTableCheckbox = isInput && tag === 'INPUT' && (target as HTMLInputElement)?.type === 'checkbox' && target.closest('.dfm .ant-table');
-    const isDfmInput = isInput && target.closest('.dfm-dialog-content');
-
-    if (isInput && !isTableCheckbox && !isDfmInput) return;
+    if (isInput && !isTableCheckbox) return;
     if (isContentEditable && !isTableCheckbox) return;
 
     const isCtrl = e.ctrlKey || e.metaKey;
