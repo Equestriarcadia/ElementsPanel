@@ -621,6 +621,13 @@ const onTableMouseDown = (e: MouseEvent) => {
 
     selectChanged([], []);
 
+    if (dfmRootRef.value) {
+        if (!dfmRootRef.value.hasAttribute('tabindex')) {
+            dfmRootRef.value.setAttribute('tabindex', '-1');
+        }
+        dfmRootRef.value.focus({ preventScroll: true });
+    }
+
     e.preventDefault();
     e.stopPropagation();
 };
@@ -704,6 +711,12 @@ const onTableMouseUp = () => {
         if (dragSelectRafId !== null) {
             cancelAnimationFrame(dragSelectRafId);
             dragSelectRafId = null;
+        }
+        if (dfmRootRef.value) {
+            if (!dfmRootRef.value.hasAttribute('tabindex')) {
+                dfmRootRef.value.setAttribute('tabindex', '-1');
+            }
+            dfmRootRef.value.focus({ preventScroll: true });
         }
     }
 };
