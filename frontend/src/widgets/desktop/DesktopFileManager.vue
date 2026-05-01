@@ -536,6 +536,10 @@ const handleRowClick = (e: MouseEvent, record: DataType) => {
     lastClickedIndex.value = index;
 };
 
+let lastShortcutKey = "";
+let lastShortcutTime = 0;
+const SHORTCUT_DEBOUNCE_MS = 200;
+
 const dfmRootRef = ref<HTMLElement | null>(null);
 const isDragSelecting = ref(false);
 const dragSelectStart = ref({ x: 0, y: 0 });
@@ -701,6 +705,14 @@ const windowWidth = ref(window.innerWidth);
 const windowHeight = ref(window.innerHeight);
 
 const handleKeyboardShortcut = (e: KeyboardEvent) => {
+    const shortcutSig = `${e.ctrlKey || e.metaKey ? "M" : ""}${e.shiftKey ? "S" : ""}${e.altKey ? "A" : ""}:${e.key}`;
+    const now = Date.now();
+    if (shortcutSig === lastShortcutKey && now - lastShortcutTime < SHORTCUT_DEBOUNCE_MS) {
+        return;
+    }
+    lastShortcutKey = shortcutSig;
+    lastShortcutTime = now;
+
     const target = e.target as HTMLElement;
     const tag = target?.tagName;
     const isInput = tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT';
