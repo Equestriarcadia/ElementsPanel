@@ -176,10 +176,14 @@ const btns = computed(() => {
       click: () => {
         javaManagerDialog.value?.openDialog();
       },
-      condition: () =>
-        (instanceInfo.value?.config.type.includes(TYPE_MINECRAFT_JAVA) &&
-          instanceInfo.value?.config.processType === "general") ??
-        false
+      condition: () => {
+        const isJavaGeneral =
+          (instanceInfo.value?.config.type.includes(TYPE_MINECRAFT_JAVA) &&
+            instanceInfo.value?.config.processType === "general") ??
+          false;
+        if (!isJavaGeneral) return false;
+        return state.settings.allowJavaManager || isAdmin.value;
+      }
     },
     {
       title: t("TXT_CODE_656a85d8"),

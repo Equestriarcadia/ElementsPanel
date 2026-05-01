@@ -97,6 +97,7 @@ export interface Settings {
   businessMode: boolean;
   businessId: string;
   allowChangeCmd: boolean;
+  allowJavaManager: boolean;
   registerCode: string;
   panelId: string;
   ssoEnabled: boolean;
@@ -265,6 +266,7 @@ export interface PanelStatus {
     businessMode: boolean;
     businessId: string;
     allowChangeCmd: boolean;
+    allowJavaManager: boolean;
     panelId: string;
     ssoEnabled: boolean;
     ssoOnlyMode: boolean;

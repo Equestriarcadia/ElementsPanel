@@ -26,6 +26,7 @@ export const useAppStateStore = createGlobalState(() => {
       businessMode: false,
       businessId: "",
       allowChangeCmd: false,
+      allowJavaManager: true,
       ssoEnabled: false,
       ssoOnlyMode: false
     }

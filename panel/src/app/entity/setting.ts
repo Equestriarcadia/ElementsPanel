@@ -59,6 +59,9 @@ export default class SystemConfig {
   // Whether to allow users to edit the start & update command of Docker instances
   allowChangeCmd = false;
 
+  // Whether to allow normal users to use the Java environment management feature
+  allowJavaManager = true;
+
   // -----
   // After it is enabled, you can connect to the redeem.mcsmanager.com platform
   // to sell instances based on redeem

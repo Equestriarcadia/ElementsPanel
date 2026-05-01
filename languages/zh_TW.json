@@ -1686,6 +1686,8 @@
   "TXT_CODE_9fe98f3": "監聽連接埠",
   "TXT_CODE_9fed23ab": "請輸入映像名稱",
   "TXT_CODE_A0000001": "適用於任何控制台程式的啟動指令，不支援腳本檔；<br />例如： \"C://Program Files/Java/bin/java.exe\" -Dfile.encoding=utf-8 -Djline.terminal=jline.UnsupportedTerminal -jar my server.jar -nogui <br/>如果使用 Docker 容器，則可以不填寫啟動命令，將使用映像定義的命令啟動",
+  "TXT_CODE_ALLOW_JAVA_MANAGER": "准許普通用戶使用 Java 環境管理功能",
+  "TXT_CODE_ALLOW_JAVA_MANAGER_DESC": "禁用後，普通用戶權限下将無法使用 Java 環境管理相關功能",
   "TXT_CODE_ALL": "全部",
   "TXT_CODE_CLIENT": "用戶端 (Client)",
   "TXT_CODE_CONFIG": "設定",

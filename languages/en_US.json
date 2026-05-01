@@ -1686,6 +1686,8 @@
   "TXT_CODE_9fe98f3": "Listening Port",
   "TXT_CODE_9fed23ab": "Please enter the image name",
   "TXT_CODE_A0000001": "Applicable to the startup command of any console program, script files are not supported.<br />For example: \"C://Program Files/Java/bin/java.exe\" -Dfile.encoding=utf-8 -Djline. terminal=jline.UnsupportedTerminal -jar my server.jar -nogui",
+  "TXT_CODE_ALLOW_JAVA_MANAGER": "Allow normal users to use Java environment management",
+  "TXT_CODE_ALLOW_JAVA_MANAGER_DESC": "When disabled, normal users will not see the Java Manager button in the instance console",
   "TXT_CODE_ALL": "All",
   "TXT_CODE_CLIENT": "Client",
   "TXT_CODE_CONFIG": "Config",

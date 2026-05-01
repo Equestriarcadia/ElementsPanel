@@ -96,6 +96,7 @@ router.all(
         businessMode: systemConfig?.businessMode || false,
         businessId: systemConfig?.businessId || null,
         allowChangeCmd: systemConfig?.allowChangeCmd || false,
+        allowJavaManager: systemConfig?.allowJavaManager ?? true,
         panelId: systemConfig?.panelId || null,
         ssoEnabled: systemConfig?.ssoEnabled || false,
         ssoOnlyMode: systemConfig?.ssoOnlyMode || false

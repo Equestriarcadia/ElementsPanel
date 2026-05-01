@@ -1686,6 +1686,8 @@
   "TXT_CODE_9fe98f3": "监听端口",
   "TXT_CODE_9fed23ab": "请输入镜像名称",
   "TXT_CODE_A0000001": "适用于任何控制台程序的启动命令，不支持脚本文件；<br />列如： \"C://Program Files/Java/bin/java.exe\" -Dfile.encoding=utf-8 -Djline.terminal=jline.UnsupportedTerminal -jar my server.jar -nogui <br/>如果使用 Docker 容器，则可以不填写启动命令，将以镜像定义的命令启动",
+  "TXT_CODE_ALLOW_JAVA_MANAGER": "准许普通用户使用 Java 环境管理功能",
+  "TXT_CODE_ALLOW_JAVA_MANAGER_DESC": "禁用后，普通用户权限将无法使用 Java 环境管理相关功能",
   "TXT_CODE_ALL": "全部",
   "TXT_CODE_CLIENT": "客户端 (Client)",
   "TXT_CODE_CONFIG": "配置",
