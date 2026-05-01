@@ -22,6 +22,7 @@ export interface DesktopWindowProps {
     zIndex?: number;
     showMinimize?: boolean;
     showMaximize?: boolean;
+    showClose?: boolean;
     resizable?: boolean;
 }
 
@@ -33,6 +34,7 @@ const props = withDefaults(defineProps<DesktopWindowProps>(), {
     zIndex: 100,
     showMinimize: true,
     showMaximize: true,
+    showClose: true,
     resizable: true
 });
 
@@ -269,7 +271,7 @@ onUnmounted(() => {
                     <FullscreenExitOutlined v-if="maximized" />
                     <FullscreenOutlined v-else />
                 </div>
-                <div class="window__control window__control--close" @click.stop="emit('close', id)">
+                <div v-if="showClose" class="window__control window__control--close" @click.stop="emit('close', id)">
                     <CloseOutlined />
                 </div>
             </div>

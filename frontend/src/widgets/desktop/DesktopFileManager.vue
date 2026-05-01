@@ -1118,7 +1118,7 @@ onUnmounted(() => {
                     :icon="FileZipOutlined" :visible="loadingWindow.show" :minimized="false" :maximized="false"
                     :active="true" :initial-width="360" :initial-height="180" :initial-x="windowWidth / 2 - 180"
                     :initial-y="windowHeight / 2 - 90" :z-index="10003" :show-minimize="false" :show-maximize="false"
-                    :resizable="false">
+                    :show-close="false" :resizable="false">
                     <div class="dfm-dialog-content">
                         <div class="dfm-dialog__body"
                             style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px;">
