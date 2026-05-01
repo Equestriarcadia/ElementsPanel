@@ -549,6 +549,7 @@ const SHORTCUT_DEBOUNCE_MS = 200;
 
 const dfmRootRef = ref<HTMLElement | null>(null);
 const isDragSelecting = ref(false);
+const isDragAdditive = ref(false);
 const dragSelectStart = ref({ x: 0, y: 0 });
 const dragSelectRect = ref({ x: 0, y: 0, w: 0, h: 0 });
 const dragSelectVisible = ref(false);
@@ -584,7 +585,7 @@ const getTableWrapperEl = (): HTMLElement | null => {
 
 const onTableMouseDown = (e: MouseEvent) => {
     if (e.button !== 0) return;
-    if (e.ctrlKey || e.shiftKey || e.metaKey) return;
+    if (e.shiftKey || e.metaKey) return;
     const target = e.target as HTMLElement;
     if (target.closest('.ant-table-cell-fix-right') ||
         target.closest('.ant-checkbox') ||
@@ -610,6 +611,7 @@ const onTableMouseDown = (e: MouseEvent) => {
 
     const wrapperRect = wrapper.getBoundingClientRect();
     isDragSelecting.value = true;
+    isDragAdditive.value = e.ctrlKey;
     dragSelectStart.value = { x: e.clientX, y: e.clientY };
     dragSelectRect.value = {
         x: e.clientX - wrapperRect.left,
@@ -619,7 +621,9 @@ const onTableMouseDown = (e: MouseEvent) => {
     };
     dragSelectVisible.value = true;
 
-    selectChanged([], []);
+    if (!isDragAdditive.value) {
+        selectChanged([], []);
+    }
 
     if (dfmRootRef.value) {
         if (!dfmRootRef.value.hasAttribute('tabindex')) {
@@ -697,16 +701,34 @@ const performDragSelection = (e: MouseEvent) => {
         }
     }
 
-    const prevSelected = selectedRowKeys.value;
-    if (prevSelected.length !== newlySelected.length || prevSelected.some((k, i) => k !== newlySelected[i])) {
-        selectedRowKeys.value = newlySelected;
-        selectionData.value = newlySelectedRows;
+    if (isDragAdditive.value) {
+        const existingKeys = selectedRowKeys.value;
+        const existingRows = selectionData.value ?? [];
+        const mergedKeys = [...existingKeys];
+        const mergedRows = [...existingRows];
+        for (let i = 0; i < newlySelected.length; i++) {
+            if (!existingKeys.includes(newlySelected[i])) {
+                mergedKeys.push(newlySelected[i]);
+                mergedRows.push(newlySelectedRows[i]);
+            }
+        }
+        if (mergedKeys.length !== existingKeys.length) {
+            selectedRowKeys.value = mergedKeys;
+            selectionData.value = mergedRows;
+        }
+    } else {
+        const prevSelected = selectedRowKeys.value;
+        if (prevSelected.length !== newlySelected.length || prevSelected.some((k, i) => k !== newlySelected[i])) {
+            selectedRowKeys.value = newlySelected;
+            selectionData.value = newlySelectedRows;
+        }
     }
 };
 
 const onTableMouseUp = () => {
     if (isDragSelecting.value) {
         isDragSelecting.value = false;
+        isDragAdditive.value = false;
         dragSelectVisible.value = false;
         if (dragSelectRafId !== null) {
             cancelAnimationFrame(dragSelectRafId);
