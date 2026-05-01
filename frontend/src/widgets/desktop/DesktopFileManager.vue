@@ -705,6 +705,10 @@ const windowWidth = ref(window.innerWidth);
 const windowHeight = ref(window.innerHeight);
 
 const handleKeyboardShortcut = (e: KeyboardEvent) => {
+    if (dfmRootRef.value && !dfmRootRef.value.contains(document.activeElement)) {
+        return;
+    }
+
     const shortcutSig = `${e.ctrlKey || e.metaKey ? "M" : ""}${e.shiftKey ? "S" : ""}${e.altKey ? "A" : ""}:${e.key}`;
     const now = Date.now();
     if (shortcutSig === lastShortcutKey && now - lastShortcutTime < SHORTCUT_DEBOUNCE_MS) {
