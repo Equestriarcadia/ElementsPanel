@@ -146,7 +146,12 @@ onMounted(async () => {
 <template>
   <!-- eslint-disable vue/no-v-html -->
   <div class="login-card-host">
-    <VCard class="login-panel" :class="{ 'login-card-fading': fadeOut }" elevation="0">
+    <VCard
+      class="login-panel"
+      :class="{ 'login-card-fading': fadeOut }"
+      elevation="0"
+      rounded="xl"
+    >
       <VCardText class="login-panel-body">
         <div v-if="loginActions.length" class="login-actions">
           <template v-for="(action, index) in loginActions" :key="index">
@@ -297,7 +302,6 @@ onMounted(async () => {
   transition: all 0.4s;
   width: 100%;
   height: 100%;
-  border-radius: 12px;
   overflow: hidden;
   // backdrop-filter: saturate(120%) blur(12px);
   background-color: var(--login-panel-bg);
@@ -305,7 +309,7 @@ onMounted(async () => {
 
   .login-panel-body {
     position: relative;
-    padding: 28px 24px;
+    padding: 32px;
     min-height: 322px;
   }
 }
@@ -359,6 +363,12 @@ onMounted(async () => {
   width: 16px;
   height: 16px;
   object-fit: contain;
+}
+
+@media (max-width: 480px) {
+  .login-panel .login-panel-body {
+    padding: 24px;
+  }
 }
 
 .login-card-fading {

@@ -12,6 +12,7 @@ import type { App } from "vue";
 export const vuetify = createVuetify({
   defaults: {
     VAutocomplete: { flat: true, rounded: "xl" },
+    VBtn: { flat: true, rounded: "xl" },
     VCombobox: { flat: true, rounded: "xl" },
     VField: { flat: true, rounded: "xl" },
     VFileInput: { flat: true, rounded: "xl" },

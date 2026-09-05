@@ -441,7 +441,7 @@ const confirmDisable = () => {
     </div>
 
     <VDialog v-model="disableConfirmOpen" max-width="460">
-      <VCard>
+      <VCard class="plugin-config-confirm-card" rounded="xl">
         <VCardTitle>
           {{ disableCandidate ? t("TXT_CODE_PLUGIN_DISABLE_CONFIRM_TITLE", { name: disableCandidate.id }) : "" }}
         </VCardTitle>
@@ -472,7 +472,7 @@ const confirmDisable = () => {
   height: min(720px, calc(100vh - 140px));
   min-height: 0;
   overflow: hidden;
-  border-radius: 12px;
+  border-radius: 24px;
   background: var(--background-color-white);
   backdrop-filter: saturate(180%) blur(20px);
   color: var(--text-color);
@@ -494,7 +494,7 @@ const confirmDisable = () => {
   flex-direction: column;
   flex: 0 0 240px;
   min-height: 0;
-  padding: 16px 10px;
+  padding: 24px 16px;
   overflow: hidden;
   background: var(--background-color-white);
 }
@@ -598,8 +598,20 @@ const confirmDisable = () => {
 .plugin-config-content {
   min-width: 0;
   flex: 1;
-  padding: 24px;
+  padding: 32px;
   overflow: auto;
+}
+
+.plugin-config-confirm-card :deep(.v-card-title) {
+  padding: 24px 28px 12px;
+}
+
+.plugin-config-confirm-card :deep(.v-card-text) {
+  padding: 0 28px 20px;
+}
+
+.plugin-config-confirm-card :deep(.v-card-actions) {
+  padding: 12px 28px 24px;
 }
 
 .plugin-config-title-row {
@@ -662,6 +674,7 @@ const confirmDisable = () => {
   .plugin-config-sidebar {
     flex-basis: auto;
     max-height: 220px;
+    padding: 16px 12px;
   }
 
   .plugin-config-list {
@@ -670,7 +683,7 @@ const confirmDisable = () => {
   }
 
   .plugin-config-content {
-    padding: 16px;
+    padding: 24px;
   }
 
   .plugin-config-title-row {
