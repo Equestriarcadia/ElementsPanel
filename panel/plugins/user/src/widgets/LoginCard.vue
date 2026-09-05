@@ -197,7 +197,7 @@ onMounted(async () => {
                   autocomplete="username"
                   :placeholder="t('TXT_CODE_80a560a1')"
                   prepend-inner-icon="mdi-account"
-                  variant="outlined"
+                  variant="solo-filled"
                   density="comfortable"
                   hide-details
                 />
@@ -209,7 +209,7 @@ onMounted(async () => {
                   autocomplete="current-password"
                   :placeholder="t('TXT_CODE_551b0348')"
                   prepend-inner-icon="mdi-lock"
-                  variant="outlined"
+                  variant="solo-filled"
                   density="comfortable"
                   hide-details
                 />
@@ -223,7 +223,7 @@ onMounted(async () => {
                 autocomplete="one-time-code"
                 :placeholder="t('TXT_CODE_7ac8b1d3')"
                 prepend-inner-icon="mdi-lock-check"
-                variant="outlined"
+                variant="solo-filled"
                 density="comfortable"
                 hide-details
               />

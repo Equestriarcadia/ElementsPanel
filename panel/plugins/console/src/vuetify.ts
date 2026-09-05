@@ -10,6 +10,15 @@ import type { App } from "vue";
  * same component and theme context without putting UI code back in the host.
  */
 export const vuetify = createVuetify({
+  defaults: {
+    VAutocomplete: { flat: true, rounded: "xl" },
+    VCombobox: { flat: true, rounded: "xl" },
+    VField: { flat: true, rounded: "xl" },
+    VFileInput: { flat: true, rounded: "xl" },
+    VSelect: { flat: true, rounded: "xl" },
+    VTextarea: { flat: true, rounded: "xl" },
+    VTextField: { flat: true, rounded: "xl" }
+  },
   icons: {
     defaultSet: "mdi",
     aliases,

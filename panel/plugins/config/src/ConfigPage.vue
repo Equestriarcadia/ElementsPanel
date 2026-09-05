@@ -346,7 +346,7 @@ const confirmDisable = () => {
         :items="nodeItems"
         :loading="loading"
         :placeholder="t('TXT_CODE_PLUGIN_NODE_SELECT')"
-        variant="outlined"
+        variant="solo-filled"
         density="compact"
         hide-details
       />

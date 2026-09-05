@@ -106,7 +106,7 @@ const open = (field: SettingField) => {
           :model-value="String(values[field.key!] ?? '')"
           :rows="4"
           :placeholder="field.placeholder || t('TXT_CODE_4ea93630')"
-          variant="outlined"
+          variant="solo-filled"
           density="comfortable"
           hide-details
           @update:model-value="set(field, $event)"
@@ -115,7 +115,7 @@ const open = (field: SettingField) => {
           <VTextField
             :model-value="String(values[field.key!] ?? '')"
             :placeholder="field.placeholder || t('TXT_CODE_4ea93630')"
-            variant="outlined"
+            variant="solo-filled"
             density="comfortable"
             hide-details
             clearable
@@ -136,7 +136,7 @@ const open = (field: SettingField) => {
           :model-value="String(values[field.key!] ?? '')"
           class="setting-control setting-control-medium"
           :placeholder="field.placeholder || t('TXT_CODE_4ea93630')"
-          variant="outlined"
+          variant="solo-filled"
           density="comfortable"
           hide-details
           @update:model-value="set(field, $event)"
@@ -147,7 +147,7 @@ const open = (field: SettingField) => {
           class="setting-control setting-control-medium"
           type="password"
           :placeholder="field.placeholder || t('TXT_CODE_4ea93630')"
-          variant="outlined"
+          variant="solo-filled"
           density="comfortable"
           hide-details
           @update:model-value="set(field, $event)"
@@ -159,7 +159,7 @@ const open = (field: SettingField) => {
           type="number"
           :min="field.min"
           :max="field.max"
-          variant="outlined"
+          variant="solo-filled"
           density="comfortable"
           hide-details
           @update:model-value="setNumber(field, $event)"
@@ -171,7 +171,7 @@ const open = (field: SettingField) => {
           :items="allYesNo"
           item-title="label"
           item-value="value"
-          variant="outlined"
+          variant="solo-filled"
           density="comfortable"
           hide-details
           @update:model-value="set(field, $event)"
@@ -183,7 +183,7 @@ const open = (field: SettingField) => {
           :items="field.options || []"
           item-title="label"
           item-value="value"
-          variant="outlined"
+          variant="solo-filled"
           density="comfortable"
           hide-details
           @update:model-value="set(field, $event)"
