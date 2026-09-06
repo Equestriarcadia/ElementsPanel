@@ -177,6 +177,25 @@ html {
   margin-bottom: 16px !important;
 }
 
+// All application dialogs are rendered through Vuetify's VDialog adapter.
+.v-dialog > .v-overlay__content {
+  border-radius: 24px;
+  max-width: calc(100% - 32px);
+}
+
+.v-dialog .app-dialog-card,
+.v-dialog .v-card {
+  border-radius: 24px !important;
+}
+
+.v-dialog .v-card-text {
+  padding: 20px 28px 28px;
+}
+
+.v-dialog .v-card-actions {
+  padding: 12px 28px 24px;
+}
+
 // Override the AntDesign progress bar animation
 .no-animation .ant-progress-bg {
   transition: none !important;

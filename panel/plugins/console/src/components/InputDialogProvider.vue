@@ -22,13 +22,13 @@ const inputValue = ref("");
 
 const { state } = useAppToolsStore();
 
-const handleOk = (e: MouseEvent) => {
+const handleOk = () => {
   state.inputDialog.resolve(JSON.parse(JSON.stringify(inputValue.value)));
   state.inputDialog.show = false;
   inputValue.value = "";
 };
 
-const handleCancel = (e: MouseEvent) => {
+const handleCancel = () => {
   state.inputDialog.reject(new Error("Dialog closed by user"));
   state.inputDialog.show = false;
   inputValue.value = "";

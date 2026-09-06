@@ -148,6 +148,27 @@ defineExpose({
 
 <style lang="scss">
 .full-modal {
+  &.v-dialog > .v-overlay__content {
+    width: 100%;
+    max-width: 100% !important;
+    height: 100svh;
+    max-height: 100svh;
+    margin: 0;
+    border-radius: 0;
+  }
+
+  .app-dialog-card {
+    width: 100% !important;
+    height: 100%;
+    border-radius: 0 !important;
+  }
+
+  .app-dialog-content {
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+  }
+
   .ant-modal-close {
     top: 10px;
   }

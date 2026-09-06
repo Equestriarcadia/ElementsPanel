@@ -16,6 +16,7 @@ import { computed, onMounted, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import type { FrontendFileManagerService } from "@/plugin";
 import { usePluginService } from "@/plugin/context";
+import { VBtn } from "vuetify/lib/components/index.mjs";
 import LocalModTable from "./mod-manager/LocalModTable.vue";
 import ModConfigModal from "./mod-manager/ModConfigModal.vue";
 import ModFloatingTools from "./mod-manager/ModFloatingTools.vue";
@@ -78,7 +79,7 @@ const checkAndConfirm = async (
 ) => {
   if (isWindows.value && isRunning.value) {
     const { createVNode } = await import("vue");
-    const { Modal, Button } = await import("ant-design-vue");
+    const { Modal } = await import("ant-design-vue");
     const { ExclamationCircleOutlined } = await import("@ant-design/icons-vue");
     Modal.confirm({
       title: t("TXT_CODE_MOD_WIN_FILE_LOCK_TITLE"),
@@ -101,8 +102,9 @@ const checkAndConfirm = async (
         },
         [
           createVNode(
-            Button,
+            VBtn,
             {
+              variant: "text",
               onClick: () => {
                 Modal.destroyAll();
               }
@@ -110,9 +112,9 @@ const checkAndConfirm = async (
             { default: () => t("TXT_CODE_a0451c97") }
           ),
           createVNode(
-            Button,
+            VBtn,
             {
-              danger: true,
+              color: "error",
               onClick: () => {
                 Modal.destroyAll();
                 immediateFn();
@@ -121,9 +123,9 @@ const checkAndConfirm = async (
             { default: () => t("TXT_CODE_MOD_TRY_IMMEDIATELY") }
           ),
           createVNode(
-            Button,
+            VBtn,
             {
-              type: "primary",
+              color: "primary",
               onClick: () => {
                 Modal.destroyAll();
                 addDeferredTask(type, name, data);

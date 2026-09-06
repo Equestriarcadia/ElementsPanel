@@ -30,6 +30,17 @@ const VUETIFY_MDI_PATH = fileURLToPath(
 const MDI_FONT_CSS_PATH = fileURLToPath(
   new URL("./node_modules/@mdi/font/css/materialdesignicons.css", import.meta.url)
 );
+const APP_DIALOG_PATH = normalizePath(
+  fileURLToPath(new URL("../panel/plugins/console/src/components/AppDialog.vue", import.meta.url))
+);
+
+const VuetifyDialogResolver = (name: string) => {
+  if (name !== "AModal") return undefined;
+  return {
+    as: "AModal",
+    from: APP_DIALOG_PATH
+  };
+};
 
 interface DiscoveredPanelPlugin {
   metadata: Record<string, unknown>;
@@ -352,6 +363,7 @@ export default defineConfig({
     vueJsx(),
     Components({
       resolvers: [
+        VuetifyDialogResolver,
         AntDesignVueResolver({
           importStyle: false // css in js
         })

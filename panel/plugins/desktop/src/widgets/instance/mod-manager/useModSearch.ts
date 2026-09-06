@@ -8,7 +8,8 @@ import {
 } from "@/services/apis/modManager";
 import { ExclamationCircleOutlined } from "@ant-design/icons-vue";
 import { useLocalStorage } from "@vueuse/core";
-import { Button, message, Modal } from "ant-design-vue";
+import { message, Modal } from "ant-design-vue";
+import { VBtn } from "vuetify/lib/components/index.mjs";
 import { computed, createVNode, ref, type Ref } from "vue";
 
 export function useModSearch(
@@ -256,8 +257,9 @@ export function useModSearch(
               content: "",
               footer: createVNode("div", { style: "text-align: right; margin-top: 20px;" }, [
                 createVNode(
-                  Button,
+                  VBtn,
                   {
+                    variant: "text",
                     onClick: () => {
                       modal.destroy();
                       reject(new Error("Cancelled"));
@@ -266,9 +268,10 @@ export function useModSearch(
                   { default: () => t("TXT_CODE_a0451c97") }
                 ),
                 createVNode(
-                  Button,
+                  VBtn,
                   {
-                    type: detectedType === "mod" ? "primary" : "default",
+                    color: detectedType === "mod" ? "primary" : undefined,
+                    variant: detectedType === "mod" ? "elevated" : "text",
                     style: "margin-left: 8px",
                     onClick: () => {
                       modal.destroy();
@@ -278,9 +281,10 @@ export function useModSearch(
                   { default: () => t("TXT_CODE_MOD") }
                 ),
                 createVNode(
-                  Button,
+                  VBtn,
                   {
-                    type: detectedType === "plugin" ? "primary" : "default",
+                    color: detectedType === "plugin" ? "primary" : undefined,
+                    variant: detectedType === "plugin" ? "elevated" : "text",
                     style: "margin-left: 8px",
                     onClick: () => {
                       modal.destroy();

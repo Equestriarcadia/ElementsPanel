@@ -11,6 +11,12 @@ import type { App } from "vue";
  */
 export const vuetify = createVuetify({
   defaults: {
+    VDialog: {
+      scrim: "rgba(0, 0, 0, 0.48)"
+    },
+    VCard: {
+      rounded: "xl"
+    },
     VAutocomplete: { flat: true, rounded: "xl" },
     VBtn: { flat: true, rounded: "xl" },
     VCombobox: { flat: true, rounded: "xl" },
