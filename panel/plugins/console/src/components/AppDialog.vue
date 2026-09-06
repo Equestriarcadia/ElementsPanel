@@ -184,7 +184,7 @@ const afterLeave = () => {
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-  padding: 16px 28px 8px;
+  padding: 16px 28px 8px 24px;
 }
 
 .app-dialog-content {
