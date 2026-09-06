@@ -157,7 +157,7 @@ defineExpose({ openDialog });
 <style lang="scss" scoped>
 .node-dialog-title { padding: 12px 24px 4px; font-weight: 600; }
 .node-dialog-content { max-height: min(72vh, 760px); padding: 8px 24px 20px; }
-.node-dialog-actions { padding: 8px 16px 12px 24px; }
+.node-dialog-actions { padding: 8px 16px 12px; }
 .actions-spacer { flex: 1 1 auto; }
 .form-hint { margin: -8px 0 12px; color: var(--color-gray-7); font-size: 12px; }
 .mapping-sheet { padding: 16px; }
