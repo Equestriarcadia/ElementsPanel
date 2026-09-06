@@ -46,6 +46,7 @@ export function apply(ctx: PanelFrontendPluginContext) {
   ctx.menus.app({
     title: () => t("TXT_CODE_DESKTOP_MODE"),
     icon: DesktopOutlined,
+    mdiIcon: "mdi-monitor",
     click: openDesktop,
     conditions: () => {
       const { isLogged } = useAppStateStore();

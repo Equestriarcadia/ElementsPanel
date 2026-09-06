@@ -16,6 +16,7 @@ import { useAppStateStore } from "@/stores/useAppStateStore";
 import { useLayoutContainerStore } from "@/stores/useLayoutContainerStore";
 import { closeAppLoading, setLoadingTitle } from "@/tools/dom";
 import { VThemeProvider } from "vuetify/lib/components/index.mjs";
+import { setVuetifyTheme } from "./vuetify";
 
 const { hasBgImage, initAppTheme, isDarkTheme, useSidebarLayout } = useAppConfigStore();
 const { containerState } = useLayoutContainerStore();
@@ -41,6 +42,15 @@ const designModeNavStyle = computed(() => {
 const isLoginPage = computed(() => route.path === "/login");
 const isImmersivePage = computed(() => route.meta.immersive === true);
 const vuetifyTheme = computed(() => (isDarkTheme.value ? "dark" : "light"));
+
+// VThemeProvider covers the main tree, while dynamically mounted dialogs use
+// Vuetify's global theme. Keep both in lockstep so every popup follows the
+// current light/dark mode.
+watch(
+  isDarkTheme,
+  (dark) => setVuetifyTheme(dark),
+  { immediate: true }
+);
 
 // One-shot entrance animation right after a successful login (route leaves
 // `/login`). Header slides down, content fades in.

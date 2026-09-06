@@ -307,7 +307,9 @@ export function useHeaderMenus() {
     const pluginMenus = ctx.menus.appMenus.map((item) => ({
       ...item,
       title: typeof item.title === "function" ? item.title() : item.title,
-      mdiIcon: getMdiIcon(item.icon, typeof item.title === "function" ? item.title() : item.title),
+      mdiIcon:
+        item.mdiIcon ??
+        getMdiIcon(item.icon, typeof item.title === "function" ? item.title() : item.title),
       leftSideTitle:
         typeof item.leftSideTitle === "function" ? item.leftSideTitle() : item.leftSideTitle,
       conditions:

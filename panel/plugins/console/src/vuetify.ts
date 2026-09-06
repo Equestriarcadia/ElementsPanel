@@ -37,6 +37,11 @@ export const vuetify = createVuetify({
       light: {
         dark: false,
         colors: {
+          background: "#f5f5f5",
+          surface: "#ffffff",
+          "surface-variant": "#f0f0f0",
+          "on-background": "#262626",
+          "on-surface": "#262626",
           primary: "#1677ff",
           error: "#f5222d",
           info: "#8c8c8c"
@@ -45,6 +50,11 @@ export const vuetify = createVuetify({
       dark: {
         dark: true,
         colors: {
+          background: "#232429",
+          surface: "#202020",
+          "surface-variant": "#303136",
+          "on-background": "#bfbfbf",
+          "on-surface": "#bfbfbf",
           primary: "#3c89e8",
           error: "#e84749",
           info: "#8c8c8c"
@@ -53,6 +63,15 @@ export const vuetify = createVuetify({
     }
   }
 });
+
+/**
+ * Keep Vuetify's global theme in sync with the console theme.  This matters
+ * for dialogs mounted through createApp() (for example Modal.confirm), since
+ * those apps are outside ConsoleApp's VThemeProvider subtree.
+ */
+export function setVuetifyTheme(isDark: boolean) {
+  vuetify.theme.global.name.value = isDark ? "dark" : "light";
+}
 
 const installedApps = new WeakSet<App>();
 

@@ -55,6 +55,8 @@ export interface PanelFrontendAppMenu {
   leftSideTitle?: string | (() => string);
   iconText?: string;
   icon?: Component;
+  /** Vuetify/MDI icon name used by the normal panel shell. */
+  mdiIcon?: string;
   click: (...args: any[]) => unknown;
   conditions?: boolean | (() => boolean);
   onlyPC?: boolean;

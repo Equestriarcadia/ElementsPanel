@@ -61,9 +61,13 @@ const localOpen = ref(false);
 
 const sourceOpen = computed(() => props.open ?? props.visible ?? props.modelValue ?? false);
 
-watch(sourceOpen, (value) => {
-  localOpen.value = value;
-}, { immediate: true });
+watch(
+  sourceOpen,
+  (value) => {
+    localOpen.value = value;
+  },
+  { immediate: true }
+);
 
 const isOpen = computed({
   get: () => localOpen.value,
@@ -85,7 +89,22 @@ const dialogWidth = computed(() => {
   return typeof width === "number" ? `${width}px` : width;
 });
 
-const dialogMaxWidth = computed(() => props.maxWidth ?? props.width ?? "calc(100% - 32px)");
+const normalizeDialogSize = (value: string | number) => {
+  const size = typeof value === "number" ? `${value}px` : value;
+  if (size === "auto") return "min(960px, calc(100vw - 96px))";
+  if (size === "fit-content") return size;
+  return `min(${size}, 1120px, calc(100vw - 96px))`;
+};
+
+// Keep dialogs at a comfortable reading width when callers do not provide a
+// size.  Explicitly sized dialogs are still allowed to be wider, but the
+// global overlay rules keep them inside the viewport with a safe gutter.
+const dialogMaxWidth = computed(() => {
+  const width = props.maxWidth ?? props.width;
+  if (width == null) return "min(720px, calc(100vw - 64px))";
+  if (props.wrapClassName?.split(/\s+/).includes("full-modal")) return width;
+  return normalizeDialogSize(width);
+});
 const dialogStyle = computed(() => [attrs.style as any, props.style] as any);
 
 const showTitle = computed(() => Boolean(props.title || slots.title || props.closable));
@@ -115,6 +134,7 @@ const afterLeave = () => {
 <template>
   <VDialog
     v-model="isOpen"
+    class="app-dialog"
     :class="[attrs.class, props.wrapClassName]"
     :style="dialogStyle"
     :max-width="dialogMaxWidth"
