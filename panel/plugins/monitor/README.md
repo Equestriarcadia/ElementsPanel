@@ -45,11 +45,15 @@ the monitor service exposed on `ctx.operations`.
 
 Registered by `src/frontend.ts`:
 
-- Route `/overview`
-- Layout cards `DataOverview`, `StatusBlock`, `RequestChart`, `InstanceChart`,
-  `OperationLogCard`, plus their card-pool entries
+- Route `/overview`, rendered by the fixed Vuetify `OverviewPage` instead of the
+  user-editable layout container
 - The instance-console operation-log action and its normal/Desktop log window
 - A Desktop application (`DesktopOverview`, moved out of the `desktop` plugin)
+
+The normal monitoring page owns its grid, cards, charts, node list and operation
+timeline. It does not read or write the custom layout configuration. The legacy
+monitoring card registrations remain available for other layout-driven pages,
+but they are not used by `/overview`.
 
 `src/hooks/useOverviewChart.ts` holds the full monitoring chart — axes, gradient
 area fill, tooltip. The console plugin provides the shared `useSimpleChart`

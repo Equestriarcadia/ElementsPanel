@@ -2,7 +2,6 @@ import { t } from "@/lang/i18n";
 import type { PanelFrontendPluginContext } from "@/plugin";
 import type { LayoutCardPoolItemFactory } from "@/config";
 import { LayoutCardHeight } from "@/config/originLayoutConfig";
-import LayoutContainer from "@/views/LayoutContainer.vue";
 import { getRandomId } from "@/tools/randId";
 import { NEW_CARD_TYPE } from "@/types";
 import { useAppStateStore } from "@/stores/useAppStateStore";
@@ -18,6 +17,7 @@ import OperationLogCard from "./normal/OperationLogCard.vue";
 import DataOverview from "./normal/PanelOverview.vue";
 import RequestChart from "./normal/RequestChart.vue";
 import StatusBlock from "./normal/StatusBlock.vue";
+import OverviewPage from "./normal/OverviewPage.vue";
 
 const ROLE_ADMIN = 10;
 
@@ -115,7 +115,7 @@ export function apply(ctx: PanelFrontendPluginContext) {
   ctx.routes.add({
     path: "/overview",
     name: t("TXT_CODE_84fbe277"),
-    component: LayoutContainer,
+    component: OverviewPage,
     meta: {
       mainMenu: true,
       permission: ROLE_ADMIN,

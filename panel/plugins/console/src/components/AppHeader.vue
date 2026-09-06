@@ -9,6 +9,7 @@ import {
   VList,
   VListItem,
   VMenu,
+  VIcon,
   VToolbar,
   VTooltip
 } from "vuetify/lib/components/index.mjs";
@@ -24,6 +25,15 @@ const { containerState } = useLayoutContainerStore();
 const { logoImage } = useAppConfigStore();
 
 const { menus, headerMenus, appMenus, headerAppMenus, handleToPage } = useHeaderMenus();
+
+const getMdiIcon = (explicitIcon?: string) => {
+  return explicitIcon || "mdi-help-circle-outline";
+};
+
+const getFallbackMdiIcon = (icon: unknown) => {
+  if (typeof icon === "string" && icon.startsWith("mdi-")) return icon;
+  return "mdi-help-circle-outline";
+};
 
 /** Whether route menu item is active (current path equals or is child of this path) */
 const isRouteActive = (path: string): boolean => {
@@ -84,7 +94,7 @@ const openPhoneMenu = (b = false) => {
                 variant="text"
                 :aria-label="item.title"
               >
-                <component :is="item.icon" v-if="item.icon" />
+                <VIcon :icon="getMdiIcon(item.mdiIcon || getFallbackMdiIcon(item.icon))" />
               </VBtn>
             </template>
             <VList density="compact">
@@ -107,7 +117,7 @@ const openPhoneMenu = (b = false) => {
                 variant="text"
                 @click="item.click()"
               >
-                <component :is="item.icon" v-if="item.icon" />
+                <VIcon :icon="getMdiIcon(item.mdiIcon || getFallbackMdiIcon(item.icon))" />
                 <span v-if="item?.iconText" class="nav-button-text">
                   {{ item.iconText }}
                 </span>
@@ -156,7 +166,7 @@ const openPhoneMenu = (b = false) => {
                 variant="text"
                 :aria-label="item.title"
               >
-                <component :is="item.icon" v-if="item.icon" />
+                <VIcon :icon="getMdiIcon(item.mdiIcon || getFallbackMdiIcon(item.icon))" />
               </VBtn>
             </template>
             <VList density="compact">
@@ -181,7 +191,7 @@ const openPhoneMenu = (b = false) => {
             :title="item.title"
             @click="item.click()"
           >
-            <component :is="item.icon" v-if="item.icon" />
+            <VIcon :icon="getMdiIcon(item.mdiIcon || getFallbackMdiIcon(item.icon))" />
           </VBtn>
         </div>
       </div>

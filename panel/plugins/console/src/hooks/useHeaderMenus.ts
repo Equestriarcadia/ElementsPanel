@@ -63,6 +63,33 @@ export type SidebarEntry =
   | SidebarAppEntry
   | SidebarAppDropdownEntry;
 
+const mdiIconMap: Record<string, string> = {
+  AppstoreAddOutlined: "mdi-view-grid-plus",
+  BgColorsOutlined: "mdi-palette-outline",
+  BuildOutlined: "mdi-hammer-wrench",
+  CloseCircleOutlined: "mdi-close-circle-outline",
+  DesktopOutlined: "mdi-monitor",
+  GithubFilled: "mdi-github",
+  LogoutOutlined: "mdi-logout",
+  RedoOutlined: "mdi-restore",
+  SaveOutlined: "mdi-content-save-outline",
+  UserOutlined: "mdi-account-outline"
+};
+
+const getMdiIcon = (icon: unknown, title?: string): string => {
+  if (typeof icon === "string" && icon.startsWith("mdi-")) return icon;
+  const component = icon as
+    | { name?: string; displayName?: string; __name?: string; type?: { name?: string; __name?: string } }
+    | undefined;
+  const iconName =
+    component?.name ??
+    component?.displayName ??
+    component?.__name ??
+    component?.type?.name ??
+    component?.type?.__name;
+  return (iconName && mdiIconMap[iconName]) || (title === "GitHub" ? "mdi-github" : "mdi-help-circle-outline");
+};
+
 export function useHeaderMenus() {
   const { saveGlobalLayoutConfig, resetGlobalLayoutConfig } = useLayoutConfigStore();
   const { containerState, changeDesignMode } = useLayoutContainerStore();
@@ -70,7 +97,6 @@ export function useHeaderMenus() {
   const { setTheme } = useAppConfigStore();
   const { state: appTools } = useAppToolsStore();
   const { isAdmin, state: appState, isLogged, authEnabled } = useAppStateStore();
-
   const openNewCardDialog = (): void => {
     containerState.showNewCardDialog = true;
   };
@@ -132,6 +158,7 @@ export function useHeaderMenus() {
         iconText: "",
         title: "GitHub",
         icon: GithubFilled,
+        mdiIcon: "mdi-github",
         onlyPC: true,
         onlyHeader: true,
         click: onClickIcon
@@ -139,6 +166,7 @@ export function useHeaderMenus() {
       {
         title: t("TXT_CODE_8b0f8aab"),
         icon: AppstoreAddOutlined,
+        mdiIcon: "mdi-view-grid-plus",
         click: openNewCardDialog,
         conditions: containerState.isDesignMode,
         onlyPC: true
@@ -146,6 +174,7 @@ export function useHeaderMenus() {
       {
         title: t("TXT_CODE_8145d82"),
         icon: SaveOutlined,
+        mdiIcon: "mdi-content-save-outline",
         click: async () => {
           Modal.confirm({
             title: t("TXT_CODE_d73c8510"),
@@ -169,6 +198,7 @@ export function useHeaderMenus() {
       {
         title: t("TXT_CODE_5b5d6f04"),
         icon: CloseCircleOutlined,
+        mdiIcon: "mdi-close-circle-outline",
         click: async () => {
           Modal.confirm({
             title: t("TXT_CODE_8f20c21c"),
@@ -185,6 +215,7 @@ export function useHeaderMenus() {
       {
         title: t("TXT_CODE_abd2f7e1"),
         icon: RedoOutlined,
+        mdiIcon: "mdi-restore",
         click: async () => {
           Modal.confirm({
             title: t("TXT_CODE_74fa2f73"),
@@ -208,6 +239,7 @@ export function useHeaderMenus() {
         title: t("TXT_CODE_5d88a9b"),
         leftSideTitle: t("TXT_CODE_ee01c10c"),
         icon: BgColorsOutlined,
+        mdiIcon: "mdi-palette-outline",
         click: (key: string) => {
           setTheme(Number(key) as AppTheme);
         },
@@ -223,6 +255,7 @@ export function useHeaderMenus() {
         title: t("TXT_CODE_ebd2a6a1"),
         leftSideTitle: t("TXT_CODE_4eb158da"),
         icon: BuildOutlined,
+        mdiIcon: "mdi-hammer-wrench",
         click: (): void => {
           Modal.confirm({
             title: t("TXT_CODE_29e85f34"),
@@ -244,6 +277,7 @@ export function useHeaderMenus() {
       {
         title: t("TXT_CODE_8c3164c9"),
         icon: UserOutlined,
+        mdiIcon: "mdi-account-outline",
         click: () => {
           appTools.showUserInfoDialog = true;
         },
@@ -253,6 +287,7 @@ export function useHeaderMenus() {
       {
         title: t("TXT_CODE_2c69ab15"),
         icon: LogoutOutlined,
+        mdiIcon: "mdi-logout",
         click: async () => {
           Modal.confirm({
             title: t("TXT_CODE_9654b91c"),
@@ -272,6 +307,7 @@ export function useHeaderMenus() {
     const pluginMenus = ctx.menus.appMenus.map((item) => ({
       ...item,
       title: typeof item.title === "function" ? item.title() : item.title,
+      mdiIcon: getMdiIcon(item.icon, typeof item.title === "function" ? item.title() : item.title),
       leftSideTitle:
         typeof item.leftSideTitle === "function" ? item.leftSideTitle() : item.leftSideTitle,
       conditions:
