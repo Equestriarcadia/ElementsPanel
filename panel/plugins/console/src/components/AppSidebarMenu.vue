@@ -5,6 +5,7 @@ import {
   type SidebarEntry
 } from "@/hooks/useHeaderMenus";
 import { useAppConfigStore } from "@/stores/useAppConfigStore";
+import { useRoute } from "vue-router";
 import {
   VDivider,
   VList,
@@ -12,7 +13,6 @@ import {
   VMenu,
   VSheet
 } from "vuetify/lib/components/index.mjs";
-import { useRoute } from "vue-router";
 
 const route = useRoute();
 const { sidebarItems, handleToPage } = useHeaderMenus();
@@ -74,11 +74,11 @@ const getMdiIcon = (icon: unknown, fallback?: string): string => {
   if (typeof icon === "string" && icon.startsWith("mdi-")) return icon;
   const component = icon as
     | {
-        name?: string;
-        displayName?: string;
-        __name?: string;
-        type?: { name?: string; __name?: string };
-      }
+      name?: string;
+      displayName?: string;
+      __name?: string;
+      type?: { name?: string; __name?: string };
+    }
     | undefined;
   const iconName =
     component?.name ??
@@ -113,50 +113,24 @@ const onAppDropdownClick = (item: SidebarAppDropdownEntry, key: string | number)
       <template v-for="(entry, index) in sidebarItems" :key="getItemKey(entry, index)">
         <VDivider v-if="entry.type === 'divider'" class="sidebar-divider" />
 
-        <VListItem
-          v-else-if="entry.type === 'route'"
-          class="sidebar-item"
-          :class="entry.customClass"
-          :active="isRouteActive(entry.path)"
-          active-color="primary"
-          rounded="xl"
-          :title="String(entry.name ?? '')"
-          :prepend-icon="getRouteIcon(entry)"
-          @click="handleToPage(entry.path)"
-        />
+        <VListItem v-else-if="entry.type === 'route'" class="sidebar-item" :class="entry.customClass"
+          :active="isRouteActive(entry.path)" active-color="primary" rounded="xl" :title="String(entry.name ?? '')"
+          :prepend-icon="getRouteIcon(entry)" @click="handleToPage(entry.path)" />
 
         <VMenu v-else-if="entry.type === 'app-dropdown'" location="end" :offset="8">
           <template #activator="{ props: menuProps }">
-            <VListItem
-              v-bind="menuProps"
-              class="sidebar-item"
-              :class="entry.customClass"
-              rounded="xl"
-              :title="entry.title"
-              :prepend-icon="entry.mdiIcon || getMdiIcon(entry.icon)"
-              append-icon="mdi-chevron-right"
-            />
+            <VListItem v-bind="menuProps" class="sidebar-item" :class="entry.customClass" rounded="xl"
+              :title="entry.title" :prepend-icon="entry.mdiIcon || getMdiIcon(entry.icon)"
+              append-icon="mdi-chevron-right" />
           </template>
           <VList class="sidebar-submenu" density="comfortable" nav>
-            <VListItem
-              v-for="menuItem in entry.menus"
-              :key="String(menuItem.value)"
-              rounded="xl"
-              :title="menuItem.title"
-              @click="onAppDropdownClick(entry, menuItem.value)"
-            />
+            <VListItem v-for="menuItem in entry.menus" :key="String(menuItem.value)" rounded="xl"
+              :title="menuItem.title" @click="onAppDropdownClick(entry, menuItem.value)" />
           </VList>
         </VMenu>
 
-        <VListItem
-          v-else-if="entry.type === 'app'"
-          class="sidebar-item"
-          :class="entry.customClass"
-          rounded="xl"
-          :title="entry.title"
-          :prepend-icon="entry.mdiIcon || getMdiIcon(entry.icon)"
-          @click="entry.click()"
-        />
+        <VListItem v-else-if="entry.type === 'app'" class="sidebar-item" :class="entry.customClass" rounded="xl"
+          :title="entry.title" :prepend-icon="entry.mdiIcon || getMdiIcon(entry.icon)" @click="entry.click()" />
       </template>
     </VList>
   </VSheet>
@@ -173,7 +147,7 @@ const onAppDropdownClick = (item: SidebarAppDropdownEntry, key: string | number)
   background-color: var(--app-header-bg);
   color: var(--app-header-text-color);
   backdrop-filter: saturate(180%) blur(20px);
-  padding: 20px 12px;
+  padding: 20px 0;
 }
 
 .logo {
@@ -189,19 +163,26 @@ const onAppDropdownClick = (item: SidebarAppDropdownEntry, key: string | number)
 
 .sidebar-menu {
   flex: 1;
-  width: 100%;
+  width: calc(100%);
+  max-width: none !important;
   overflow-y: auto;
-  padding: 8px;
+  overflow-x: hidden;
+  padding: 8px 20px;
+  box-sizing: border-box;
   color: var(--app-header-text-color);
   background: transparent;
 }
 
 .sidebar-item {
-  width: 100%;
+  width: calc(100% + 24px);
+  max-width: none !important;
   min-height: 44px;
-  margin: 3px 0;
+  margin: 3px 0 3px -20px;
+  padding-left: 36px !important;
   color: inherit;
   cursor: pointer;
+  border-radius: 0 24px 24px 0 !important;
+  background-color: transparent !important;
 
   :deep(.v-list-item__prepend > .v-icon) {
     margin-inline-end: 12px;
@@ -214,14 +195,13 @@ const onAppDropdownClick = (item: SidebarAppDropdownEntry, key: string | number)
 }
 
 .sidebar-item :deep(.v-list-item__overlay) {
+  background: currentColor;
   opacity: 0;
 }
 
-.sidebar-item:hover,
-.sidebar-item:focus-visible,
-.sidebar-item:focus-within,
-.sidebar-item :deep(.v-list-item__overlay) {
-  background: transparent !important;
+.sidebar-item:hover :deep(.v-list-item__overlay),
+.sidebar-item:focus-visible :deep(.v-list-item__overlay) {
+  opacity: 0;
 }
 
 .sidebar-item.v-list-item--active {
@@ -241,5 +221,4 @@ const onAppDropdownClick = (item: SidebarAppDropdownEntry, key: string | number)
   background: var(--app-header-bg);
   color: var(--app-header-text-color);
 }
-
 </style>

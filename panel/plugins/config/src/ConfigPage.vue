@@ -397,7 +397,7 @@ const confirmDisable = () => {
             <VSwitch
               :model-value="selectedPlugin.enabled"
               :loading="pending === selectedPlugin.id"
-              :label="selectedPlugin.enabled ? t('TXT_CODE_PLUGIN_ENABLE') : t('TXT_CODE_PLUGIN_DISABLE')"
+              :aria-label="selectedPlugin.enabled ? t('TXT_CODE_PLUGIN_ENABLE') : t('TXT_CODE_PLUGIN_DISABLE')"
               color="primary"
               density="compact"
               hide-details
