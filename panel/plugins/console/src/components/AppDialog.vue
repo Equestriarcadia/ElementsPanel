@@ -5,8 +5,7 @@ import {
   VCardActions,
   VCardText,
   VCardTitle,
-  VDialog,
-  VIcon
+  VDialog
 } from "vuetify/lib/components/index.mjs";
 import { t } from "@/lang/i18n";
 import { computed, ref, useAttrs, useSlots, watch } from "vue";
@@ -109,7 +108,7 @@ const dialogMaxWidth = computed(() => {
 });
 const dialogStyle = computed(() => [attrs.style as any, props.style] as any);
 
-const showTitle = computed(() => Boolean(props.title || slots.title || props.closable));
+const showTitle = computed(() => Boolean(props.title || slots.title));
 const showFooter = computed(() => props.footer !== null && props.footer !== false);
 const okButtonAttrs = computed(() => {
   const buttonProps = { ...(props.okButtonProps ?? {}) };
@@ -154,16 +153,6 @@ const afterLeave = () => {
     >
       <VCardTitle v-if="showTitle" class="app-dialog-title">
         <slot name="title">{{ props.title }}</slot>
-        <VBtn
-          v-if="props.closable"
-          class="app-dialog-close"
-          icon
-          variant="text"
-          :aria-label="props.cancelText"
-          @click="close"
-        >
-          <VIcon icon="mdi-close" />
-        </VBtn>
       </VCardTitle>
 
       <VCardText class="app-dialog-content">
@@ -195,20 +184,16 @@ const afterLeave = () => {
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-  padding: 24px 28px 12px;
+  padding: 16px 28px 8px;
 }
 
 .app-dialog-content {
-  padding: 16px 28px 24px;
+  padding: 12px 28px 24px;
 }
 
 .app-dialog-actions {
   justify-content: flex-end;
   gap: 8px;
-  padding: 12px 28px 24px;
-}
-
-.app-dialog-close {
-  flex: 0 0 auto;
+  padding: 12px 16px 16px 28px;
 }
 </style>
