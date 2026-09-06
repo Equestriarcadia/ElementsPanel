@@ -22,6 +22,25 @@ html {
     "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
 }
 
+// The mount point is the page scroller in top-header mode. Reserve its
+// scrollbar gutter even on shorter routes so tall fixed pages such as the
+// monitor and market do not move the centered application a few pixels left.
+#app-mount-point {
+  width: 100%;
+  height: 100svh;
+  overflow-y: scroll;
+  overflow-x: hidden;
+  box-sizing: border-box;
+  scrollbar-gutter: stable;
+}
+
+// Sidebar mode owns scrolling on the main content column. Avoid creating a
+// second scrollbar on the mount point when that layout is active.
+#app-mount-point:has(.app-layout-sidebar-only) {
+  overflow-y: hidden;
+  scrollbar-gutter: auto;
+}
+
 .global-text-color {
   color: var(--text-color) !important;
 }
