@@ -5,15 +5,25 @@ import { useScreen } from "@/hooks/useScreen";
 import { t } from "@/lang/i18n";
 import { reportErrorMsg } from "@/tools/validator";
 import type { LayoutCard } from "@/types/index";
-import { ClusterOutlined, SearchOutlined } from "@ant-design/icons-vue";
-import { ref } from "vue";
+import { computed, ref } from "vue";
+import {
+  VBtn,
+  VCol,
+  VIcon,
+  VPagination,
+  VRow,
+  VSelect,
+  VTextField
+} from "vuetify/lib/components/index.mjs";
 import { useRemoteNode } from "../hooks/useRemoteNode";
 import NodeDetailDialog from "./node/NodeDetailDialog.vue";
 import NodeItem from "./node/NodeItem.vue";
 
-defineProps<{
-  card: LayoutCard;
+const props = defineProps<{
+  card?: LayoutCard;
 }>();
+
+const pageTitle = computed(() => props.card?.title ?? t("TXT_CODE_20509fa0"));
 
 const { isPhone } = useScreen();
 const nodeDetailDialog = ref<InstanceType<typeof NodeDetailDialog>>();
@@ -43,101 +53,121 @@ const handleOpenDetailDialog = async () => {
 </script>
 
 <template>
-  <div style="height: 100%" class="container">
-    <a-row :gutter="[24, 24]" style="height: 100%">
-      <a-col :span="24">
+  <main class="node-page">
+    <VRow dense class="node-list-row">
+      <VCol cols="12">
         <BetweenMenus>
           <template v-if="!isPhone" #left>
-            <a-typography-title class="mb-0" :level="4">
-              <ClusterOutlined />
-              {{ card.title }}
-            </a-typography-title>
+            <div class="node-list-title">
+              <VIcon icon="mdi-server-network-outline" />
+              {{ pageTitle }}
+            </div>
           </template>
           <template #right>
-            <a-button :disabled="refreshLoading" :loading="refreshLoading" @click="refresh">
+            <VBtn :disabled="refreshLoading" :loading="refreshLoading" variant="text" @click="refresh">
               {{ t("TXT_CODE_b76d94e0") }}
-            </a-button>
-            <a-button type="primary" @click="handleOpenDetailDialog">
+            </VBtn>
+            <VBtn color="primary" @click="handleOpenDetailDialog">
               {{ t("TXT_CODE_15a381d5") }}
-            </a-button>
-            <a-button href="https://docs.mcsmanager.com/" target="_black">
+            </VBtn>
+            <VBtn href="https://docs.mcsmanager.com/" target="_blank" variant="text">
               {{ t("TXT_CODE_3a302f23") }}
-            </a-button>
+            </VBtn>
           </template>
           <template #center>
             <div class="search-input">
-              <a-input-group compact>
-                <a-select v-model:value="currentStatus" style="width: 80px">
-                  <a-select-option value="all">
-                    {{ t("TXT_CODE_c48f6f64") }}
-                  </a-select-option>
-                  <a-select-option :value="true">
-                    {{ t("TXT_CODE_823bfe63") }}
-                  </a-select-option>
-                  <a-select-option :value="false">
-                    {{ t("TXT_CODE_66ce073e") }}
-                  </a-select-option>
-                </a-select>
-                <a-input
-                  v-model:value.trim="operationForm.name"
-                  :placeholder="t('TXT_CODE_461d1a01')"
-                  style="width: calc(100% - 80px)"
-                  @change="operationForm.current = 1"
-                >
-                  <template #suffix>
-                    <search-outlined />
-                  </template>
-                </a-input>
-              </a-input-group>
+              <VSelect
+                v-model="currentStatus"
+                :items="[
+                  { title: t('TXT_CODE_c48f6f64'), value: 'all' },
+                  { title: t('TXT_CODE_823bfe63'), value: true },
+                  { title: t('TXT_CODE_66ce073e'), value: false }
+                ]"
+                class="status-select"
+                density="compact"
+                hide-details
+                variant="solo-filled"
+              />
+              <VTextField
+                v-model.trim="operationForm.name"
+                :placeholder="t('TXT_CODE_461d1a01')"
+                class="node-search-field"
+                density="compact"
+                hide-details
+                variant="solo-filled"
+                @change="operationForm.current = 1"
+              >
+                <template #append-inner><VIcon icon="mdi-magnify" /></template>
+              </VTextField>
             </div>
           </template>
         </BetweenMenus>
-      </a-col>
+      </VCol>
 
-      <a-col :span="24">
+      <VCol cols="12">
         <div class="desc">
-          <a-typography-text type="secondary">
+          <div class="desc-text">
             {{ t("TXT_CODE_f9a92e38") }}
             <br />
             {{ t("TXT_CODE_a65c65c2") }}
-          </a-typography-text>
+          </div>
           <div class="pagination">
-            <a-pagination
-              :current="operationForm.current"
-              :total="operationForm.total"
-              :page-size="operationForm.pageSize"
-              show-size-changer
-              @show-size-change="(current, size) => (operationForm.pageSize = size)"
-              @change="operationForm.current = $event"
-            ></a-pagination>
+            <VPagination
+              v-model="operationForm.current"
+              :length="Math.max(1, Math.ceil(operationForm.total / operationForm.pageSize))"
+              density="compact"
+              total-visible="5"
+            />
+            <VSelect
+              v-model="operationForm.pageSize"
+              :items="[8, 16, 24, 48]"
+              class="page-size-select"
+              density="compact"
+              hide-details
+              variant="solo-filled"
+            />
           </div>
         </div>
-      </a-col>
+      </VCol>
       <fade-up-animation v-if="!refreshLoading" :delay="3000">
-        <a-col
-          v-for="item in remotes"
+        <VCol
+          v-for="(item, index) in remotes"
           :key="item.uuid + item.available + item.ip"
-          :span="24"
-          :lg="12"
+          :data-index="index"
+          cols="12"
+          lg="6"
         >
-          <NodeItem :item="item"></NodeItem>
-        </a-col>
+          <NodeItem :item="item" />
+        </VCol>
       </fade-up-animation>
-    </a-row>
-  </div>
-  <NodeDetailDialog ref="nodeDetailDialog"></NodeDetailDialog>
+    </VRow>
+    <NodeDetailDialog ref="nodeDetailDialog" />
+  </main>
 </template>
 
 <style lang="scss" scoped>
 .search-input {
-  transition: all 0.4s;
-  text-align: center;
+  display: flex;
   width: 80%;
-
-  &:hover {
-    width: 100%;
-  }
+  gap: 8px;
 }
+
+.node-page {
+  width: 100%;
+  max-width: var(--app-max-width);
+  min-height: 100%;
+  margin: 0 auto;
+  padding: 20px 24px 32px;
+  box-sizing: border-box;
+}
+
+.status-select { flex: 0 0 100px; }
+.node-search-field { flex: 1; }
+.node-list-title { display: flex; align-items: center; gap: 8px; font-size: 20px; font-weight: 600; }
+.node-list-row { width: 100%; height: 100%; margin: 0; }
+.desc-text { color: var(--color-gray-7); font-size: 13px; }
+.pagination { display: flex; align-items: center; gap: 8px; }
+.page-size-select { width: 96px; }
 
 .desc {
   display: flex;
@@ -145,6 +175,10 @@ const handleOpenDetailDialog = async () => {
 }
 
 @media (max-width: 992px) {
+  .node-page {
+    padding: 16px 12px 28px;
+  }
+
   .search-input {
     width: 100% !important;
   }

@@ -83,11 +83,11 @@ export function apply(ctx: PanelFrontendPluginContext) {
   ctx.routes.add({
     path: "/node",
     name: t("TXT_CODE_e076d90b"),
-    component: LayoutContainer,
+    component: NodeList,
     meta: {
       permission: ADMIN_PERMISSION,
       mainMenu: true,
-      icon: ClusterOutlined
+      icon: "mdi-server-network-outline"
     }
   });
 

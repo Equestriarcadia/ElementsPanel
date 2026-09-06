@@ -64,7 +64,7 @@ defineExpose({
 
 <template>
   <!-- Loading state - shows loading spinner while fetching package data -->
-  <a-row v-if="appListLoading" :gutter="[24, 24]" style="height: 100%">
+  <a-row v-if="appListLoading" :gutter="[24, 24]" class="market-packages-row" style="height: 100%">
     <a-col :span="24">
       <div
         style="
@@ -86,7 +86,7 @@ defineExpose({
   </a-row>
 
   <!-- Main content - package marketplace interface -->
-  <a-row v-else :gutter="[16, 16]" style="height: 100%">
+  <a-row v-else :gutter="[16, 16]" class="market-packages-row" style="height: 100%">
     <a-col v-if="showCustomBtn" :span="24" :md="24" class="justify-end">
       <a-button type="link" style="margin: 0; padding: 0">
         {{ t("TXT_CODE_181c72ba") }}
@@ -173,6 +173,15 @@ defineExpose({
 </template>
 
 <style scoped>
+.market-packages-row {
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  margin-right: 0 !important;
+  margin-left: 0 !important;
+  box-sizing: border-box;
+}
+
 .detail-search-bar {
   display: flex;
   flex-wrap: wrap;

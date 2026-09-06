@@ -17,7 +17,7 @@ const openEditor = () => {
 </script>
 
 <template>
-  <div style="height: 100%">
+  <div class="market-page" style="height: 100%">
     <div>
       <a-typography-title :level="4" style="margin-bottom: 8px">
         <DatabaseOutlined />
@@ -43,3 +43,12 @@ const openEditor = () => {
     </div>
   </div>
 </template>
+
+<style lang="scss" scoped>
+.market-page {
+  width: 100%;
+  min-width: 0;
+  margin: 0 auto;
+  box-sizing: border-box;
+}
+</style>

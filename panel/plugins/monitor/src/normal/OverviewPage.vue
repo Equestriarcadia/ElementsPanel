@@ -210,33 +210,37 @@ onMounted(fetchData);
         </VCol>
       </VRow>
 
-      <VCard class="monitor-card" flat>
-        <VCardTitle class="monitor-card-title">
-          <VIcon icon="mdi-information-outline" class="mr-2" />
-          {{ t("TXT_CODE_721157a3") }}
-        </VCardTitle>
-        <VCardText>
-          <VRow>
-            <VCol v-for="item in overviewItems" :key="item.title" cols="12" sm="6" md="4" lg="3">
-              <div class="overview-item">
-                <div class="overview-item-title">
-                  <VIcon :icon="item.icon" size="18" color="primary" />
-                  <span>{{ item.title }}</span>
-                </div>
-                <div class="overview-item-value">{{ item.value }}</div>
-                <VProgressLinear
-                  v-if="item.progress !== undefined"
-                  :model-value="item.progress"
-                  :color="progressColor(item.progress)"
-                  height="5"
-                  rounded="xl"
-                  class="mt-2"
-                />
-              </div>
-            </VCol>
-          </VRow>
-        </VCardText>
-      </VCard>
+      <VRow>
+        <VCol cols="12">
+          <VCard class="monitor-card monitor-overview-card" flat>
+            <VCardTitle class="monitor-card-title">
+              <VIcon icon="mdi-information-outline" class="mr-2" />
+              {{ t("TXT_CODE_721157a3") }}
+            </VCardTitle>
+            <VCardText>
+              <VRow class="overview-grid">
+                <VCol v-for="item in overviewItems" :key="item.title" cols="12" sm="6" md="4" lg="3">
+                  <div class="overview-item">
+                    <div class="overview-item-title">
+                      <VIcon :icon="item.icon" size="18" color="primary" />
+                      <span>{{ item.title }}</span>
+                    </div>
+                    <div class="overview-item-value">{{ item.value }}</div>
+                    <VProgressLinear
+                      v-if="item.progress !== undefined"
+                      :model-value="item.progress"
+                      :color="progressColor(item.progress)"
+                      height="5"
+                      rounded="xl"
+                      class="mt-2"
+                    />
+                  </div>
+                </VCol>
+              </VRow>
+            </VCardText>
+          </VCard>
+        </VCol>
+      </VRow>
 
       <VRow>
         <VCol cols="12" lg="6">
@@ -329,6 +333,10 @@ onMounted(fetchData);
 
 <style lang="scss" scoped>
 .monitor-overview-page {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+  box-sizing: border-box;
   min-height: 100%;
 }
 
@@ -336,7 +344,11 @@ onMounted(fetchData);
   display: flex;
   flex-direction: column;
   gap: 16px;
+  width: 100%;
+  min-width: 0;
   max-width: var(--app-max-width);
+  margin: 0 auto;
+  box-sizing: border-box;
   padding: 20px 24px 32px;
 }
 
@@ -347,8 +359,8 @@ onMounted(fetchData);
 .monitor-overview-container > .v-row {
   margin-top: 0;
   margin-bottom: 0;
-  margin-right: -8px;
-  margin-left: -8px;
+  margin-right: 0;
+  margin-left: 0;
 }
 
 .monitor-overview-container > .v-row > .v-col {
@@ -356,12 +368,28 @@ onMounted(fetchData);
 }
 
 .monitor-card {
+  width: 100%;
+  max-width: 100%;
   height: 100%;
   border: none !important;
   outline: none;
   border-radius: 24px;
   background: var(--background-color-white);
   box-shadow: none;
+}
+
+.monitor-overview-card {
+  box-sizing: border-box;
+}
+
+.overview-grid {
+  width: 100%;
+  margin: 0;
+}
+
+.overview-grid > .v-col {
+  min-width: 0;
+  padding: 8px;
 }
 
 .monitor-stat-card {
