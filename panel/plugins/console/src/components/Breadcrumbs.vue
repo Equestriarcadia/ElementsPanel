@@ -5,7 +5,7 @@ import { t } from "@/lang/i18n";
 import { useAppStateStore } from "@/stores/useAppStateStore";
 import { computed } from "vue";
 import { useRoute } from "vue-router";
-import { VBreadcrumbs, VBreadcrumbsItem } from "vuetify/lib/components/index.mjs";
+import { VBreadcrumbs } from "vuetify/lib/components/index.mjs";
 
 export interface BreadcrumbItem {
   title: string;
@@ -53,18 +53,12 @@ const items = computed<BreadcrumbItem[]>(() => {
 
 <template>
   <div class="breadcrumbs">
-    <VBreadcrumbs class="breadcrumbs-list" density="comfortable">
-      <template #divider>
-        <span class="breadcrumbs-divider" aria-hidden="true">&gt;</span>
-      </template>
-      <VBreadcrumbsItem
-        v-for="(item, index) in items"
-        :key="`${item.title}-${index}`"
-        :title="item.title"
-        :href="item.disabled ? undefined : item.href"
-        :disabled="item.disabled"
-      />
-    </VBreadcrumbs>
+    <VBreadcrumbs
+      class="breadcrumbs-list"
+      density="comfortable"
+      :items="items"
+      divider=">"
+    />
   </div>
 </template>
 
@@ -94,10 +88,4 @@ const items = computed<BreadcrumbItem[]>(() => {
   }
 }
 
-.breadcrumbs-divider {
-  display: inline-block;
-  color: var(--color-gray-7);
-  font-size: 14px;
-  line-height: 1;
-}
 </style>

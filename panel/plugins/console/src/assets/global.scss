@@ -83,10 +83,11 @@ html {
   overflow-x: hidden;
 
   .breadcrumbs,
-  .main-layout-container {
+  .main-layout-container,
+  .plugin-config-page {
     margin: 0 auto;
-    width: calc(100% - 48px);
-    max-width: var(--app-max-width);
+    width: calc(100% - 48px) !important;
+    max-width: var(--app-max-width) !important;
   }
 }
 

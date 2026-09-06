@@ -29,7 +29,11 @@ const routePathIcons: Record<string, string> = {
   "/users": "mdi-account-group-outline",
   "/customer": "mdi-account-outline",
   "/login": "mdi-login",
-  "/_open_page": "mdi-open-in-new"
+  "/_open_page": "mdi-open-in-new",
+  "/plugins/config": "mdi-view-grid-plus",
+  "/overview": "mdi-monitor-dashboard",
+  "/node": "mdi-server-network-outline",
+  "/market": "mdi-storefront-outline"
 };
 
 const mdiIconMap: Record<string, string> = {
@@ -86,7 +90,7 @@ const getMdiIcon = (icon: unknown, fallback?: string): string => {
 };
 
 const getRouteIcon = (entry: Extract<SidebarEntry, { type: "route" }>): string =>
-  getMdiIcon(entry.icon, routePathIcons[entry.path]);
+  routePathIcons[entry.path] || getMdiIcon(entry.icon);
 
 const getItemKey = (entry: SidebarEntry, index: number): string => {
   if (entry.type === "divider") return "sidebar-divider";
@@ -170,13 +174,6 @@ const onAppDropdownClick = (item: SidebarAppDropdownEntry, key: string | number)
   color: var(--app-header-text-color);
   backdrop-filter: saturate(180%) blur(20px);
   padding: 20px 12px;
-  transition: width 0.3s ease;
-}
-
-.left-sidebar:hover {
-  width: 246px;
-  min-width: 246px;
-  flex-basis: 246px;
 }
 
 .logo {
@@ -216,16 +213,19 @@ const onAppDropdownClick = (item: SidebarAppDropdownEntry, key: string | number)
   }
 }
 
-.sidebar-item:hover {
-  background-color: rgba(128, 128, 128, 0.15);
-}
-
 .sidebar-item :deep(.v-list-item__overlay) {
   opacity: 0;
 }
 
+.sidebar-item:hover,
+.sidebar-item:focus-visible,
+.sidebar-item:focus-within,
+.sidebar-item :deep(.v-list-item__overlay) {
+  background: transparent !important;
+}
+
 .sidebar-item.v-list-item--active {
-  background-color: rgba(64, 156, 216, 0.16);
+  background-color: rgba(64, 156, 216, 0.16) !important;
   color: inherit;
 }
 
@@ -242,15 +242,4 @@ const onAppDropdownClick = (item: SidebarAppDropdownEntry, key: string | number)
   color: var(--app-header-text-color);
 }
 
-:deep(.nav-button-warning:hover) {
-  background-color: rgba(255, 193, 7, 0.2) !important;
-}
-
-:deep(.nav-button-success:hover) {
-  background-color: rgba(64, 156, 216, 0.15) !important;
-}
-
-:deep(.nav-button-danger:hover) {
-  background-color: rgba(255, 25, 17, 0.25) !important;
-}
 </style>

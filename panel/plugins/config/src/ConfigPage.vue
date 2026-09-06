@@ -540,7 +540,7 @@ const confirmDisable = () => {
 
 .plugin-config-heading {
   flex-shrink: 0;
-  padding: 0 10px 2px;
+  margin: 12px 10px 8px;
   line-height: 20px;
   color: var(--text-color);
   font-size: 13px;
