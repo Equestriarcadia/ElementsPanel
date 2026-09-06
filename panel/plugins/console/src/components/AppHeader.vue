@@ -3,10 +3,16 @@ import { useHeaderMenus } from "@/hooks/useHeaderMenus";
 import { useScreen } from "@/hooks/useScreen";
 import { useAppConfigStore } from "@/stores/useAppConfigStore";
 import { useLayoutContainerStore } from "@/stores/useLayoutContainerStore";
-import { MenuUnfoldOutlined } from "@ant-design/icons-vue";
-import { h } from "vue";
+import {
+  VBtn,
+  VDialog,
+  VList,
+  VListItem,
+  VMenu,
+  VToolbar,
+  VTooltip
+} from "vuetify/lib/components/index.mjs";
 import { useRoute } from "vue-router";
-import CardPanel from "@/components/CardPanel.vue";
 
 defineProps<{
   /** One-shot entrance animation after a successful login */
@@ -34,135 +40,174 @@ const openPhoneMenu = (b = false) => {
 </script>
 
 <template>
-  <header class="app-header-wrapper" :class="{ 'login-enter-header': loginEnter }">
-    <div v-if="!isPhone" class="app-header-content">
+  <VToolbar
+    v-if="!isPhone"
+    tag="header"
+    class="app-header-wrapper"
+    :class="{ 'login-enter-header': loginEnter }"
+    color="transparent"
+    flat
+    elevation="0"
+    height="64"
+  >
+    <div class="app-header-content">
       <nav class="btns">
-        <a href="." style="margin-right: 12px">
+        <a href="." class="logo-link" aria-label="ElementsPanel">
           <div class="logo">
-            <img :src="logoImage" style="height: 18px" />
+            <img :src="logoImage" alt="ElementsPanel" />
           </div>
         </a>
 
         <div
           v-for="item in headerMenus"
           :key="item.path"
-          class="nav-button"
-          :class="[item.customClass, { 'nav-button-active': isRouteActive(item.path) }]"
-          @click="handleToPage(item.path)"
+          class="nav-item"
         >
-          <span>{{ item.name }}</span>
+          <VBtn
+            variant="text"
+            class="nav-button"
+            :class="[item.customClass, { 'nav-button-active': isRouteActive(item.path) }]"
+            @click="handleToPage(item.path)"
+          >
+            {{ item.name }}
+          </VBtn>
         </div>
       </nav>
       <div class="btns">
         <div v-for="(item, index) in headerAppMenus as any" :key="index">
-          <a-dropdown v-if="item.menus && item.conditions" placement="bottom">
-            <div
-              :class="item.customClass"
-              class="nav-button right-nav-button flex-center"
-              @click.prevent
-            >
-              <component :is="item.icon" v-if="item.icon"></component>
-            </div>
-            <template #overlay>
-              <a-menu @click="(e: any) => item.click(String(e.key))">
-                <a-menu-item v-for="m in item.menus" :key="m.value">
-                  {{ m.title }}
-                </a-menu-item>
-              </a-menu>
+          <VMenu v-if="item.menus && item.conditions" location="bottom" :offset="6">
+            <template #activator="{ props: menuProps }">
+              <VBtn
+                v-bind="menuProps"
+                :class="[item.customClass, 'nav-button', 'right-nav-button']"
+                icon
+                variant="text"
+                :aria-label="item.title"
+              >
+                <component :is="item.icon" v-if="item.icon" />
+              </VBtn>
             </template>
-          </a-dropdown>
-          <a-tooltip v-else-if="item.conditions" placement="bottom">
-            <template #title>
-              <span>{{ item.title }}</span>
+            <VList density="compact">
+              <VListItem
+                v-for="menuItem in item.menus"
+                :key="menuItem.value"
+                :title="menuItem.title"
+                @click="item.click(String(menuItem.value))"
+              />
+            </VList>
+          </VMenu>
+          <VTooltip v-else-if="item.conditions" location="bottom">
+            <template #activator="{ props: tooltipProps }">
+              <VBtn
+                v-bind="tooltipProps"
+                :class="[item.customClass, 'nav-button', 'right-nav-button']"
+                :aria-label="item.title"
+                :title="item.title"
+                :icon="!item?.iconText"
+                variant="text"
+                @click="item.click()"
+              >
+                <component :is="item.icon" v-if="item.icon" />
+                <span v-if="item?.iconText" class="nav-button-text">
+                  {{ item.iconText }}
+                </span>
+              </VBtn>
             </template>
-            <div
-              :class="item.customClass"
-              class="nav-button right-nav-button flex-center"
-              type="text"
-              @click="(e: any) => item.click(e.key)"
-            >
-              <component :is="item.icon" v-if="item.icon"></component>
-              <span v-if="item?.iconText" class="ml-6" style="font-size: 12px">
-                {{ item?.iconText }}
-              </span>
-            </div>
-          </a-tooltip>
+            <span>{{ item.title }}</span>
+          </VTooltip>
         </div>
       </div>
     </div>
-  </header>
-  <div v-if="!isPhone" style="height: 80px"></div>
+  </VToolbar>
 
   <!-- Menus for phone -->
-  <header v-if="isPhone" class="app-header-content-for-phone" :class="{ 'login-enter-header': loginEnter }">
-    <CardPanel class="card-panel">
-      <template #body>
-        <div style="display: flex; justify-content: space-between; align-items: center">
-          <div style="width: 100px" class="flex">
-            <a-button
-              type="text"
-              :icon="h(MenuUnfoldOutlined)"
-              size="small"
-              @click="openPhoneMenu(true)"
-            ></a-button>
-            <div v-for="(item, index) in appMenus" :key="index">
-              <a-dropdown
-                v-if="item.menus && item.conditions && !item.onlyPC"
-                class="phone-nav-button"
-                placement="bottom"
-              >
-                <a-button type="text" :icon="h(item.icon)" size="small" @click.prevent></a-button>
-                <template #overlay>
-                  <a-menu @click="(e: any) => item.click(String(e.key))">
-                    <a-menu-item v-for="m in item.menus" :key="m.value">
-                      {{ m.title }}
-                    </a-menu-item>
-                  </a-menu>
-                </template>
-              </a-dropdown>
-            </div>
-          </div>
-          <div style="width: 100px" class="justify-end">
-            <div v-for="(item, index) in appMenus" :key="index">
-              <a-button
-                v-if="item.conditions && !item.onlyPC && !item.menus"
-                class="phone-nav-button"
-                type="text"
-                :icon="h(item.icon)"
-                size="small"
-                @click="item.click"
-              ></a-button>
-            </div>
-          </div>
-        </div>
-      </template>
-    </CardPanel>
-  </header>
-
-  <a-drawer
-    :width="500"
-    title="MENU"
-    placement="top"
-    :open="containerState.showPhoneMenu"
-    @close="() => (containerState.showPhoneMenu = false)"
+  <VToolbar
+    v-if="isPhone"
+    tag="header"
+    class="app-header-content-for-phone"
+    :class="{ 'login-enter-header': loginEnter }"
+    color="transparent"
+    flat
+    elevation="0"
+    height="60"
   >
-    <div class="phone-menu">
-      <div
-        v-for="item in menus"
-        :key="item.path"
-        class="phone-menu-btn"
-        :class="{ 'phone-menu-btn-active': isRouteActive(item.path) }"
-        @click="handleToPage(item.path)"
-      >
-        {{ item.name }}
+    <div class="phone-toolbar-content">
+      <div class="phone-toolbar-side phone-toolbar-side-start">
+        <VBtn
+          icon
+          variant="text"
+          aria-label="MENU"
+          title="MENU"
+          @click="openPhoneMenu(true)"
+        >
+          <span class="mdi mdi-menu" aria-hidden="true"></span>
+        </VBtn>
+        <div v-for="(item, index) in appMenus" :key="index">
+          <VMenu
+            v-if="item.menus && item.conditions && !item.onlyPC"
+            location="bottom"
+            :offset="6"
+          >
+            <template #activator="{ props: menuProps }">
+              <VBtn
+                v-bind="menuProps"
+                class="phone-nav-button"
+                icon
+                variant="text"
+                :aria-label="item.title"
+              >
+                <component :is="item.icon" v-if="item.icon" />
+              </VBtn>
+            </template>
+            <VList density="compact">
+              <VListItem
+                v-for="menuItem in item.menus"
+                :key="menuItem.value"
+                :title="menuItem.title"
+                @click="item.click(String(menuItem.value))"
+              />
+            </VList>
+          </VMenu>
+        </div>
+      </div>
+      <div class="phone-toolbar-side phone-toolbar-side-end">
+        <div v-for="(item, index) in appMenus" :key="index">
+          <VBtn
+            v-if="item.conditions && !item.onlyPC && !item.menus"
+            class="phone-nav-button"
+            icon
+            variant="text"
+            :aria-label="item.title"
+            :title="item.title"
+            @click="item.click()"
+          >
+            <component :is="item.icon" v-if="item.icon" />
+          </VBtn>
+        </div>
       </div>
     </div>
-  </a-drawer>
+  </VToolbar>
+
+  <VDialog
+    v-model="containerState.showPhoneMenu"
+    class="phone-menu-dialog"
+    max-width="500"
+    location="top"
+    transition="dialog-top-transition"
+  >
+    <VList class="phone-menu" density="comfortable">
+      <VListItem
+        v-for="item in menus"
+        :key="item.path"
+        :title="String(item.name)"
+        :active="isRouteActive(item.path)"
+        @click="handleToPage(item.path)"
+      />
+    </VList>
+  </VDialog>
 </template>
 
 <style lang="scss" scoped>
-@import "@/assets/global.scss";
-
 .nav-button-warning:hover {
   background-color: rgba(255, 193, 7, 0.34) !important;
 }
@@ -184,12 +229,19 @@ const openPhoneMenu = (b = false) => {
 }
 
 .phone-menu {
-  .phone-menu-btn {
-    padding: 16px 8px;
-    color: var(--color-gray-12);
+  width: 100%;
+  padding: 8px 12px;
+  background: transparent;
+  color: var(--app-header-text-color);
+
+  :deep(.v-list-item) {
+    min-height: 44px;
+    margin: 4px 0;
+    border-radius: 12px;
+    color: var(--app-header-text-color);
   }
 
-  .phone-menu-btn-active {
+  :deep(.v-list-item--active) {
     background-color: rgba(64, 156, 216, 0.12);
   }
 }
@@ -197,108 +249,154 @@ const openPhoneMenu = (b = false) => {
 .app-header-content-for-phone {
   height: 60px;
   width: 100%;
+  background-color: var(--app-header-bg);
+  color: var(--app-header-text-color);
+  box-shadow: none;
+}
 
-  // display: flex;
-  // justify-content: space-between;
-  // align-items: center;
-  // margin: 0px;
-  .card-panel {
-    background-color: var(--app-header-bg);
-    margin-top: 8px;
+.phone-toolbar-content {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 12px;
+}
 
-    button {
-      color: var(--app-header-text-color) !important;
-    }
-  }
+.phone-toolbar-side {
+  display: flex;
+  min-width: 0;
+  flex: 1;
+  align-items: center;
+}
 
-  .phone-nav-button,
-  .phone-nav-button * {
-    margin: 0px 6px;
-  }
+.phone-toolbar-side-end {
+  justify-content: flex-end;
+}
+
+.phone-nav-button {
+  margin: 0 2px;
+  color: var(--app-header-text-color) !important;
+}
+
+.phone-menu-dialog :deep(.v-overlay__content) {
+  width: calc(100% - 24px);
+  margin: 12px;
+}
+
+.phone-menu-dialog :deep(.v-list) {
+  background-color: var(--app-header-bg);
+  color: var(--app-header-text-color);
+  border-radius: 24px;
 }
 
 .app-header-wrapper {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background-color: var(--app-header-bg);
-  backdrop-filter: saturate(180%) blur(20px);
-  color: var(--app-header-text-color);
-
-  position: fixed;
-  top: 10px;
-  left: 12px;
-  right: 12px;
-  border-radius: 12px;
-
+  position: relative;
   z-index: 20;
+  display: flex;
+  width: 100%;
+  height: 64px;
+  min-height: 64px;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--app-header-bg);
+  color: var(--app-header-text-color);
+  border-radius: 0;
+  box-shadow: none;
+  backdrop-filter: none;
+}
 
-  .app-header-content {
-    @extend .global-app-container;
+.app-header-wrapper :deep(.v-toolbar__content),
+.app-header-content-for-phone :deep(.v-toolbar__content) {
+  width: 100%;
+  padding: 0;
+}
 
+.app-header-content {
+  display: flex;
+  width: 100%;
+  height: 64px;
+  max-width: var(--app-max-width);
+  align-items: center;
+  justify-content: space-between;
+  box-sizing: border-box;
+  margin: 0 auto;
+  padding: 0 24px;
+
+  .btns {
     display: flex;
+    min-width: 0;
     align-items: center;
-    justify-content: space-between;
-    width: 100%;
-    height: 64px;
-
-    .btns {
-      display: flex;
-      align-items: center;
-    }
   }
+}
 
-  .nav-button {
-    margin: 0 4px;
-    font-size: 14px;
-    transition: all 0.4s;
-    color: var(--app-header-text-color) !important;
-    text-align: center;
-    padding: 8px 12px;
-    min-width: 40px;
-    cursor: pointer;
-    border-radius: 6px;
-    user-select: none;
-  }
+.logo-link {
+  display: flex;
+  align-items: center;
+  margin-right: 12px;
+}
 
-  .right-nav-button {
-    margin: 0 2px;
-    font-size: 14px;
-    padding: 8px 8px;
-  }
+.nav-item {
+  display: flex;
+  align-items: center;
+}
 
-  .icon-button {
-    font-size: 16px !important;
-  }
-  .nav-button:hover {
-    background-color: rgba(215, 215, 215, 0.261);
-  }
+.nav-button {
+  min-width: 40px;
+  min-height: 40px;
+  margin: 0 4px;
+  padding: 8px 12px;
+  color: var(--app-header-text-color) !important;
+  font-size: 14px;
+  text-align: center;
+  user-select: none;
+}
 
-  .nav-button-active {
-    background-color: rgba(215, 215, 215, 0.35);
-  }
+.right-nav-button {
+  margin: 0 2px;
+  padding: 8px;
+}
 
-  .logo {
-    cursor: pointer;
-  }
+.nav-button-text {
+  margin-left: 6px;
+  font-size: 12px;
+}
 
-  .pro-mode-order-container {
-    @extend .nav-button;
-    @extend .nav-button-success;
-  }
+.icon-button {
+  font-size: 16px !important;
+}
 
-  // Sync margin
-  @media (max-width: 1470px) {
-    .app-header-content,
-    .app-header-content-for-phone {
-      margin: 0px 25px;
-    }
-  }
+.nav-button:hover {
+  background-color: rgba(215, 215, 215, 0.261);
+}
 
-  @media (max-width: 992px) {
-    .app-header-content {
-      margin: 0px 8px;
-    }
+.nav-button-active {
+  background-color: rgba(215, 215, 215, 0.35);
+}
+
+.logo {
+  cursor: pointer;
+
+  img {
+    height: 18px;
+  }
+}
+
+.pro-mode-order-container {
+  @extend .nav-button;
+  @extend .nav-button-success;
+}
+
+@media (max-width: 1470px) {
+  .app-header-content {
+    padding-right: 25px;
+    padding-left: 25px;
+  }
+}
+
+@media (max-width: 992px) {
+  .app-header-content {
+    padding-right: 8px;
+    padding-left: 8px;
   }
 }
 </style>
