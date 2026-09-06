@@ -32,6 +32,7 @@ interface Props {
   okColor?: string;
   okType?: string;
   okButtonProps?: Record<string, unknown>;
+  compact?: boolean;
   wrapClassName?: string;
   style?: string | Record<string, string | number>;
 }
@@ -91,17 +92,18 @@ const dialogWidth = computed(() => {
 
 const normalizeDialogSize = (value: string | number) => {
   const size = typeof value === "number" ? `${value}px` : value;
-  if (size === "auto") return "min(960px, calc(100vw - 96px))";
+  if (size === "auto") return "min(960px, calc(100vw - 48px))";
   if (size === "fit-content") return size;
-  return `min(${size}, 1120px, calc(100vw - 96px))`;
+  return `min(${size}, calc(100vw - 48px))`;
 };
 
-// Keep dialogs at a comfortable reading width when callers do not provide a
-// size.  Explicitly sized dialogs are still allowed to be wider, but the
-// global overlay rules keep them inside the viewport with a safe gutter.
+// Let content determine the width for regular dialogs. Confirm dialogs stay
+// compact, while explicit widths remain useful for data-heavy dialogs.
 const dialogMaxWidth = computed(() => {
   const width = props.maxWidth ?? props.width;
-  if (width == null) return "min(720px, calc(100vw - 64px))";
+  if (width == null) {
+    return props.compact ? "min(460px, calc(100vw - 48px))" : "min(1120px, calc(100vw - 48px))";
+  }
   if (props.wrapClassName?.split(/\s+/).includes("full-modal")) return width;
   return normalizeDialogSize(width);
 });
@@ -137,6 +139,7 @@ const afterLeave = () => {
     class="app-dialog"
     :class="[attrs.class, props.wrapClassName]"
     :style="dialogStyle"
+    :width="dialogWidth"
     :max-width="dialogMaxWidth"
     :persistent="props.maskClosable === false"
     :close-on-back="props.keyboard !== false"

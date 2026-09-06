@@ -19,6 +19,8 @@ interface ModalOptions {
   maskClosable?: boolean;
   closable?: boolean;
   centered?: boolean;
+  width?: string | number;
+  maxWidth?: string | number;
 }
 
 interface ModalHandle {
@@ -119,6 +121,9 @@ function openDialog(options: ModalOptions, variant: "confirm" | "alert"): ModalH
             cancelText: state.cancelText,
             okType: state.okType,
             okButtonProps: state.okButtonProps,
+            compact: variant === "confirm",
+            width: state.width,
+            maxWidth: state.maxWidth,
             showCancel: variant === "confirm",
             onOk: submit,
             onCancel: cancel

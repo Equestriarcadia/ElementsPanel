@@ -42,6 +42,7 @@ export const vuetify = createVuetify({
           "surface-variant": "#f0f0f0",
           "on-background": "#262626",
           "on-surface": "#262626",
+          "on-surface-variant": "#262626",
           primary: "#1677ff",
           error: "#f5222d",
           info: "#8c8c8c"
@@ -55,6 +56,7 @@ export const vuetify = createVuetify({
           "surface-variant": "#303136",
           "on-background": "#bfbfbf",
           "on-surface": "#bfbfbf",
+          "on-surface-variant": "#ffffff",
           primary: "#3c89e8",
           error: "#e84749",
           info: "#8c8c8c"

@@ -179,6 +179,7 @@ html {
 
 // All application dialogs are rendered through Vuetify's VDialog adapter.
 .v-dialog.app-dialog:not(.full-modal) > .v-overlay__content {
+  width: auto;
   max-width: min(1120px, calc(100vw - 96px));
   border-radius: 24px;
   box-sizing: border-box;
@@ -197,6 +198,25 @@ html {
 
 .v-dialog .v-card-actions {
   padding: 12px 28px 24px;
+}
+
+// Vuetify tooltips are teleported to the overlay container, so keep their
+// contrast independent of the surrounding page or plugin styles.
+.v-tooltip > .v-overlay__content {
+  background: #262626 !important;
+  color: #ffffff !important;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.28);
+}
+
+.ant-tooltip .ant-tooltip-inner {
+  background: #262626 !important;
+  color: #ffffff !important;
+  border-radius: 8px;
+}
+
+.ant-tooltip .ant-tooltip-arrow::before {
+  background: #262626 !important;
 }
 
 @media (max-width: 600px) {
