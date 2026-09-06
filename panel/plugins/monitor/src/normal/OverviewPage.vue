@@ -333,22 +333,32 @@ onMounted(fetchData);
 }
 
 .monitor-overview-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
   max-width: var(--app-max-width);
   padding: 20px 24px 32px;
 }
 
 .monitor-loading {
-  margin-bottom: 16px;
+  margin-bottom: 0;
 }
 
-.monitor-stat-row,
 .monitor-overview-container > .v-row {
-  margin-bottom: 16px;
+  margin-top: 0;
+  margin-bottom: 0;
+  margin-right: -8px;
+  margin-left: -8px;
+}
+
+.monitor-overview-container > .v-row > .v-col {
+  padding: 8px;
 }
 
 .monitor-card {
   height: 100%;
-  border: 1px solid rgba(var(--v-border-color), var(--v-border-opacity));
+  border: none !important;
+  outline: none;
   border-radius: 24px;
   background: var(--background-color-white);
   box-shadow: none;

@@ -52,8 +52,7 @@ Registered by `src/frontend.ts`:
 
 The normal monitoring page owns its grid, cards, charts, node list and operation
 timeline. It does not read or write the custom layout configuration. The legacy
-monitoring card registrations remain available for other layout-driven pages,
-but they are not used by `/overview`.
+layout-driven monitoring page and its card registrations have been removed.
 
 `src/hooks/useOverviewChart.ts` holds the full monitoring chart — axes, gradient
 area fill, tooltip. The console plugin provides the shared `useSimpleChart`
