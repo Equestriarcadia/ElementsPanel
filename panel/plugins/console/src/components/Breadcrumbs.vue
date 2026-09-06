@@ -5,7 +5,7 @@ import { t } from "@/lang/i18n";
 import { useAppStateStore } from "@/stores/useAppStateStore";
 import { computed } from "vue";
 import { useRoute } from "vue-router";
-import { VBreadcrumbs, VBreadcrumbsItem, VIcon } from "vuetify/lib/components/index.mjs";
+import { VBreadcrumbs, VBreadcrumbsItem } from "vuetify/lib/components/index.mjs";
 
 export interface BreadcrumbItem {
   title: string;
@@ -55,7 +55,7 @@ const items = computed<BreadcrumbItem[]>(() => {
   <div class="breadcrumbs">
     <VBreadcrumbs class="breadcrumbs-list" density="comfortable">
       <template #divider>
-        <VIcon icon="mdi-chevron-right" size="18" />
+        <span class="breadcrumbs-divider" aria-hidden="true">&gt;</span>
       </template>
       <VBreadcrumbsItem
         v-for="(item, index) in items"
@@ -70,7 +70,7 @@ const items = computed<BreadcrumbItem[]>(() => {
 
 <style lang="scss" scoped>
 .breadcrumbs {
-  font-size: 18px;
+  font-size: 14px;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -80,14 +80,24 @@ const items = computed<BreadcrumbItem[]>(() => {
 
 .breadcrumbs-list {
   padding: 0;
+  font-size: inherit;
 
   :deep(.v-breadcrumbs-item--link),
   :deep(.v-breadcrumbs-item--disabled) {
     color: var(--text-color);
+    font-size: inherit;
   }
 
   :deep(.v-breadcrumbs-divider) {
+    padding: 0 6px;
     color: var(--color-gray-7);
   }
+}
+
+.breadcrumbs-divider {
+  display: inline-block;
+  color: var(--color-gray-7);
+  font-size: 14px;
+  line-height: 1;
 }
 </style>

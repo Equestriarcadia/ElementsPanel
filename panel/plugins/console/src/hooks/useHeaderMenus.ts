@@ -41,6 +41,7 @@ export type SidebarAppEntry = {
   type: "app";
   title: string;
   icon?: Component;
+  mdiIcon?: string;
   customClass?: string[];
   click: () => void;
 };
@@ -50,6 +51,7 @@ export type SidebarAppDropdownEntry = {
   type: "app-dropdown";
   title: string;
   icon?: Component;
+  mdiIcon?: string;
   customClass?: string[];
   menus: { value: string | number; title: string }[];
   // Param name for type semantics only; overlay passes key
@@ -360,6 +362,7 @@ export function useHeaderMenus() {
             type: "app-dropdown" as const,
             title: item.leftSideTitle || item.title,
             icon: item.icon,
+            mdiIcon: item.mdiIcon,
             customClass: item.customClass,
             menus: item.menus,
             click: item.click as (_: string) => void
@@ -369,6 +372,7 @@ export function useHeaderMenus() {
           type: "app" as const,
           title: item.leftSideTitle || item.title,
           icon: item.icon,
+          mdiIcon: item.mdiIcon,
           customClass: item.customClass,
           click: item.click as () => void
         };

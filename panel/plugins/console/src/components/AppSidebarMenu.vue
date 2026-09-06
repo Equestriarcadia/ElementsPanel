@@ -6,42 +6,87 @@ import {
 } from "@/hooks/useHeaderMenus";
 import { useAppConfigStore } from "@/stores/useAppConfigStore";
 import {
-  AppstoreOutlined,
-  LinkOutlined,
-  LoginOutlined,
-  MenuOutlined,
-  TeamOutlined,
-  UserOutlined
-} from "@ant-design/icons-vue";
-import type { Key } from "ant-design-vue/es/table/interface";
-import type { Component } from "vue";
+  VDivider,
+  VList,
+  VListItem,
+  VMenu,
+  VSheet
+} from "vuetify/lib/components/index.mjs";
 import { useRoute } from "vue-router";
 
 const route = useRoute();
 const { sidebarItems, handleToPage } = useHeaderMenus();
 const { logoImage } = useAppConfigStore();
 
-/** Whether route menu item is active (current path equals or is child of this path) */
 const isRouteActive = (path: string): boolean => {
   if (route.path === path) return true;
   if (path === "/") return false;
   return route.path.startsWith(path + "/");
 };
 
-/** Sidebar icon for each route path */
-const routePathIcons: Record<string, Component> = {
-  "/instances": AppstoreOutlined,
-  "/users": TeamOutlined,
-  "/customer": UserOutlined,
-  "/login": LoginOutlined,
-  "/_open_page": LinkOutlined
+const routePathIcons: Record<string, string> = {
+  "/instances": "mdi-view-grid-outline",
+  "/users": "mdi-account-group-outline",
+  "/customer": "mdi-account-outline",
+  "/login": "mdi-login",
+  "/_open_page": "mdi-open-in-new"
 };
 
-const getRouteIcon = (
-  entry: Extract<SidebarEntry, { type: "route" }>
-): Component | string => {
-  return entry.icon ?? routePathIcons[entry.path] ?? MenuOutlined;
+const mdiIconMap: Record<string, string> = {
+  AppstoreAddOutlined: "mdi-view-grid-plus",
+  AreaChartOutlined: "mdi-chart-areaspline",
+  BgColorsOutlined: "mdi-palette-outline",
+  BuildOutlined: "mdi-hammer-wrench",
+  CloudDownloadOutlined: "mdi-cloud-download-outline",
+  CloudUploadOutlined: "mdi-cloud-upload-outline",
+  ClusterOutlined: "mdi-server-network-outline",
+  CodeOutlined: "mdi-code-tags",
+  CloseCircleOutlined: "mdi-close-circle-outline",
+  DesktopOutlined: "mdi-monitor",
+  DashboardOutlined: "mdi-view-dashboard-outline",
+  FileExcelOutlined: "mdi-file-excel-outline",
+  FileTextOutlined: "mdi-file-document-outline",
+  FileZipOutlined: "mdi-folder-zip-outline",
+  FolderOpenOutlined: "mdi-folder-open-outline",
+  GithubFilled: "mdi-github",
+  HomeOutlined: "mdi-home-outline",
+  InteractionOutlined: "mdi-gesture-tap-button",
+  LinkOutlined: "mdi-link-variant",
+  LogoutOutlined: "mdi-logout",
+  MenuOutlined: "mdi-menu",
+  NodeIndexOutlined: "mdi-source-branch",
+  RedoOutlined: "mdi-restore",
+  SaveOutlined: "mdi-content-save-outline",
+  ShopOutlined: "mdi-storefront-outline",
+  ShoppingCartOutlined: "mdi-cart-outline",
+  TeamOutlined: "mdi-account-group-outline",
+  TransactionOutlined: "mdi-swap-horizontal",
+  UserOutlined: "mdi-account-outline",
+  UsergroupDeleteOutlined: "mdi-account-multiple-minus-outline",
+  LoginOutlined: "mdi-login"
 };
+
+const getMdiIcon = (icon: unknown, fallback?: string): string => {
+  if (typeof icon === "string" && icon.startsWith("mdi-")) return icon;
+  const component = icon as
+    | {
+        name?: string;
+        displayName?: string;
+        __name?: string;
+        type?: { name?: string; __name?: string };
+      }
+    | undefined;
+  const iconName =
+    component?.name ??
+    component?.displayName ??
+    component?.__name ??
+    component?.type?.name ??
+    component?.type?.__name;
+  return (iconName && mdiIconMap[iconName]) || fallback || "mdi-menu";
+};
+
+const getRouteIcon = (entry: Extract<SidebarEntry, { type: "route" }>): string =>
+  getMdiIcon(entry.icon, routePathIcons[entry.path]);
 
 const getItemKey = (entry: SidebarEntry, index: number): string => {
   if (entry.type === "divider") return "sidebar-divider";
@@ -49,136 +94,154 @@ const getItemKey = (entry: SidebarEntry, index: number): string => {
   return `app-${index}-${entry.title}`;
 };
 
-const onAppDropdownClick = (item: SidebarAppDropdownEntry, info: { key: Key }) => {
-  item.click(String(info.key));
+const onAppDropdownClick = (item: SidebarAppDropdownEntry, key: string | number) => {
+  item.click(String(key));
 };
 </script>
 
 <template>
-  <aside class="left-sidebar">
-    <a href="." class="logo">
-      <img :src="logoImage" />
+  <VSheet tag="aside" class="left-sidebar" elevation="0" rounded="0">
+    <a href="." class="logo" aria-label="ElementsPanel">
+      <img :src="logoImage" alt="ElementsPanel" />
     </a>
-    <nav class="sidebar-menu">
+
+    <VList class="sidebar-menu" density="comfortable" nav>
       <template v-for="(entry, index) in sidebarItems" :key="getItemKey(entry, index)">
-        <!-- Divider -->
-        <div v-if="entry.type === 'divider'" class="sidebar-divider" />
+        <VDivider v-if="entry.type === 'divider'" class="sidebar-divider" />
 
-        <!-- Route link -->
-        <a v-else-if="entry.type === 'route'" class="sidebar-item"
-          :class="[entry.customClass, { 'sidebar-item-active': isRouteActive(entry.path) }]"
-          @click.prevent="handleToPage(entry.path)">
-          <component :is="getRouteIcon(entry)" class="sidebar-item-icon" />
-          <span class="sidebar-item-text">{{ entry.name }}</span>
-        </a>
+        <VListItem
+          v-else-if="entry.type === 'route'"
+          class="sidebar-item"
+          :class="entry.customClass"
+          :active="isRouteActive(entry.path)"
+          active-color="primary"
+          rounded="xl"
+          :title="String(entry.name ?? '')"
+          :prepend-icon="getRouteIcon(entry)"
+          @click="handleToPage(entry.path)"
+        />
 
-        <!-- App menu (dropdown) -->
-        <a-dropdown v-else-if="entry.type === 'app-dropdown'" trigger="click" placement="topRight">
-          <a class="sidebar-item" @click.prevent>
-            <component :is="entry.icon" v-if="entry.icon" class="sidebar-item-icon" />
-            <span class="sidebar-item-text">{{ entry.title }}</span>
-          </a>
-          <template #overlay>
-            <a-menu @click="onAppDropdownClick(entry, $event)">
-              <a-menu-item v-for="m in entry.menus" :key="String(m.value)">
-                {{ m.title }}
-              </a-menu-item>
-            </a-menu>
+        <VMenu v-else-if="entry.type === 'app-dropdown'" location="end" :offset="8">
+          <template #activator="{ props: menuProps }">
+            <VListItem
+              v-bind="menuProps"
+              class="sidebar-item"
+              :class="entry.customClass"
+              rounded="xl"
+              :title="entry.title"
+              :prepend-icon="entry.mdiIcon || getMdiIcon(entry.icon)"
+              append-icon="mdi-chevron-right"
+            />
           </template>
-        </a-dropdown>
+          <VList class="sidebar-submenu" density="comfortable" nav>
+            <VListItem
+              v-for="menuItem in entry.menus"
+              :key="String(menuItem.value)"
+              rounded="xl"
+              :title="menuItem.title"
+              @click="onAppDropdownClick(entry, menuItem.value)"
+            />
+          </VList>
+        </VMenu>
 
-        <!-- App menu (single click) -->
-        <a v-else-if="entry.type === 'app'" class="sidebar-item" :class="entry.customClass"
-          @click.prevent="entry.click()">
-          <component :is="entry.icon" v-if="entry.icon" class="sidebar-item-icon" />
-          <span class="sidebar-item-text">{{ entry.title }}</span>
-        </a>
+        <VListItem
+          v-else-if="entry.type === 'app'"
+          class="sidebar-item"
+          :class="entry.customClass"
+          rounded="xl"
+          :title="entry.title"
+          :prepend-icon="entry.mdiIcon || getMdiIcon(entry.icon)"
+          @click="entry.click()"
+        />
       </template>
-    </nav>
-  </aside>
+    </VList>
+  </VSheet>
 </template>
 
 <style lang="scss" scoped>
+.left-sidebar {
+  display: flex;
+  flex: 0 0 240px;
+  flex-direction: column;
+  width: 240px;
+  min-width: 240px;
+  text-align: left;
+  background-color: var(--app-header-bg);
+  color: var(--app-header-text-color);
+  backdrop-filter: saturate(180%) blur(20px);
+  padding: 20px 12px;
+  transition: width 0.3s ease;
+}
+
+.left-sidebar:hover {
+  width: 246px;
+  min-width: 246px;
+  flex-basis: 246px;
+}
+
 .logo {
   display: block;
-  text-align: center;
   padding-top: 10px;
   padding-bottom: 18px;
+  text-align: center;
 
   img {
     height: 20px;
   }
 }
 
-.left-sidebar:hover {
-  width: 246px;
-}
-
-.left-sidebar {
-  display: flex;
-  flex-direction: column;
-  flex: 0 0 240px;
-  text-align: left;
-  background-color: var(--app-header-bg);
-  backdrop-filter: saturate(180%) blur(20px);
-  padding: 20px 12px;
-  transition: all 0.3s ease;
-}
-
 .sidebar-menu {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  padding: 8px;
-  color: var(--app-header-text-color);
   flex: 1;
-  gap: 8px;
   width: 100%;
   overflow-y: auto;
+  padding: 8px;
+  color: var(--app-header-text-color);
+  background: transparent;
 }
 
 .sidebar-item {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 12px 32px 12px 20px;
-  color: inherit;
-  text-decoration: none;
-  cursor: pointer;
-  border-radius: 6px;
-  transition: all 0.4s ease;
   width: 100%;
+  min-height: 44px;
+  margin: 3px 0;
+  color: inherit;
+  cursor: pointer;
 
-  &:hover {
-    background-color: rgba(128, 128, 128, 0.15);
+  :deep(.v-list-item__prepend > .v-icon) {
+    margin-inline-end: 12px;
+    color: currentColor;
   }
 
-  &.sidebar-item-active {
-    background-color: rgba(128, 128, 128, 0.22);
-  }
-
-  .sidebar-item-icon {
-    font-size: 16px;
-    flex-shrink: 0;
-  }
-
-  .sidebar-item-text {
+  :deep(.v-list-item-title) {
     font-size: 14px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
   }
+}
+
+.sidebar-item:hover {
+  background-color: rgba(128, 128, 128, 0.15);
+}
+
+.sidebar-item :deep(.v-list-item__overlay) {
+  opacity: 0;
+}
+
+.sidebar-item.v-list-item--active {
+  background-color: rgba(64, 156, 216, 0.16);
+  color: inherit;
 }
 
 .sidebar-divider {
-  height: 1px;
-  background-color: rgba(128, 128, 128, 0.18);
   margin: 12px 0;
-  flex-shrink: 0;
-  width: 100%;
+  opacity: 0.18;
 }
 
-/* Same semantic highlight as AppHeader */
+.sidebar-submenu {
+  min-width: 180px;
+  padding: 8px;
+  border-radius: 16px;
+  background: var(--app-header-bg);
+  color: var(--app-header-text-color);
+}
+
 :deep(.nav-button-warning:hover) {
   background-color: rgba(255, 193, 7, 0.2) !important;
 }
